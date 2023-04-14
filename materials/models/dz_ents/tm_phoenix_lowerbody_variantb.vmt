@@ -1,0 +1,10 @@
+"patch"
+{
+	"include" "materials/models/dz_ents/tm_phoenix_shared.vmt"
+	"insert"
+	{
+	"$baseTexture" "models\dz_ents\tm_phoenix_lowerbody_variantB"
+	"$bumpmap" "models\dz_ents\tm_phoenix_lowerbody_normal"
+
+	}
+}

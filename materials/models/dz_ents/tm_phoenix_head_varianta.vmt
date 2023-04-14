@@ -1,0 +1,11 @@
+"patch"
+{
+	"include" "materials/models/dz_ents/tm_phoenix_shared.vmt"
+	"insert"
+	{
+	"$baseTexture" "models\dz_ents\tm_phoenix_head_variantA"
+	"$bumpmap" "models\dz_ents\tm_phoenix_head_normal"
+	"$rimlight" "0"
+"$nodecal" 1
+	}
+}

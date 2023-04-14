@@ -1,0 +1,13 @@
+vertexlitgeneric
+{
+	"$basetexture"            "models/dz_ents/coop_ammo_stash_color"
+	"$detail"                 "models/dz_ents/chainlink_fence_detail_001"
+	"$detailscale"            "[12 5 5]"
+	"$detailblendfactor"      ".7"
+	"$envmaplightscale"       "1"
+	"$envmaplightscaleminmax" "[0 1.5]"
+	"$envmap"                 "models/dz_ents/metal_railing_cube"
+	"$envmapmask"             "models/dz_ents/coop_ammo_stash_mask"
+	"$envmapcontrast"         ".2"
+	"$surfaceprop"            "metal"
+}
