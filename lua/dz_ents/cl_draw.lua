@@ -115,7 +115,6 @@ hook.Add("HUDPaint", "dz_ents_healthbar", function()
         surface.SetDrawColor(220, 150, 0, a * 255)
         surface.DrawRect(pos2d[k].x - w / 2, pos2d[k].y - 8, w_diff, h)
 
-        v[2] = math.Approach(v[2], k:GetBoxes(), FrameTime() * k.MaxBoxCount * k.PickupDelay * 0.25 + 2)
+        v[2] = math.Approach(v[2], k:GetBoxes(), FrameTime() * (1 / k.PickupDelay) * 0.85)
     end
-
 end)

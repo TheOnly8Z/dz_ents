@@ -13,7 +13,7 @@ ENT.Model = "models/props_survival/crates/crate_ammobox_belt.mdl"
 
 ENT.MaxBoxCount = 16
 ENT.PickupDelay = 0.45
-ENT.BoxCost = 3
+ENT.BoxCost = 3.2
 
 if SERVER then
     function ENT:UpdateBoxes()

@@ -48,8 +48,9 @@ if SERVER then
     end
 
     function ENT:CanUse(ply)
-        return ply:Alive() and (not IsValid(ply.DZ_ENTS_Interacting) or ply.DZ_ENTS_Interacting == self)
-                and ply:GetEyeTrace().Entity == self and ply:EyePos():DistToSqr(self:GetPos()) <= 10000
+        return ply:Alive() and (not IsValid(ply.DZ_ENTS_Interacting) or ply.DZ_ENTS_Interacting == self) and ply:KeyDown(IN_USE)
+                and ply:EyePos():DistToSqr(self:GetPos()) <= 10000 and
+                (ply:GetEyeTrace().Entity == self or ply:GetAimVector():Dot((self:GetPos() - ply:EyePos()):GetNormalized()) >= 0.75)
     end
 
     function ENT:Use(ply)

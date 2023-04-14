@@ -13,6 +13,13 @@ ENT.UseType = SIMPLE_USE
 ENT.CollisionGroup = COLLISION_GROUP_WEAPON
 ENT.Bodygroups = nil
 
+ENT.PropertyBlacklist = {
+    ["bodygroups"] = true,
+    ["skin"] = true,
+    ["drive"] = true,
+    ["bone_manipulate"] = true,
+}
+
 if SERVER then
 
     function ENT:Initialize()
@@ -44,4 +51,10 @@ if SERVER then
             self.ImpactSound = nil
         end
     end
+end
+
+function ENT:CanProperty(ply, prop)
+    if self.PropertyBlacklist[prop] then return false end
+
+    return true
 end

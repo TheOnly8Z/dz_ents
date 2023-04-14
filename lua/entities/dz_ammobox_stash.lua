@@ -12,7 +12,7 @@ ENT.SortOrder = 3
 ENT.Model = "models/dz_ents/ammo_stash.mdl"
 
 ENT.MaxBoxCount = 20
-ENT.PickupDelay = 0.3
+ENT.PickupDelay = 0.35
 ENT.BoxCost = 2
 
 if SERVER then

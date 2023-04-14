@@ -5,8 +5,6 @@ ENT.Base = "dz_base"
 ENT.PrintName = "Base DZ Armor"
 ENT.Spawnable = false
 
-ENT.Model = "models/props_survival/upgrades/upgrade_dz_armor.mdl"
-
 ENT.GiveArmor = nil
 ENT.GiveArmorType = nil
 ENT.GiveHelmet = false
