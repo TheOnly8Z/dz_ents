@@ -86,6 +86,14 @@ hook.Add("PopulateEntities", "dz_ents", function(pnlContent, tree, anode)
                 self:DoPopulate()
                 pnlContent:SwitchPanel(self.PropPanel)
             end
+
+            -- InternalDoClick is called on the first child node before our function override.
+            -- Remove its results and regenerate our cool tab
+            if tree:Root():GetChildNode(0) == node then
+                node.PropPanel:Remove()
+                node.PropPanel = nil
+                node:InternalDoClick()
+            end
         end
 
         -- Select the first node
