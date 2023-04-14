@@ -1,6 +1,6 @@
 AddCSLuaFile()
 
-ENT.Base = "dz_ammobox"
+ENT.Base = "dz_base_ammo"
 
 ENT.PrintName = "Ammo Box (Stash)"
 ENT.Spawnable = true

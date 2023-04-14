@@ -1,6 +1,6 @@
 AddCSLuaFile()
 
-ENT.Base = "dz_pickup"
+ENT.Base = "dz_base_pickup"
 
 ENT.PrintName = "ExoJump"
 ENT.Spawnable = true

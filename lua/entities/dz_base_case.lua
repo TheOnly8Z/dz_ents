@@ -1,11 +1,11 @@
 AddCSLuaFile()
 
-ENT.Base = "base_anim"
+ENT.Base = "dz_base"
 
-ENT.PrintName = "Base DZ Case Entity"
+ENT.PrintName = "Base DZ Case"
 ENT.Spawnable = false
 
-ENT.IsDZEnt = true
+ENT.CollisionGroup = COLLISION_GROUP_NONE
 
 ENT.SubCategory = "Cases"
 ENT.SortOrder = 0
@@ -22,12 +22,12 @@ local punchsounds = {
     "dz_ents/metal_vent_impact_06.wav",
 }
 
+DEFINE_BASECLASS(ENT.Base)
+
 if SERVER then
 
     function ENT:Initialize()
-        self:SetModel(self.Model)
-        self:PhysicsInit(SOLID_VPHYSICS)
-        self:PhysWake()
+        BaseClass.Initialize(self)
 
         self:SetMaxHealth(self.MaxHealth)
         self:SetHealth(self.MaxHealth)
@@ -100,25 +100,6 @@ if SERVER then
 
         return dmginfo:GetDamage()
     end
-
-    --[[]
-    function ENT:PhysicsCollide(colData, collider)
-        -- https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/game/server/physics.cpp
-        if colData.DeltaTime >= 0.05 and colData.Speed >= 70 then
-            -- can't use EmitSound since volume is not controllable with soundscripts
-            local surfdata = util.GetSurfaceData(colData.OurSurfaceProps)
-            self.ImpactSound = CreateSound(self, colData.Speed > 200 and surfdata.impactHardSound or surfdata.impactSoftSound)
-            self.ImpactSound:PlayEx(math.Clamp(colData.Speed / 320, 0, 1), 100)
-        end
-    end
-
-    function ENT:OnRemove()
-        if self.ImpactSound then
-            self.ImpactSound:Stop()
-            self.ImpactSound = nil
-        end
-    end
-    ]]
 else
     function ENT:Draw()
         self:DrawModel()

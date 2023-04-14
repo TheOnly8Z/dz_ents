@@ -1,13 +1,9 @@
 AddCSLuaFile()
 
-ENT.Base = "base_anim"
+ENT.Base = "dz_base"
 
 ENT.PrintName = "Base DZ Interactable"
 ENT.Spawnable = false
-
-ENT.IsDZEnt = true
-ENT.SubCategory = "Pickups"
-ENT.SortOrder = 0
 
 ENT.Model = "models/props_junk/cardboard_box004a.mdl"
 
@@ -45,14 +41,6 @@ if SERVER then
 
     function ENT:GetInteractDuration(ply)
         return self.InteractTime
-    end
-
-    function ENT:Initialize()
-        self:SetModel(self.Model)
-        self:PhysicsInit(SOLID_VPHYSICS)
-        self:SetUseType(SIMPLE_USE)
-        self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
-        self:PhysWake()
     end
 
     function ENT:IsUsing()

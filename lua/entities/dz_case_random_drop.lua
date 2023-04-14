@@ -1,6 +1,6 @@
 AddCSLuaFile()
 
-ENT.Base = "dz_case"
+ENT.Base = "dz_base_case"
 
 ENT.PrintName = "Airdrop Case"
 ENT.Spawnable = true

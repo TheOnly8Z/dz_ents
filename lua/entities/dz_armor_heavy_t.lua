@@ -1,6 +1,6 @@
 AddCSLuaFile()
 
-ENT.Base = "dz_armor"
+ENT.Base = "dz_base_armor"
 
 ENT.PrintName = "Heavy Assault Suit (T)"
 ENT.Spawnable = true
