@@ -124,12 +124,28 @@ end)
 hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
     timer.Simple(0, function()
         local give = GetConVar("dzents_armor_onspawn"):GetInt()
-        if give >= 1 then
-            ply:DZ_ENTS_SetArmor(DZ_ENTS_ARMOR_KEVLAR)
-            ply:SetArmor(100)
-        end
-        if give >= 2 then
-            ply:DZ_ENTS_GiveHelmet()
+        if give == 3 then
+            ply:DZ_ENTS_GiveHelmet() -- here for formality even though heavy armor protects all hitgroups (SWCS hit effects)
+            ply:DZ_ENTS_SetArmor(math.random() <= 0.5 and DZ_ENTS_ARMOR_HEAVY_CT or DZ_ENTS_ARMOR_HEAVY_T)
+            ply:SetArmor(200)
+            ply:SetMaxArmor(200)
+
+            local speed = GetConVar("dzents_armor_heavy_speed"):GetInt()
+            if speed > 0 then
+                ply.DZ_ENTS_OriginalSpeed = {ply:GetSlowWalkSpeed(), ply:GetWalkSpeed(), ply:GetRunSpeed()}
+                ply:SetSlowWalkSpeed(math.min(ply:GetSlowWalkSpeed(), speed))
+                ply:SetWalkSpeed(speed)
+                ply:SetRunSpeed(speed * 2)
+            end
+        else
+            if give >= 1 then
+                ply:DZ_ENTS_SetArmor(DZ_ENTS_ARMOR_KEVLAR)
+                ply:SetArmor(100)
+                ply:SetMaxArmor(100)
+            end
+            if give >= 2 then
+                ply:DZ_ENTS_GiveHelmet()
+            end
         end
     end)
 end)
@@ -202,6 +218,9 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         if wep:IsPlayer() then wep = wep:GetActiveWeapon() end
         local class = IsValid(wep) and wep:GetClass() or ""
 
+        -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ")")
+        -- print("Armored: " .. tostring(armored) .. "; Blockable: " .. tostring(blockable))
+
         if armored and blockable then -- Blockable damage is hitting a protected part. Do our job!
             local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo) or 1 -- penetration value. 1 means fully penetrate, 0 means no penetration
             if DZ_ENTS:GetCanonicalClass(class) then
@@ -209,14 +228,14 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             else
                 -- Fallback AP value based on ammo category if possible
                 local ammocat = DZ_ENTS:GetWeaponAmmoCategory(game.GetAmmoName(wep:IsWeapon() and wep:GetPrimaryAmmoType() or -1) or "")
+
                 if ammocat then
                     ap = DZ_ENTS.AmmoTypeAP[ammocat]
                 end
             end
 
-            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, math.Clamp(armorratio * ap * 2, 0, 1), true)
-            -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ") with " .. ap .. " armor pen")
-            -- print("WANT", ply:Health() - healthdmg2, newarmor2, "(" .. healthdmg2 .. " dmg, " .. (ply:Armor() - newarmor2) .. " armor)")
+            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio * ap * 2, true)
+            -- print("WANT", ply:Health() - healthdmg, newarmor, "(" .. healthdmg .. " dmg, " .. (ply:Armor() - newarmor) .. " armor)")
             ply.PendingArmor = newarmor
             ply.DZENTS_ArmorHit = hitgroup ~= HITGROUP_GENERIC
             ply:SetArmor(0) -- don't let engine do armor calculation
@@ -260,7 +279,6 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
             end
             ply.DZ_ENTS_OriginalSpeed = nil
         elseif ply:DZ_ENTS_HasArmor() then
-
             ply:DZ_ENTS_RemoveArmor()
         end
         if ply:DZ_ENTS_HasHelmet() then
