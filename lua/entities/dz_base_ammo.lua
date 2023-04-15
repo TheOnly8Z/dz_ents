@@ -13,6 +13,7 @@ ENT.Center = nil
 ENT.MaxBoxCount = 4
 ENT.PickupDelay = 0.6
 ENT.BoxCost = 1
+ENT.AmmoMult = 1
 
 -- uses DZ_ENTS.SortingAmmoTypes for my sanity
 ENT.AmmoGiven = {
@@ -78,7 +79,7 @@ if SERVER then
         ply.DZ_ENTS_NextUse = CurTime() + self.PickupDelay
         self:SetBoxes(box - 1)
         self:UpdateBoxes()
-        ply:GiveAmmo(adjustedammo, ammotype, true)
+        ply:GiveAmmo(math.min(adjustedammo * self.AmmoMult), ammotype, true)
         self:EmitSound("dz_ents/pickup_ammo_0" .. math.random(1, 2) .. ".wav")
 
         net.Start("dz_ents_takeammo")

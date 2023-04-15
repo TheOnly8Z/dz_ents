@@ -11,7 +11,7 @@ ENT.SortOrder = 20
 
 ENT.Model = "models/props_survival/upgrades/parachutepack.mdl"
 
-ENT.InteractTime = 4
+ENT.InteractTime = 1.5
 
 if SERVER then
 

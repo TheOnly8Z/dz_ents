@@ -29,8 +29,9 @@ if SERVER then
     function ENT:Initialize()
         BaseClass.Initialize(self)
 
-        self:SetMaxHealth(self.MaxHealth)
-        self:SetHealth(self.MaxHealth)
+        local max = math.ceil(self.MaxHealth * GetConVar("dzents_case_health"):GetFloat())
+        self:SetMaxHealth(max)
+        self:SetHealth(max)
         self:PrecacheGibs()
     end
 
@@ -50,7 +51,7 @@ if SERVER then
 
         self:EmitSound("dz_ents/container_death_0" .. math.random(1, 3) .. ".wav", 80, math.Rand(97, 103), 1)
 
-        local gibmode = GetConVar("dzents_crate_gib"):GetInt()
+        local gibmode = GetConVar("dzents_case_gib"):GetInt()
         if gibmode == 0 then
             local eff = EffectData()
             eff:SetOrigin(self:GetPos())
@@ -69,7 +70,7 @@ if SERVER then
     function ENT:OnTakeDamage(dmginfo)
 
         if bit.band(dmginfo:GetDamageType(), DMG_DROWN + DMG_NERVEGAS + DMG_POISON + DMG_RADIATION + DMG_SONIC) > 0 then return 0 end
-        if self.Reinforced and DZ_ENTS:IsFistDamage(dmginfo) then
+        if self.Reinforced and DZ_ENTS:IsFistDamage(dmginfo) and GetConVar("dzents_case_reinforced"):GetBool() then
             self:EmitSound(punchsounds[math.random(1, #punchsounds)])
             if (self.LastHit or 0) + 5 <= CurTime() and dmginfo:GetAttacker():IsPlayer() then
                 DZ_ENTS:Hint(dmginfo:GetAttacker(), 1, self)
