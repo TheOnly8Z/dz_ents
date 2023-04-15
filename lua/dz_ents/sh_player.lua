@@ -1,9 +1,5 @@
 local PLAYER = FindMetaTable("Player")
 
--- CS values
-DZ_ENTS_ARMOR_RATIO = 0.5
-DZ_ENTS_ARMOR_BONUS = 0.5
-
 -- one type of armor (enum)
 DZ_ENTS_ARMOR_NONE = 0
 DZ_ENTS_ARMOR_KEVLAR = 1
@@ -136,7 +132,7 @@ end)
 
 -- Simulate armor calculation
 -- https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/player.cpp#L1061
-local function calcarmor(dmginfo, armor, flBonus, flRatio)
+local function calcarmor(dmginfo, armor, flBonus, flRatio, no_partial)
     local old = GetConVar("player_old_armor"):GetBool()
     if not flBonus then
         flBonus = old and 0.5 or 1
@@ -155,14 +151,14 @@ local function calcarmor(dmginfo, armor, flBonus, flRatio)
             flArmor = math.max(1, flArmor)
         end
 
-        if flArmor > armor then
+        if not no_partial and flArmor > armor then
             flArmor = armor * (1 / flBonus)
             flNew = dmg - flArmor
             -- m_DmgSave = armor -- ?
             armor = 0
         else
             -- m_DmgSave = flArmor
-            armor = armor - flArmor
+            armor = math.max(0, armor - flArmor)
         end
 
         dmg = flNew
@@ -174,8 +170,13 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
     if not ply:IsPlayer() or not ply:LastHitGroup() then return end
 
     if bit.bor(dmginfo:GetDamageType(), DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST) == 0 then return end
+    if dmginfo:IsFallDamage() then return end
 
     local hitgroup = ply:LastHitGroup()
+    if dmginfo:IsDamageType(DMG_BLAST) then
+        hitgroup = HITGROUP_GENERIC
+    end
+
     local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
 
     if uselogic > 0 and (ply:DZ_ENTS_HasArmor() or ply:DZ_ENTS_HasHelmet()) then
@@ -184,10 +185,11 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         if wep:IsPlayer() then wep = wep:GetActiveWeapon() end
         local class = IsValid(wep) and wep:GetClass() or ""
 
-        local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo) or 1 -- this is the penetration multiplier
+        local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo) or 1 -- penetration value. 1 means fully penetrate, 0 means no penetration
         if DZ_ENTS:GetCanonicalClass(class) then
             ap = DZ_ENTS.CanonicalWeapons[DZ_ENTS:GetCanonicalClass(class)].ArmorPenetration
         else
+            -- Fallback AP value based on ammo category if possible
             local ammocat = DZ_ENTS:GetWeaponAmmoCategory(game.GetAmmoName(wep:IsWeapon() and wep:GetPrimaryAmmoType() or -1) or "")
             if ammocat then
                 ap = DZ_ENTS.AmmoTypeAP[ammocat]
@@ -195,7 +197,8 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         end
 
         if armored then
-            local healthdmg2, newarmor2 = calcarmor(dmginfo, ply:Armor(), 0.5, 1 * ap)
+            -- In CS:GO, armor will always fully reduce damage even if the amount is insufficient (at least the wiki claims so).
+            local healthdmg2, newarmor2 = calcarmor(dmginfo, ply:Armor(), 0.5, math.Clamp(1 * ap, 0, 1), true)
             -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ") with " .. ap .. " armor pen")
             -- print("WANT", ply:Health() - healthdmg2, newarmor2, "(" .. healthdmg2 .. " dmg, " .. (ply:Armor() - newarmor2) .. " armor)")
             ply.PendingArmor = newarmor2

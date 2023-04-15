@@ -17,6 +17,8 @@ if SERVER then
 
     function ENT:InteractFinish(ply)
         self:EmitSound("dz_ents/parachute_pickup_success_01.wav")
+        ply:DZ_ENTS_GiveEquipment(DZ_ENTS_EQUIP_PARACHUTE)
+        DZ_ENTS:Hint(ply, 10)
         return true -- true to remove entity
     end
 
@@ -28,6 +30,10 @@ if SERVER then
     end
 
     function ENT:CanInteract(ply)
+        if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE) then
+            DZ_ENTS:Hint(ply, 12)
+            return false
+        end
         return true
     end
 end
