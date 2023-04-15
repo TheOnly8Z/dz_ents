@@ -27,13 +27,13 @@ function PLAYER:DZ_ENTS_GiveHelmet()
 end
 
 function PLAYER:DZ_ENTS_RemoveHelmet(drop)
-    if drop and self:DZ_ENTS_HasHelmet() and self:DZ_ENTS_GetArmor() <= DZ_ENTS_ARMOR_KEVLAR then
+    if drop and self:DZ_ENTS_HasHelmet() and self:DZ_ENTS_GetArmor() <= DZ_ENTS_ARMOR_KEVLAR and (self:Armor() > 0 or self.PendingArmor > 0) then
         local ent = ents.Create("dz_armor_helmet")
         if IsValid(ent) then
             ent:SetPos(self:GetPos() + Vector(0, 0, 72))
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
-            ent:SetVelocity(self:GetVelocity() + VectorRand() * 256)
+            ent:GetPhysicsObject():SetVelocityInstantaneous(ent:GetVelocity() + VectorRand() * 32)
             SafeRemoveEntityDelayed(ent, 60)
         end
     end
@@ -57,14 +57,14 @@ function PLAYER:DZ_ENTS_SetArmor(armor)
 end
 
 function PLAYER:DZ_ENTS_RemoveArmor(drop)
-    if drop and self:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_KEVLAR and self:Armor() > 0 then
+    if drop and self:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_KEVLAR and (self:Armor() > 0 or  (self.PendingArmor or 0) > 0) then
         local ent = ents.Create("dz_armor_kevlar")
         if IsValid(ent) then
-            ent.GiveArmor = math.min(self:Armor(), 100)
+            ent.GiveArmor = math.min((self.PendingArmor or 0) or self:Armor(), 100)
             ent:SetPos(self:GetPos() + Vector(0, 0, 72))
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
-            ent:SetVelocity(self:GetVelocity() + VectorRand() * 256)
+            ent:GetPhysicsObject():SetVelocityInstantaneous(ent:GetVelocity() + VectorRand() * 32)
             SafeRemoveEntityDelayed(ent, 60)
         end
     end
@@ -112,8 +112,9 @@ function PLAYER:DZ_ENTS_IsArmoredHitGroup(hitgroup)
             or (armorregions[hitgroup] and (uselogic == 2 or self:DZ_ENTS_HasArmor())) -- otherwise check armored regions
 end
 
+-- DoPlayerDeath happens _before_ PostEntityTakeDamage, so Armor is 0 for purposes of damage calc.
 hook.Add("DoPlayerDeath", "dz_ents_player", function(ply)
-    local drop = GetConVar("dzents_armor_deathdrop"):GetBool() and ply:Armor() > 0
+    local drop = GetConVar("dzents_armor_deathdrop"):GetBool() and (ply:Armor() > 0 or (ply.PendingArmor or 0) > 0)
     ply:DZ_ENTS_RemoveHelmet(drop)
     ply:DZ_ENTS_RemoveArmor(drop)
     ply:DZ_ENTS_RemoveEquipment()
@@ -170,6 +171,9 @@ end
 
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
     if not ply:IsPlayer() or not ply:LastHitGroup() then return end
+
+    if bit.bor(dmginfo:GetDamageType(), DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST) == 0 then return end
+
     local hitgroup = ply:LastHitGroup()
     local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
 
@@ -183,7 +187,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         if DZ_ENTS:GetCanonicalClass(class) then
             ap = DZ_ENTS.CanonicalWeapons[DZ_ENTS:GetCanonicalClass(class)].ArmorPenetration
         else
-            local ammocat = DZ_ENTS:GetWeaponAmmoCategory(game.GetAmmoName(wep:GetPrimaryAmmoType() or -1) or "")
+            local ammocat = DZ_ENTS:GetWeaponAmmoCategory(game.GetAmmoName(wep:IsWeapon() and wep:GetPrimaryAmmoType() or -1) or "")
             if ammocat then
                 ap = DZ_ENTS.AmmoTypeAP[ammocat]
             end
@@ -218,7 +222,7 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
     -- print("POST", ply:Health(), ply:Armor())
 
     -- it may break
-    if ply:Armor() <= 0 then
+    if ply:Alive() and ply:Armor() <= 0 then
         if ply:DZ_ENTS_HasArmor() then
             ply:DZ_ENTS_RemoveArmor()
         end
