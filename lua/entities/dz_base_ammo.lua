@@ -15,16 +15,6 @@ ENT.PickupDelay = 0.6
 ENT.BoxCost = 1
 ENT.AmmoMult = 1
 
--- uses DZ_ENTS.SortingAmmoTypes for my sanity
-ENT.AmmoGiven = {
-    ["pistol"] = 10,
-    ["smg"] = 6, -- could be either smg or carbine. awkward!
-    ["rifle"] = 5,
-    ["shotgun"] = 4,
-    ["magnum"] = 2,
-    ["sniper"] = 1,
-}
-
 DEFINE_BASECLASS(ENT.Base)
 
 function ENT:SetupDataTables()
@@ -56,7 +46,8 @@ if SERVER then
         local wep = ply:GetActiveWeapon()
         local ammotype = game.GetAmmoName(wep:GetPrimaryAmmoType() or -1) or ""
         local canonclass = DZ_ENTS:GetCanonicalClass(wep:GetClass())
-        local ammogiven = canonclass and DZ_ENTS.CanonicalWeapons[canonclass].AmmoPickup or self.AmmoGiven[DZ_ENTS:GetWeaponAmmoCategory(ammotype)]
+        local ammogiven = canonclass and DZ_ENTS.CanonicalWeapons[canonclass].AmmoPickup or DZ_ENTS.AmmoTypeGiven[DZ_ENTS:GetWeaponAmmoCategory(ammotype)]
+
         if not ammogiven then return end
         ammogiven = ammogiven * GetConVar("dzents_ammo_mult"):GetFloat()
 

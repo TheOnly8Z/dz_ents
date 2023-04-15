@@ -306,3 +306,12 @@ DZ_ENTS.AmmoTypeAP = {
     ["rifle"] = 0.85,
     ["sniper"] = 1,
 }
+
+DZ_ENTS.AmmoTypeGiven = {
+    ["pistol"] = 10,
+    ["smg"] = 6, -- could be either smg or carbine. awkward!
+    ["rifle"] = 5,
+    ["shotgun"] = 4,
+    ["magnum"] = 2,
+    ["sniper"] = 1,
+}

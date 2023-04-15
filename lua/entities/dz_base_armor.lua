@@ -17,6 +17,9 @@ if SERVER then
             if not ply:DZ_ENTS_HasHelmet() then
                 ply:DZ_ENTS_GiveHelmet()
                 helmet = true
+                if (self.GiveArmor or 0) <= 0 then
+                    ply:SetArmor(math.max(ply:Armor(), 10))
+                end
             end
         end
 
