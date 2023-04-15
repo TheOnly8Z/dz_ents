@@ -299,11 +299,11 @@ end
 
 -- uses SortingAmmoTypes
 DZ_ENTS.AmmoTypeAP = {
-    ["pistol"] = 0.6,
-    ["magnum"] = 0.9,
-    ["smg"] = 0.7,
-    ["shotgun"] = 0.5,
-    ["rifle"] = 0.85,
+    ["pistol"] = 0.4,
+    ["magnum"] = 0.75,
+    ["smg"] = 0.65,
+    ["shotgun"] = 0.4,
+    ["rifle"] = 0.8,
     ["sniper"] = 1,
 }
 
