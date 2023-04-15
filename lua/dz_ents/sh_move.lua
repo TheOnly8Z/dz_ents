@@ -32,22 +32,30 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             ply.DZ_ENTS_ParachuteSound:Play()
             ply:EmitSound("DZ_ENTS.ParachuteOpen")
         end
-    elseif not ply:GetNWBool("DZ_Ents.Para.Auto")
+    elseif not ply:GetNWBool("DZ_Ents.Para.Auto") and ply:GetMoveType() == MOVETYPE_WALK
             and not ply:IsOnGround() and ply:GetVelocity().z < -400
-            and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE) then
+            and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE)
+            and ply:GetInfoNum("cl_dzents_autoparachute", 0) == 1 then
         ply:SetNWBool("DZ_Ents.Para.Auto", true)
     end
 
     -- Parachute slow fall
-    if ply:IsOnGround() or ply:WaterLevel() > 0 then
-        ply:SetNWBool("DZ_Ents.Para.Open", false)
+    if ply:IsOnGround() or ply:WaterLevel() > 0 or ply:GetMoveType() ~= MOVETYPE_WALK then
+        if ply:GetNWBool("DZ_Ents.Para.Open") then
+            ply:SetNWBool("DZ_Ents.Para.Open", false)
+            if ply.DZ_ENTS_ParachuteSound then
+                ply.DZ_ENTS_ParachuteSound:FadeOut(1)
+                ply.DZ_ENTS_ParachuteSound = nil
+            end
+            if GetConVar("dzents_parachute_consume"):GetBool() then
+                ply:DZ_ENTS_RemoveEquipment(DZ_ENTS_EQUIP_PARACHUTE)
+                DZ_ENTS:Hint(ply, 14)
+            end
+        end
         ply:SetNWBool("DZ_Ents.Para.Auto", false)
         ply.DZ_ENTS_ParachutePending = nil
-        if ply.DZ_ENTS_ParachuteSound then
-            ply.DZ_ENTS_ParachuteSound:FadeOut(1)
-            ply.DZ_ENTS_ParachuteSound = nil
-        end
     elseif ply:GetNWBool("DZ_Ents.Para.Open") then
+
         local slowfall = -200
         local horiz_max = 300
         if vel.z < slowfall then

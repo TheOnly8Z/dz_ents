@@ -11,7 +11,7 @@ ENT.SortOrder = 21
 
 ENT.Model = "models/props_survival/upgrades/exojump.mdl"
 
-ENT.InteractTime = 1.5
+ENT.InteractTime = 1
 
 if SERVER then
 

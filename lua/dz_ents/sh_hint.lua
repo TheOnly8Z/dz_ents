@@ -12,6 +12,8 @@ DZ_ENTS.Hints = {
     [11] = {"You picked up an ExoJump.", false},
     [12] = {"You already have a Parachute.", true},
     [13] = {"You already have an ExoJump.", true},
+    [14] = {"Your parachute was used up."},
+
 }
 DZ_ENTS.HintBits = 6
 
