@@ -13,6 +13,9 @@ if SERVER then
     function ENT:Use(ply)
         local helmet = false
         local armor = false
+
+        local giveheavyarmor = self.GiveArmorType == DZ_ENTS_ARMOR_HEAVY_CT or self.GiveArmorType == DZ_ENTS_ARMOR_HEAVY_T
+
         if self.GiveHelmet then
             if not ply:DZ_ENTS_HasHelmet() then
                 ply:DZ_ENTS_GiveHelmet()
@@ -23,19 +26,31 @@ if SERVER then
             end
         end
 
-        if  (self.GiveArmor or 0) > 0 and ply:Armor() < self.GiveArmor then
-            -- ply:SetMaxArmor(math.max(ply:GetMaxArmor(), self.GiveArmor))
-            ply:SetArmor(self.GiveArmor)
+        if (self.GiveArmor or 0) > 0 and ply:Armor() < self.GiveArmor then
             armor = true
+            ply:SetArmor(self.GiveArmor)
             if self.GiveArmorType and ply:DZ_ENTS_GetArmor() <= self.GiveArmorType then
                 ply:DZ_ENTS_SetArmor(self.GiveArmorType)
+                if self.GiveArmorType == DZ_ENTS_ARMOR_KEVLAR then
+                    ply:SetMaxArmor(100)
+                elseif giveheavyarmor then
+                    ply:SetMaxArmor(200)
+
+                    local speed = GetConVar("dzents_armor_heavy_speed"):GetInt()
+                    if speed > 0 then
+                        ply:SetSlowWalkSpeed(math.min(ply:GetSlowWalkSpeed(), speed))
+                        ply:SetWalkSpeed(speed)
+                        ply:SetRunSpeed(speed * 2)
+                    end
+                end
             end
         end
 
         if helmet or armor then
-            if self.HeavyArmor then
+            if giveheavyarmor then
                 DZ_ENTS:Hint(ply, 8)
-                self:EmitSound( "dz_ents/armor_pickup_02.wav")
+                ply:EmitSound("dz_ents/armor_pickup_02.wav", 80, 90)
+                ply:EmitSound("items/ammopickup.wav", 80, 90)
                 self:Remove()
                 return
             elseif self.GiveHelmet and not helmet then
@@ -62,17 +77,15 @@ if SERVER then
                 DZ_ENTS:Hint(ply, 3)
             end
 
-            self:EmitSound("dz_ents/armor_pickup_01.wav")
+            ply:EmitSound("dz_ents/armor_pickup_01.wav")
             self:Remove()
         else
-            if self.HeavyArmor then
+            if giveheavyarmor then
                 DZ_ENTS:Hint(ply, 9)
-            elseif self.GiveHelmet and (self.GiveArmor or 0) > 0 then
-                DZ_ENTS:Hint(ply, 7)
-            elseif self.GiveHelmet then
-                DZ_ENTS:Hint(ply, 5)
-            else
+            elseif (self.GiveArmor or 0) > 0 then
                 DZ_ENTS:Hint(ply, 6)
+            else
+                DZ_ENTS:Hint(ply, 5)
             end
         end
     end

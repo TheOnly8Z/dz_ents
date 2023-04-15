@@ -48,6 +48,10 @@ function PLAYER:DZ_ENTS_HasArmor()
     return self:DZ_ENTS_GetArmor() ~= DZ_ENTS_ARMOR_NONE
 end
 
+function PLAYER:DZ_ENTS_HasHeavyArmor()
+    return self:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_CT or self:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_T
+end
+
 function PLAYER:DZ_ENTS_SetArmor(armor)
     self:SetNWInt("DZ_Ents.Armor", armor)
 end
@@ -103,8 +107,7 @@ function PLAYER:DZ_ENTS_IsArmoredHitGroup(hitgroup)
     local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
     if uselogic == 0 then return false end
 
-    local armor = self:DZ_ENTS_GetArmor()
-    return (armor == DZ_ENTS_ARMOR_HEAVY_CT or armor == DZ_ENTS_ARMOR_HEAVY_T) -- heavy armor covers all regions
+    return self:DZ_ENTS_HasHeavyArmor() -- heavy armor covers all regions
             or (hitgroup == HITGROUP_HEAD and (uselogic == 2 or self:DZ_ENTS_HasHelmet())) -- if hit head, check helmet
             or (armorregions[hitgroup] and (uselogic == 2 or self:DZ_ENTS_HasArmor())) -- otherwise check armored regions
 end
@@ -143,7 +146,7 @@ local function calcarmor(dmginfo, armor, flBonus, flRatio, no_partial)
     if dmginfo:IsDamageType(DMG_BLAST) and not game.SinglePlayer() then
         flBonus = flBonus * 2
     end
-    if armor > 0 and bit.band(dmginfo:GetDamageType(), DMG_FALL + DMG_DROWN + DMG_POISON + DMG_RADIATION) == 0 then
+    if armor > 0 then
         local flNew = dmg * flRatio
         local flArmor = (dmg - flNew) * flBonus
 
@@ -167,8 +170,13 @@ local function calcarmor(dmginfo, armor, flBonus, flRatio, no_partial)
     return dmg, armor
 end
 
+-- affects how much armor is reduced from damage
+local armorbonus = 0.5
+-- affects what fraction of damage is converted to armor damage (1 means none)
+local armorratio = 0.5
+
 local bitflags_blockable = DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST
-local bitflags_nohitgroup = DMG_BLAST_SURFACE + DMG_BLAST + DMG_BURN + DMG_RADIATION + DMG_POISON + DMG_ACID + DMG_CRUSH + DMG_NERVEGAS + DMG_DROWN
+local bitflags_nohitgroup = DMG_FALL + DMG_BLAST + DMG_RADIATION + DMG_CRUSH + DMG_DROWN + DMG_POISON
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
     if not ply:IsPlayer() then return end
     if dmginfo:IsFallDamage() then return end
@@ -180,6 +188,11 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
     end
 
     local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
+
+    -- Heavy Assault Suit reduces incoming damage before armor (even to non blockable damage).
+    if uselogic and ply:DZ_ENTS_HasHeavyArmor() then
+        dmginfo:ScaleDamage(GetConVar("dzents_armor_heavy_damage"):GetFloat())
+    end
 
     if uselogic > 0 and (ply:DZ_ENTS_HasArmor() or ply:DZ_ENTS_HasHelmet()) then
         local blockable = bit.band(dmginfo:GetDamageType(), bitflags_blockable) ~= 0
@@ -200,15 +213,15 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
                 end
             end
 
-            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), 0.5, math.Clamp(1 * ap, 0, 1), true)
+            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, math.Clamp(armorratio * ap * 2, 0, 1), true)
             -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ") with " .. ap .. " armor pen")
             -- print("WANT", ply:Health() - healthdmg2, newarmor2, "(" .. healthdmg2 .. " dmg, " .. (ply:Armor() - newarmor2) .. " armor)")
             ply.PendingArmor = newarmor
-            ply.DZENTS_ArmorHit = true
+            ply.DZENTS_ArmorHit = hitgroup ~= HITGROUP_GENERIC
             ply:SetArmor(0) -- don't let engine do armor calculation
             dmginfo:SetDamage(healthdmg)
         elseif armored and hitgroup ~= HITGROUP_GENERIC then -- Damage is not blockable, but is hitting an armored part. Still do armor reduction, but don't use AP
-            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), 0.5, 0.5)
+            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio)
             ply.PendingArmor = newarmor
             ply:SetArmor(0)
             dmginfo:SetDamage(healthdmg)

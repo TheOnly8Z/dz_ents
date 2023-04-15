@@ -12,6 +12,13 @@ sound.Add({
     sound = "dz_ents/dropzone_parachute_success_02.wav",
 })
 
+
+hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
+    if ply:DZ_ENTS_HasHeavyArmor() and not GetConVar("dzents_armor_heavy_sprint"):GetBool() then
+        cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
+    end
+end)
+
 local sqrt2 = 1.4142135
 hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
@@ -19,6 +26,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     local eyeangles = mv:GetAngles()
     local vel = mv:GetVelocity()
 
+    -- Open the parachute
     if (ply.DZ_ENTS_ParachutePending or mv:KeyPressed(IN_JUMP)) and ply:GetMoveType() == MOVETYPE_WALK
             and not ply:IsOnGround() and ply:WaterLevel() == 0 and not ply:GetNWBool("DZ_Ents.Para.Open")
             and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE) and ply:GetVelocity().z < -600 then
