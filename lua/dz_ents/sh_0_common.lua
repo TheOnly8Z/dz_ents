@@ -180,10 +180,6 @@ DZ_ENTS.CanonicalWeapons = {
 }
 
 DZ_ENTS.CanonicalLookup = {
-    ---------------------------------------- SWCS
-    ["weapon_swcs_m4a1_silencer"] = "m4a1_silencer",
-    ["weapon_swcs_m4a1"] = "m4a1",
-
     ---------------------------------------- ArcCW Gunsmith Offensive
     ["arccw_go_ace"] = "galilar",
     ["arccw_go_ar15"] = "m4a1_silencer", -- semi auto because arctic hates me
@@ -201,6 +197,11 @@ DZ_ENTS.CanonicalLookup = {
     ---------------------------------------- ARC9 Gunsmith Reloaded
     ["arc9_go_elite_single"] = "elite",
     ["arc9_go_g1sg3"] = "g3sg1", -- WHAT THE FUCK?
+    ["arc9_go_m4a1"] = "m4a1_silencer",
+
+    ---------------------------------------- TFA CSGO
+    ["tfa_csgo_m4a1"] = "m4a1_silencer",
+    ["tfa_csgo_m4a4"] = "m4a1",
 }
 DZ_ENTS.ShortNameLookup = {
     ["p2000"] = "hkp2000",
@@ -237,7 +238,6 @@ function DZ_ENTS:GetCanonicalClass(class)
 
         if not canonclass then
             local exp = string.Explode("_", class, false)
-            local short = exp[#exp]
 
             -- ensure the weapon is part of an approved CSGO weapon pack
             local whitelisted = false
@@ -248,12 +248,22 @@ function DZ_ENTS:GetCanonicalClass(class)
                 end
             end
 
-            -- refer to lookup table first since some names are confusing
-            -- (e.g.: TFA CSGO's "m4a1" is the M4A1-S, but that is the canonical name for the M4A4. Thanks Valve!)
-            if whitelisted and DZ_ENTS.ShortNameLookup[short] then
-                canonclass = DZ_ENTS.ShortNameLookup[short]
-            elseif whitelisted and DZ_ENTS.CanonicalWeapons[short] then
-                canonclass = short
+            for i = 1, math.min(#exp, 2) do
+                local short
+                if i == 1 then
+                    short = exp[#exp]
+                else
+                    short = exp[#exp - 1] .. "_" .. exp[#exp]
+                end
+                if not short then continue end
+
+                -- some names are confusing
+                -- (e.g.: TFA CSGO's "m4a1" is the M4A1-S, but that is the canonical name for the M4A4. Thanks Valve!)
+                if whitelisted and DZ_ENTS.CanonicalWeapons[short] then
+                    canonclass = short
+                elseif whitelisted and DZ_ENTS.ShortNameLookup[short] then
+                    canonclass = DZ_ENTS.ShortNameLookup[short]
+                end
             end
         end
 
