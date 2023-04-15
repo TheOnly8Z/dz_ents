@@ -179,7 +179,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         if wep:IsPlayer() then wep = wep:GetActiveWeapon() end
         local class = IsValid(wep) and wep:GetClass()
 
-        local ap = 1 -- this is the penetration multiplier
+        local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo) or 1 -- this is the penetration multiplier
         if DZ_ENTS:GetCanonicalClass(class) then
             ap = DZ_ENTS.CanonicalWeapons[DZ_ENTS:GetCanonicalClass(class)].ArmorPenetration
         else
