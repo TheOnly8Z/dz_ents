@@ -38,6 +38,7 @@ if SERVER then
 
                     local speed = GetConVar("dzents_armor_heavy_speed"):GetInt()
                     if speed > 0 then
+                        ply.DZ_ENTS_OriginalSpeed = {ply:GetSlowWalkSpeed(), ply:GetWalkSpeed(), ply:GetRunSpeed()}
                         ply:SetSlowWalkSpeed(math.min(ply:GetSlowWalkSpeed(), speed))
                         ply:SetWalkSpeed(speed)
                         ply:SetRunSpeed(speed * 2)

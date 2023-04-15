@@ -115,6 +115,7 @@ end
 -- DoPlayerDeath happens _before_ PostEntityTakeDamage, so Armor is 0 for purposes of damage calc.
 hook.Add("DoPlayerDeath", "dz_ents_player", function(ply)
     local drop = GetConVar("dzents_armor_deathdrop"):GetBool() and (ply:Armor() > 0 or (ply.PendingArmor or 0) > 0)
+    ply.DZ_ENTS_OriginalSpeed = nil
     ply:DZ_ENTS_RemoveHelmet(drop)
     ply:DZ_ENTS_RemoveArmor(drop)
     ply:DZ_ENTS_RemoveEquipment()
@@ -250,7 +251,16 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
 
     -- If armor value hits zero, we will lose our armor and helmet
     if ply:Alive() and ply:Armor() <= 0 then
-        if ply:DZ_ENTS_HasArmor() then
+        if ply:DZ_ENTS_HasHeavyArmor() then
+            ply:DZ_ENTS_RemoveArmor()
+            if ply.DZ_ENTS_OriginalSpeed then
+                ply:SetSlowWalkSpeed(ply.DZ_ENTS_OriginalSpeed[1])
+                ply:SetWalkSpeed(ply.DZ_ENTS_OriginalSpeed[2])
+                ply:SetRunSpeed(ply.DZ_ENTS_OriginalSpeed[3])
+            end
+            ply.DZ_ENTS_OriginalSpeed = nil
+        elseif ply:DZ_ENTS_HasArmor() then
+
             ply:DZ_ENTS_RemoveArmor()
         end
         if ply:DZ_ENTS_HasHelmet() then
