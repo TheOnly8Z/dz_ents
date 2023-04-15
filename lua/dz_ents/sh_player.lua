@@ -151,6 +151,7 @@ local function calcarmor(dmginfo, armor, flBonus, flRatio, no_partial)
             flArmor = math.max(1, flArmor)
         end
 
+        -- In CS:GO, armor will always fully reduce damage even if the amount is insufficient (at least the wiki claims so).
         if not no_partial and flArmor > armor then
             flArmor = armor * (1 / flBonus)
             flNew = dmg - flArmor
@@ -166,46 +167,52 @@ local function calcarmor(dmginfo, armor, flBonus, flRatio, no_partial)
     return dmg, armor
 end
 
+local bitflags_blockable = DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST
+local bitflags_nohitgroup = DMG_BLAST_SURFACE + DMG_BLAST + DMG_BURN + DMG_RADIATION + DMG_POISON + DMG_ACID + DMG_CRUSH + DMG_NERVEGAS + DMG_DROWN
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
-    if not ply:IsPlayer() or not ply:LastHitGroup() then return end
-
-    if bit.bor(dmginfo:GetDamageType(), DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST) == 0 then return end
+    if not ply:IsPlayer() then return end
     if dmginfo:IsFallDamage() then return end
 
+    -- Check the hitgroup of the damage. Certain damage types should not have hitgroups so strip hitgroup if that's the case.
     local hitgroup = ply:LastHitGroup()
-    if dmginfo:IsDamageType(DMG_BLAST) then
+    if bit.band(dmginfo:GetDamageType(), bitflags_nohitgroup) ~= 0 then
         hitgroup = HITGROUP_GENERIC
     end
 
     local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
 
     if uselogic > 0 and (ply:DZ_ENTS_HasArmor() or ply:DZ_ENTS_HasHelmet()) then
+        local blockable = bit.band(dmginfo:GetDamageType(), bitflags_blockable) ~= 0
         local armored = ply:DZ_ENTS_IsArmoredHitGroup(hitgroup)
         local wep = dmginfo:GetInflictor()
         if wep:IsPlayer() then wep = wep:GetActiveWeapon() end
         local class = IsValid(wep) and wep:GetClass() or ""
 
-        local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo) or 1 -- penetration value. 1 means fully penetrate, 0 means no penetration
-        if DZ_ENTS:GetCanonicalClass(class) then
-            ap = DZ_ENTS.CanonicalWeapons[DZ_ENTS:GetCanonicalClass(class)].ArmorPenetration
-        else
-            -- Fallback AP value based on ammo category if possible
-            local ammocat = DZ_ENTS:GetWeaponAmmoCategory(game.GetAmmoName(wep:IsWeapon() and wep:GetPrimaryAmmoType() or -1) or "")
-            if ammocat then
-                ap = DZ_ENTS.AmmoTypeAP[ammocat]
+        if armored and blockable then -- Blockable damage is hitting a protected part. Do our job!
+            local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo) or 1 -- penetration value. 1 means fully penetrate, 0 means no penetration
+            if DZ_ENTS:GetCanonicalClass(class) then
+                ap = DZ_ENTS.CanonicalWeapons[DZ_ENTS:GetCanonicalClass(class)].ArmorPenetration
+            else
+                -- Fallback AP value based on ammo category if possible
+                local ammocat = DZ_ENTS:GetWeaponAmmoCategory(game.GetAmmoName(wep:IsWeapon() and wep:GetPrimaryAmmoType() or -1) or "")
+                if ammocat then
+                    ap = DZ_ENTS.AmmoTypeAP[ammocat]
+                end
             end
-        end
 
-        if armored then
-            -- In CS:GO, armor will always fully reduce damage even if the amount is insufficient (at least the wiki claims so).
-            local healthdmg2, newarmor2 = calcarmor(dmginfo, ply:Armor(), 0.5, math.Clamp(1 * ap, 0, 1), true)
+            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), 0.5, math.Clamp(1 * ap, 0, 1), true)
             -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ") with " .. ap .. " armor pen")
             -- print("WANT", ply:Health() - healthdmg2, newarmor2, "(" .. healthdmg2 .. " dmg, " .. (ply:Armor() - newarmor2) .. " armor)")
-            ply.PendingArmor = newarmor2
+            ply.PendingArmor = newarmor
+            ply.DZENTS_ArmorHit = true
             ply:SetArmor(0) -- don't let engine do armor calculation
-            dmginfo:SetDamage(healthdmg2)
-        else
-            -- ignore armor since the body part isn't protected
+            dmginfo:SetDamage(healthdmg)
+        elseif armored and hitgroup ~= HITGROUP_GENERIC then -- Damage is not blockable, but is hitting an armored part. Still do armor reduction, but don't use AP
+            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), 0.5, 0.5)
+            ply.PendingArmor = newarmor
+            ply:SetArmor(0)
+            dmginfo:SetDamage(healthdmg)
+        elseif not GetConVar("dzents_armor_fallback"):GetBool() then -- If fallback is on, use HL2 logic. Otherwise we are unprotected
             ply.PendingArmor = ply:Armor()
             ply:SetArmor(0)
         end
@@ -213,9 +220,11 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 end)
 
 hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
-    if not ply:IsPlayer() then return end
+    if not took or not ply:IsPlayer() then return end
     if ply.PendingArmor then
         ply:SetArmor(ply.PendingArmor)
+    end
+    if ply.DZENTS_ArmorHit then
         if ply:LastHitGroup() == HITGROUP_HEAD then
             ply:EmitSound("dz_ents/headshot" .. math.random(1, 2) .. ".wav")
         elseif armorregions[ply:LastHitGroup()] then
@@ -223,9 +232,10 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
         end
     end
     ply.PendingArmor = nil
+    ply.DZENTS_ArmorHit = nil
     -- print("POST", ply:Health(), ply:Armor())
 
-    -- it may break
+    -- If armor value hits zero, we will lose our armor and helmet
     if ply:Alive() and ply:Armor() <= 0 then
         if ply:DZ_ENTS_HasArmor() then
             ply:DZ_ENTS_RemoveArmor()
