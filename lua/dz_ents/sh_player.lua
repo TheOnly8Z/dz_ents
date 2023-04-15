@@ -105,6 +105,7 @@ local armorregions = {
 function PLAYER:DZ_ENTS_IsArmoredHitGroup(hitgroup)
     local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
     if uselogic == 0 then return false end
+
     local armor = self:DZ_ENTS_GetArmor()
     return (armor == DZ_ENTS_ARMOR_HEAVY_CT or armor == DZ_ENTS_ARMOR_HEAVY_T) -- heavy armor covers all regions
             or (hitgroup == HITGROUP_HEAD and (uselogic == 2 or self:DZ_ENTS_HasHelmet())) -- if hit head, check helmet
@@ -170,8 +171,10 @@ end
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
     if not ply:IsPlayer() or not ply:LastHitGroup() then return end
     local hitgroup = ply:LastHitGroup()
+    local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
 
-    if ply:DZ_ENTS_IsArmoredHitGroup(hitgroup) then
+    if uselogic > 0 and (ply:DZ_ENTS_HasArmor() or ply:DZ_ENTS_HasHelmet()) then
+        local armored = ply:DZ_ENTS_IsArmoredHitGroup(hitgroup)
         local wep = dmginfo:GetInflictor()
         if wep:IsPlayer() then wep = wep:GetActiveWeapon() end
         local class = IsValid(wep) and wep:GetClass()
@@ -186,14 +189,18 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             end
         end
 
-        -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ") with " .. ap .. " armor pen")
-
-        local healthdmg2, newarmor2 = calcarmor(dmginfo, ply:Armor(), 0.5, 1 * ap)
-        -- print("WANT", ply:Health() - healthdmg2, newarmor2, "(" .. healthdmg2 .. " dmg, " .. (ply:Armor() - newarmor2) .. " armor)")
-
-        ply.PendingArmor = newarmor2
-        ply:SetArmor(0) -- don't let engine do armor calculation
-        dmginfo:SetDamage(healthdmg2)
+        if armored then
+            local healthdmg2, newarmor2 = calcarmor(dmginfo, ply:Armor(), 0.5, 1 * ap)
+            -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ") with " .. ap .. " armor pen")
+            -- print("WANT", ply:Health() - healthdmg2, newarmor2, "(" .. healthdmg2 .. " dmg, " .. (ply:Armor() - newarmor2) .. " armor)")
+            ply.PendingArmor = newarmor2
+            ply:SetArmor(0) -- don't let engine do armor calculation
+            dmginfo:SetDamage(healthdmg2)
+        else
+            -- ignore armor since the body part isn't protected
+            ply.PendingArmor = ply:Armor()
+            ply:SetArmor(0)
+        end
     end
 end)
 
@@ -203,10 +210,20 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
         ply:SetArmor(ply.PendingArmor)
         if ply:LastHitGroup() == HITGROUP_HEAD then
             ply:EmitSound("dz_ents/headshot" .. math.random(1, 2) .. ".wav")
-        else
+        elseif armorregions[ply:LastHitGroup()] then
             ply:EmitSound("dz_ents/kevlar" .. math.random(1, 5) .. ".wav")
         end
     end
     ply.PendingArmor = nil
     -- print("POST", ply:Health(), ply:Armor())
+
+    -- it may break
+    if ply:Armor() <= 0 then
+        if ply:DZ_ENTS_HasArmor() then
+            ply:DZ_ENTS_RemoveArmor()
+        end
+        if ply:DZ_ENTS_HasHelmet() then
+            ply:DZ_ENTS_RemoveHelmet()
+        end
+    end
 end)

@@ -180,6 +180,10 @@ DZ_ENTS.CanonicalWeapons = {
 }
 
 DZ_ENTS.CanonicalLookup = {
+    ---------------------------------------- SWCS
+    ["weapon_swcs_m4a1_silencer"] = "m4a1_silencer",
+    ["weapon_swcs_m4a1"] = "m4a1",
+
     ---------------------------------------- ArcCW Gunsmith Offensive
     ["arccw_go_ace"] = "galilar",
     ["arccw_go_ar15"] = "m4a1_silencer", -- semi auto because arctic hates me
