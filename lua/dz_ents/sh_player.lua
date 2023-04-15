@@ -96,6 +96,7 @@ function PLAYER:DZ_ENTS_RemoveEquipment(equip)
 end
 
 local armorregions = {
+    [HITGROUP_GENERIC] = true, -- blast damage etc.
     [HITGROUP_CHEST] = true,
     [HITGROUP_STOMACH] = true,
     [HITGROUP_LEFTARM] = true,
