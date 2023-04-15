@@ -11,10 +11,10 @@ ENT.SortOrder = 3
 
 ENT.Model = "models/dz_ents/ammo_stash.mdl"
 
-ENT.MaxBoxCount = 5
-ENT.PickupDelay = 0.8
-ENT.BoxCost = 1
-ENT.AmmoMult = 2
+ENT.MaxBoxCount = 15
+ENT.PickupDelay = 0.33
+ENT.BoxCost = 1.875
+ENT.AmmoMult = 1
 
 if SERVER then
     function ENT:UpdateBoxes()

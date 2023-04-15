@@ -70,7 +70,13 @@ if SERVER then
         ply.DZ_ENTS_NextUse = CurTime() + self.PickupDelay
         self:SetBoxes(box - 1)
         self:UpdateBoxes()
-        ply:GiveAmmo(math.min(adjustedammo * self.AmmoMult), ammotype, true)
+
+        if swcs and wep.IsSWCSWeapon and wep.GetReserveAmmo then
+            wep:SetReserveAmmo(wep:GetReserveAmmo() + math.min(adjustedammo * self.AmmoMult))
+        else
+            ply:GiveAmmo(math.min(adjustedammo * self.AmmoMult), ammotype, true)
+        end
+
         self:EmitSound("dz_ents/pickup_ammo_0" .. math.random(1, 2) .. ".wav")
 
         net.Start("dz_ents_takeammo")
