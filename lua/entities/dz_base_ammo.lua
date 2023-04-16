@@ -78,7 +78,7 @@ if SERVER then
         ply.DZ_ENTS_NextUse = CurTime() + self.PickupDelay
         self.DZ_ENTS_NextUse = CurTime() + self.PickupDelay
 
-        if swcs and wep.IsSWCSWeapon and wep.GetReserveAmmo then
+        if swcs and wep.IsSWCSWeapon and GetConVar("swcs_weapon_individual_ammo") and GetConVar("swcs_weapon_individual_ammo"):GetBool() and wep.GetReserveAmmo then
             wep:SetReserveAmmo(wep:GetReserveAmmo() + adjustedammo)
         else
             ply:GiveAmmo(adjustedammo, ammotype, true)

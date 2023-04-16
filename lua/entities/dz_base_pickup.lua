@@ -6,7 +6,7 @@ ENT.PrintName = "Base DZ Interactable"
 ENT.Spawnable = false
 
 ENT.Model = "models/props_junk/cardboard_box004a.mdl"
-
+ENT.UseType = CONTINUOUS_USE
 ENT.InteractTime = 1
 
 function ENT:SetupDataTables()
