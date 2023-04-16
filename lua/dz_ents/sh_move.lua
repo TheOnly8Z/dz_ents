@@ -33,9 +33,6 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         ply:SetNWBool("DZ_Ents.Para.Open", true)
         ply.DZ_ENTS_ParachutePending = nil
         if SERVER then
-            -- local chute = ents.Create("DZ_Ents.Para.Open")
-            -- chute:SetOwner(ply)
-            -- chute:Spawn()
             ply.DZ_ENTS_ParachuteSound = CreateSound(ply, "DZ_ENTS.ParachuteDeploy")
             ply.DZ_ENTS_ParachuteSound:Play()
             ply:EmitSound("DZ_ENTS.ParachuteOpen")
@@ -48,14 +45,14 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     end
 
     -- Parachute slow fall
-    if ply:IsOnGround() or ply:WaterLevel() > 0 or ply:GetMoveType() ~= MOVETYPE_WALK then
+    if not ply:Alive() or ply:IsOnGround() or ply:WaterLevel() > 0 or ply:GetMoveType() ~= MOVETYPE_WALK then
         if ply:GetNWBool("DZ_Ents.Para.Open") then
             ply:SetNWBool("DZ_Ents.Para.Open", false)
             if ply.DZ_ENTS_ParachuteSound then
-                ply.DZ_ENTS_ParachuteSound:FadeOut(1)
+                ply.DZ_ENTS_ParachuteSound:FadeOut(0.25)
                 ply.DZ_ENTS_ParachuteSound = nil
             end
-            if GetConVar("dzents_parachute_consume"):GetBool() then
+            if ply:Alive() and GetConVar("dzents_parachute_consume"):GetBool() then
                 ply:DZ_ENTS_RemoveEquipment(false, DZ_ENTS_EQUIP_PARACHUTE)
                 DZ_ENTS:Hint(ply, 14)
             end
@@ -83,7 +80,6 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         vel = vel + eyeangles:Forward() * desiredmoveforward * FrameTime()
         vel = vel + eyeangles:Right() * desiredmoveleft * FrameTime()
 
-
         local speedSqr = vel.x * vel.x + vel.y * vel.y
         local diff = speedSqr / (horiz_max * horiz_max)
         -- print(math.sqrt(speedSqr), horiz_max, diff)
@@ -95,22 +91,16 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
         mv:SetVelocity(vel)
     elseif ply:GetNWBool("DZ_Ents.Para.Auto") then
-        local trlen = math.Clamp(vel.z * 0.4, -1024, -328)
+        local trlen = math.Clamp(vel.z * 0.5, -1024, -328)
         local tr = util.TraceLine({
             start = ply:GetPos(),
             endpos = ply:GetPos() + Vector(0, 0, trlen),
             mask = MASK_PLAYERSOLID,
             filter = ply
         })
-        if tr.Hit then
+        if tr.Hit or bit.band(tr.Contents, CONTENTS_WATER) ~= 0 then
             ply.DZ_ENTS_ParachutePending = true
             ply:SetNWBool("DZ_Ents.Para.Auto", false)
-            -- if SERVER then
-            --     local chute = ents.Create("DZ_Ents.Para.Open")
-            --     chute:SetOwner(ply)
-            --     chute:Spawn()
-            --     ply:EmitSound("profiteers/para_open.wav", 110)
-            -- end
         end
     end
 end)
