@@ -38,6 +38,6 @@ CreateConVar("dzents_equip_deathdrop", 1, FCVAR_ARCHIVE, "On death, drop the Par
 CreateConVar("dzents_parachute_onspawn", 0, FCVAR_ARCHIVE, "Give a parachute on spawn.", 0, 1)
 CreateConVar("dzents_parachute_consume", 1, FCVAR_ARCHIVE, "After parachute is deployed and released, it is used up.", 0, 1)
 CreateConVar("dzents_parachute_fall", 200, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Target vertical velocity when using parachute. Higher value means faster falling.", 50, 500)
-CreateConVar("dzents_parachute_threshold", 600, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Minimum downwards velocity for parachute deployment. Negative values allow for deploying while rising in the air.")
+CreateConVar("dzents_parachute_threshold", 700, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Minimum downwards velocity for parachute deployment. Negative values allow for deploying while rising in the air.")
 CreateConVar("dzents_parachute_drag", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when using parachute. Higher value slows players down further.", 0)
 CreateConVar("dzents_exojump_onspawn", 0, FCVAR_ARCHIVE, "Give an ExoJump on spawn.", 0, 1)
