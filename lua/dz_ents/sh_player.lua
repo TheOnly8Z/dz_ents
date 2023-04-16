@@ -30,7 +30,7 @@ function PLAYER:DZ_ENTS_RemoveHelmet(drop)
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
             ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
-            SafeRemoveEntityDelayed(ent, 60)
+            ent:MarkForRemove()
         end
     end
 
@@ -65,7 +65,7 @@ function PLAYER:DZ_ENTS_RemoveArmor(drop)
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
             ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
-            SafeRemoveEntityDelayed(ent, 60)
+            ent:MarkForRemove()
         end
     end
     self:SetNWInt("DZ_Ents.Armor", DZ_ENTS_ARMOR_NONE)
@@ -104,8 +104,7 @@ function PLAYER:DZ_ENTS_RemoveEquipment(drop, equip)
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
             ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
-
-            SafeRemoveEntityDelayed(ent, 60)
+            ent:MarkForRemove()
         end
     end
     if drop and bit.band(dropped, DZ_ENTS_EQUIP_EXOJUMP) ~= 0 then
@@ -115,7 +114,7 @@ function PLAYER:DZ_ENTS_RemoveEquipment(drop, equip)
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
             ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
-            SafeRemoveEntityDelayed(ent, 60)
+            ent:MarkForRemove()
         end
     end
 end

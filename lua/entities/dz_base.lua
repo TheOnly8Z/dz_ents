@@ -61,6 +61,22 @@ if SERVER then
         self:SetRenderFX(kRenderFxFadeSlow)
         SafeRemoveEntityDelayed(self, 1)
     end
+
+    function ENT:MarkForRemove(delay)
+        if delay or GetConVar("dzents_cleanup_drop"):GetFloat() > 0 then
+            timer.Simple(delay or GetConVar("dzents_cleanup_drop"):GetFloat(), function()
+                if IsValid(self) and self:AllowMarkedRemove() then
+                    self:FadeAndRemove()
+                elseif IsValid(self) then
+                    self:MarkForRemove(5) -- try again later
+                end
+            end)
+        end
+    end
+
+    function ENT:AllowMarkedRemove()
+        return true
+    end
 end
 
 function ENT:CanProperty(ply, prop)

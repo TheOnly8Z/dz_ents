@@ -48,8 +48,8 @@ if SERVER then
     end
 
     function ENT:CanUse(ply)
-        return ply:Alive() and (not IsValid(ply.DZ_ENTS_Interacting) or ply.DZ_ENTS_Interacting == self) and ply:KeyDown(IN_USE)
-                and ply:EyePos():DistToSqr(self:GetPos()) <= 10000 and
+        return ply:Alive() and (not IsValid(ply.DZ_ENTS_Interacting) or ply.DZ_ENTS_Interacting == self)
+                and ply:KeyDown(IN_USE) and ply:EyePos():DistToSqr(self:GetPos()) <= 10000 and
                 (ply:GetEyeTrace().Entity == self or ply:GetAimVector():Dot((self:GetPos() - ply:EyePos()):GetNormalized()) >= 0.75)
     end
 
@@ -114,6 +114,10 @@ if SERVER then
             end
 
         end
+    end
+
+    function ENT:AllowMarkedRemove()
+        return not self:IsUsing()
     end
 else
     local state = none

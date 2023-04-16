@@ -130,7 +130,7 @@ if SERVER then
                 local partial = GetConVar("dzents_ammo_regen_partial"):GetBool() and self.MaxBoxCount or 1
                 self:SetRegenTime(CurTime() + GetConVar("dzents_ammo_regen_delay"):GetFloat() / partial)
             elseif GetConVar("dzents_ammo_cleanup"):GetBool() and self:GetBoxes() == 0 then
-                SafeRemoveEntityDelayed(self, 5)
+                self:MarkForRemove(3)
             end
         end
     end
