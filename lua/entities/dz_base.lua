@@ -22,6 +22,8 @@ ENT.PropertyBlacklist = {
 
 if SERVER then
 
+    ENT.Dying = false
+
     function ENT:Initialize()
         self:SetModel(self.Model)
         self:PhysicsInit(SOLID_VPHYSICS)
@@ -32,7 +34,7 @@ if SERVER then
             self:SetBodyGroups(self.Bodygroups)
         end
 
-        -- self:PhysWake()
+        self:PhysWake()
     end
 
     function ENT:PhysicsCollide(colData, collider)
@@ -50,6 +52,14 @@ if SERVER then
             self.ImpactSound:Stop()
             self.ImpactSound = nil
         end
+    end
+
+    function ENT:FadeAndRemove()
+        if self.Dying then return end
+        self.Dying = true
+        self:SetRenderMode(RENDERMODE_TRANSADD)
+        self:SetRenderFX(kRenderFxFadeSlow)
+        SafeRemoveEntityDelayed(self, 1)
     end
 end
 

@@ -8,7 +8,7 @@ ENT.AdminOnly = true
 ENT.Category = "Danger Zone"
 
 ENT.SubCategory = "Ammo"
-ENT.SortOrder = 4
+ENT.SortOrder = 9
 
 ENT.Model = "models/dz_ents/coffeeammo.mdl"
 

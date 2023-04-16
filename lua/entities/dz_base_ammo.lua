@@ -14,6 +14,7 @@ ENT.MaxBoxCount = 4
 ENT.PickupDelay = 0.6
 ENT.BoxCost = 1
 ENT.AmmoMult = 1
+ENT.ConsumeOnUse = false
 
 DEFINE_BASECLASS(ENT.Base)
 
@@ -113,6 +114,11 @@ if SERVER then
         if self.MaxBoxCount > 0 then
             self:SetBoxes(box - 1)
             self:UpdateBoxes()
+
+            if self.ConsumeOnUse and self:GetBoxes() == 0 then
+                self:Remove()
+                return
+            end
 
             -- TODO: Maybe give some sort of indication for infinite ammo box being used
             net.Start("dz_ents_takeammo")
