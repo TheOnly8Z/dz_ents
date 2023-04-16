@@ -186,6 +186,46 @@ hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
     end)
 end)
 
+function DZ_ENTS.HeavyArmorCanPickup(class)
+    if not GetConVar("dzents_armor_heavy_norifle"):GetBool() then
+        return true
+    end
+    local canontbl = DZ_ENTS.CanonicalWeapons[DZ_ENTS:GetCanonicalClass(class)]
+    if canontbl and canontbl.Category == "Rifle" then
+        return false
+    end
+    return true
+end
+
+hook.Add("PlayerSwitchWeapon", "dz_ents_player", function(ply, old, new)
+    if ply:DZ_ENTS_HasHeavyArmor() and not DZ_ENTS.HeavyArmorCanPickup(new:GetClass()) then
+        if SERVER then
+            DZ_ENTS:Hint(ply, 15)
+            ply:DropWeapon(new)
+        end
+        return true
+    end
+end)
+
+hook.Add("PlayerGiveSWEP", "dz_ents_player", function(ply, class, swep)
+    if ply:DZ_ENTS_HasHeavyArmor() and not DZ_ENTS.HeavyArmorCanPickup(class) then
+        if SERVER then
+            DZ_ENTS:Hint(ply, 15)
+        end
+        return false
+    end
+end)
+
+hook.Add("PlayerCanPickupWeapon", "dz_ents_player", function(ply, wep)
+    if ply:DZ_ENTS_HasHeavyArmor() and not DZ_ENTS.HeavyArmorCanPickup(wep:GetClass()) then
+        -- if SERVER then
+        --     DZ_ENTS:Hint(ply, 15)
+        -- end
+        return false
+    end
+end)
+
+
 -- Simulate armor calculation
 -- https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/player.cpp#L1061
 local function calcarmor(dmginfo, armor, flBonus, flRatio, fHeavyArmorBonus)

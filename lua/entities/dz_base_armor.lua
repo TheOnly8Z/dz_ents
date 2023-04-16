@@ -41,6 +41,10 @@ if SERVER then
                         ply:SetWalkSpeed(speed)
                         ply:SetRunSpeed(speed * 2)
                     end
+
+                    if IsValid(ply:GetActiveWeapon()) and GetConVar("dzents_armor_heavy_norifle"):GetBool() and not DZ_ENTS.HeavyArmorCanPickup(ply:GetActiveWeapon():GetClass()) then
+                        ply:DropWeapon(ply:GetActiveWeapon())
+                    end
                 end
                 ply:DZ_ENTS_SetArmor(self.GiveArmorType)
             end
