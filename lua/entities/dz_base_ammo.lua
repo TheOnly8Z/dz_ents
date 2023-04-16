@@ -60,27 +60,6 @@ if SERVER then
         if (ammogiven or 0) <= 0 then return end
         ammogiven = ammogiven * self.AmmoMult * GetConVar("dzents_ammo_mult"):GetFloat()
 
-        -- see if we are reaching ammo limit
-        local max = 9999
-        local limit = GetConVar("dzents_ammo_limit"):GetFloat()
-        if limit > 0 then
-            if swcs and wep.IsSWCSWeapon and GetConVar("swcs_weapon_individual_ammo") and GetConVar("swcs_weapon_individual_ammo"):GetBool() and wep.GetReserveAmmo then
-                max = math.ceil(wep:GetPrimaryReserveMax() * limit)
-                ammogiven = math.min(ammogiven, max - wep:GetReserveAmmo())
-            else
-                max = DZ_ENTS.AmmoMaxReserveSWCS[ammotype] or game.GetAmmoMax(wep:GetPrimaryAmmoType() or -1)
-                if not max or max == 9999 then
-                    max = DZ_ENTS.AmmoMaxReserve[ammocat] or (GetConVar("gmod_maxammo"):GetInt() > 0 and GetConVar("gmod_maxammo"):GetInt()) or 100
-                end
-                max = math.ceil(max * limit)
-                ammogiven = math.min(ammogiven, max - ply:GetAmmoCount(ammotype))
-            end
-            if ammogiven <= 0 then
-                DZ_ENTS:Hint(ply, 16)
-                return
-            end
-        end
-
         -- adjust ammo given with box cost ("efficiency" of each use) and store fractional boxes
         local adjustedammo = ammogiven / self.BoxCost
         self.Remainder = (self.Remainder or 0) + (adjustedammo - math.floor(adjustedammo)) / adjustedammo
@@ -96,7 +75,28 @@ if SERVER then
         -- on the last box, give out all remainder
         if self.MaxBoxCount > 0 and box == 1 and self.Remainder > 0 then
             adjustedammo = adjustedammo + math.Round(self.Remainder * ammogiven / self.BoxCost)
-            self.Remainder = 0
+            -- self.Remainder = 0
+        end
+
+        -- see if we are reaching ammo limit
+        local max = 9999
+        local limit = GetConVar("dzents_ammo_limit"):GetFloat()
+        if limit > 0 then
+            if swcs and wep.IsSWCSWeapon and GetConVar("swcs_weapon_individual_ammo") and GetConVar("swcs_weapon_individual_ammo"):GetBool() and wep.GetReserveAmmo then
+                max = math.ceil(wep:GetPrimaryReserveMax() * limit)
+                adjustedammo = math.min(adjustedammo, max - wep:GetReserveAmmo())
+            else
+                max = DZ_ENTS.AmmoMaxReserveSWCS[ammotype] or game.GetAmmoMax(wep:GetPrimaryAmmoType() or -1)
+                if not max or max == 9999 then
+                    max = DZ_ENTS.AmmoMaxReserve[ammocat] or (GetConVar("gmod_maxammo"):GetInt() > 0 and GetConVar("gmod_maxammo"):GetInt()) or 100
+                end
+                max = math.ceil(max * limit)
+                adjustedammo = math.min(adjustedammo, max - ply:GetAmmoCount(ammotype))
+            end
+            if adjustedammo <= 0 then
+                DZ_ENTS:Hint(ply, 16)
+                return
+            end
         end
 
         -- the player cannot use other ammo boxes while this one is on cooldown.
@@ -168,6 +168,7 @@ if SERVER then
             else
                 self:SetRegenTime(0)
                 self:SetBoxes(self.MaxBoxCount)
+                self.Remainder = 0
             end
             self:UpdateBoxes()
             -- self:EmitSound("items/ammocrate_close.wav", 80, 90)
