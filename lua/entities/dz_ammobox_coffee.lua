@@ -7,7 +7,7 @@ ENT.Spawnable = true
 ENT.AdminOnly = true
 ENT.Category = "Danger Zone"
 
-ENT.SubCategory = "Pickups"
+ENT.SubCategory = "Ammo"
 ENT.SortOrder = 4
 
 ENT.Model = "models/dz_ents/coffeeammo.mdl"

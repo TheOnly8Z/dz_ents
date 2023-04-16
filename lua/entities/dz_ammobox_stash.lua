@@ -6,7 +6,7 @@ ENT.PrintName = "Ammo Stash"
 ENT.Spawnable = true
 ENT.Category = "Danger Zone"
 
-ENT.SubCategory = "Pickups"
+ENT.SubCategory = "Ammo"
 ENT.SortOrder = 3
 
 ENT.Model = "models/dz_ents/ammo_stash.mdl"

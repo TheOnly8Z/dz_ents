@@ -78,17 +78,6 @@ if SERVER then
         ply.DZ_ENTS_NextUse = CurTime() + self.PickupDelay
         self.DZ_ENTS_NextUse = CurTime() + self.PickupDelay
 
-        if self.MaxBoxCount > 0 then
-            self:SetBoxes(box - 1)
-            self:UpdateBoxes()
-
-            -- TODO: Maybe give some sort of indication for infinite ammo box being used
-            net.Start("dz_ents_takeammo")
-                net.WriteEntity(self)
-                net.WriteUInt(box, 6)
-            net.Send(ply)
-        end
-
         if swcs and wep.IsSWCSWeapon and wep.GetReserveAmmo then
             wep:SetReserveAmmo(wep:GetReserveAmmo() + adjustedammo)
         else
@@ -120,19 +109,36 @@ if SERVER then
             end
         end
 
-        if GetConVar("dzents_ammo_regen"):GetBool() then
-            self:SetRegenTime(CurTime() + GetConVar("dzents_ammo_regen_delay"):GetFloat())
-        elseif GetConVar("dzents_ammo_cleanup"):GetBool() and self:GetBoxes() == 0 then
-            SafeRemoveEntityDelayed(self, 5)
+        if self.MaxBoxCount > 0 then
+            self:SetBoxes(box - 1)
+            self:UpdateBoxes()
+
+            -- TODO: Maybe give some sort of indication for infinite ammo box being used
+            net.Start("dz_ents_takeammo")
+                net.WriteEntity(self)
+                net.WriteUInt(box, 6)
+            net.Send(ply)
+
+            if GetConVar("dzents_ammo_regen"):GetBool() then
+                local partial = GetConVar("dzents_ammo_regen_partial"):GetBool() and self.MaxBoxCount or 1
+                self:SetRegenTime(CurTime() + GetConVar("dzents_ammo_regen_delay"):GetFloat() / partial)
+            elseif GetConVar("dzents_ammo_cleanup"):GetBool() and self:GetBoxes() == 0 then
+                SafeRemoveEntityDelayed(self, 5)
+            end
         end
     end
 
     function ENT:Think()
         if self:GetRegenTime() > 0 and self:GetRegenTime() <= CurTime() then
-            self:SetRegenTime(0)
-            self:SetBoxes(self.MaxBoxCount)
+            if GetConVar("dzents_ammo_regen_partial"):GetBool() and self:GetBoxes() + 1 < self.MaxBoxCount then
+                self:SetRegenTime(CurTime() + GetConVar("dzents_ammo_regen_delay"):GetFloat() / self.MaxBoxCount)
+                self:SetBoxes(self:GetBoxes() + 1)
+            else
+                self:SetRegenTime(0)
+                self:SetBoxes(self.MaxBoxCount)
+            end
             self:UpdateBoxes()
-            self:EmitSound("items/ammocrate_close.wav", 80, 90)
+            -- self:EmitSound("items/ammocrate_close.wav", 80, 90)
         end
     end
 end

@@ -6,7 +6,7 @@ ENT.PrintName = "Ammo Box"
 ENT.Spawnable = true
 ENT.Category = "Danger Zone"
 
-ENT.SubCategory = "Pickups"
+ENT.SubCategory = "Ammo"
 ENT.SortOrder = 1
 
 ENT.Model = "models/props_survival/crates/crate_ammobox.mdl"
