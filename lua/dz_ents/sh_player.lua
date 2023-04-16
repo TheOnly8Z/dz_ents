@@ -220,7 +220,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
         if ply:DZ_ENTS_HasHeavyArmor() then
             armorratio = armorratio * 0.5
-            armorbonus = 0.33 * 0.33
+            armorbonus = 0.33
             heavyarmorbonus = 0.33
         end
 
