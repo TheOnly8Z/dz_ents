@@ -33,6 +33,8 @@ hook.Add("PostCleanupMap", "dz_ents_model", function()
 end)
 timer.Create("DZ_ENTS CSModel Garbage Collector", 5, 0, DZ_ENTS.CollectGarbage)
 
+local offset = Vector(0, 0, -10)
+local offset_crouch = Vector(0, 0, -20)
 hook.Add("PostPlayerDraw", "dzents_model", function(ply, flags)
     DZ_ENTS.CL_PlayerAttachModels[ply] = DZ_ENTS.CL_PlayerAttachModels[ply] or {}
 
@@ -62,7 +64,7 @@ hook.Add("PostPlayerDraw", "dzents_model", function(ply, flags)
 
     if IsValid(DZ_ENTS.CL_PlayerAttachModels[ply].chute) then
 
-        local pos, ang = ply:GetPos(), ply:GetAngles()
+        local pos, ang = ply:GetPos() + (ply:Crouching() and offset_crouch or offset), ply:GetAngles()
         ang:RotateAroundAxis(ang:Up(), 90)
 
         local model = DZ_ENTS.CL_PlayerAttachModels[ply].chute
