@@ -89,6 +89,7 @@ if SERVER then
         if self.ShellEffects then
             local eff = EffectData()
             eff:SetOrigin(self:GetPos())
+            eff:SetEntity(self)
 
             local shelltype = "RifleShellEject" -- used for effect
             if canonclass then
