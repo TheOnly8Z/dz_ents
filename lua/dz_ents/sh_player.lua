@@ -260,8 +260,8 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             heavyarmorbonus = 0.33
         end
 
-        print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ")")
-        print("Armored: " .. tostring(armored) .. "; Blockable: " .. tostring(blockable))
+        -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ")")
+        -- print("Armored: " .. tostring(armored) .. "; Blockable: " .. tostring(blockable))
 
         if armored and blockable then -- Blockable damage is hitting a protected part. Do our job!
             local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo) or 1 -- penetration value. 1 means fully penetrate, 0 means no penetration
@@ -310,7 +310,7 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
     end
     ply.PendingArmor = nil
     ply.DZENTS_ArmorHit = nil
-    print("POST", ply:Health(), ply:Armor(), took)
+    -- print("POST", ply:Health(), ply:Armor(), took)
 
     -- If armor value hits zero, we will lose our armor and helmet
     if ply:Alive() and ply:Armor() <= 0 then
