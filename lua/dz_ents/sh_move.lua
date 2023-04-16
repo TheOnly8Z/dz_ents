@@ -19,7 +19,6 @@ hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
     end
 end)
 
-local sqrt2 = 1.4142135
 hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
     local ang = ply:GetAngles()
@@ -29,7 +28,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     -- Open the parachute
     if (ply.DZ_ENTS_ParachutePending or mv:KeyPressed(IN_JUMP)) and ply:GetMoveType() == MOVETYPE_WALK
             and not ply:IsOnGround() and ply:WaterLevel() == 0 and not ply:GetNWBool("DZ_Ents.Para.Open")
-            and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE) and ply:GetVelocity().z < -600 then
+            and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE) and ply:GetVelocity().z < -GetConVar("dzents_parachute_threshold"):GetFloat() then
         ply:SetNWBool("DZ_Ents.Para.Open", true)
         ply.DZ_ENTS_ParachutePending = nil
         if SERVER then
@@ -61,12 +60,12 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         ply.DZ_ENTS_ParachutePending = nil
     elseif ply:GetNWBool("DZ_Ents.Para.Open") then
 
-        local slowfall = -200
-        local horiz_max = 300
-        if vel.z < slowfall then
-            vel.z = math.Approach(vel.z, slowfall, -FrameTime() * (1200 + math.abs(vel.z * 3)))
+        local slowfall = GetConVar("dzents_parachute_fall"):GetFloat()
+        local horiz_max = ply:GetWalkSpeed() + 50 --250
+        if vel.z < -slowfall then
+            vel.z = math.Approach(vel.z, -slowfall, FrameTime() * (slowfall * 6 + math.abs(vel.z * 3)))
         else
-            vel.z = math.Approach(vel.z, slowfall, -FrameTime() * 600)
+            vel.z = math.Approach(vel.z, -slowfall, FrameTime() * slowfall * 3)
         end
 
         -- vel = vel + eyeangles:Forward() * 100 * FrameTime()
@@ -74,31 +73,37 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         local desiredmoveforward = cmd:GetForwardMove()
         local desiredmoveleft = cmd:GetSideMove()
 
-        desiredmoveforward = math.Clamp(desiredmoveforward, -50, 150)
-        desiredmoveleft = math.Clamp(desiredmoveleft, -50, 50)
+        desiredmoveforward = math.Clamp(desiredmoveforward, -25, 75)
+        desiredmoveleft = math.Clamp(desiredmoveleft, -25, 25)
 
         vel = vel + eyeangles:Forward() * desiredmoveforward * FrameTime()
         vel = vel + eyeangles:Right() * desiredmoveleft * FrameTime()
 
-        local speedSqr = vel.x * vel.x + vel.y * vel.y
-        local diff = speedSqr / (horiz_max * horiz_max)
-        -- print(math.sqrt(speedSqr), horiz_max, diff)
+        -- Dampen horizontal velocity to simulate increased drag
+        local drag = GetConVar("dzents_parachute_drag"):GetFloat()
+        if drag > 0 then
+            local speedSqr = vel.x * vel.x + vel.y * vel.y
+            local diff = speedSqr / (horiz_max * horiz_max) - 1
+            local damp = FrameTime() * (50 + Lerp(math.Clamp(diff / 10, 0, 1), 0, 2000)) * drag
 
-        local xsign, ysign = (vel.x >= 0 and 1 or -1), (vel.y >= 0 and 1 or -1)
-        local xabs, yabs = math.abs(vel.x), math.abs(vel.y)
-        vel.x = xsign * math.Approach(xabs, 0, FrameTime() * 100 * diff / sqrt2)
-        vel.y = ysign * math.Approach(yabs, 0, FrameTime() * 100 * diff / sqrt2)
+            -- apply dampening to each axis relative to their magnitude to preserve direction
+            local x_weight = math.abs(vel.x) / (math.abs(vel.x) + math.abs(vel.y))
+            vel.x = math.Approach(vel.x, 0, damp * x_weight)
+            vel.y = math.Approach(vel.y, 0, damp * (1 - x_weight))
+        end
+
 
         mv:SetVelocity(vel)
+
     elseif ply:GetNWBool("DZ_Ents.Para.Auto") then
         local trlen = math.Clamp(vel.z * 0.5, -1024, -328)
         local tr = util.TraceLine({
             start = ply:GetPos(),
             endpos = ply:GetPos() + Vector(0, 0, trlen),
-            mask = MASK_PLAYERSOLID,
+            mask = bit.bor(MASK_PLAYERSOLID, MASK_WATER),
             filter = ply
         })
-        if tr.Hit or bit.band(tr.Contents, CONTENTS_WATER) ~= 0 then
+        if tr.Hit and (tr.Fraction * -trlen) > 72 then
             ply.DZ_ENTS_ParachutePending = true
             ply:SetNWBool("DZ_Ents.Para.Auto", false)
         end

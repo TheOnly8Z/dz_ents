@@ -104,6 +104,7 @@ function PLAYER:DZ_ENTS_RemoveEquipment(drop, equip)
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
             ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
+
             SafeRemoveEntityDelayed(ent, 60)
         end
     end

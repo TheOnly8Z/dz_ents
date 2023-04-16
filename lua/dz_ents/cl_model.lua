@@ -62,7 +62,7 @@ hook.Add("PostPlayerDraw", "dzents_model", function(ply, flags)
         model:SetRenderAngles(ang)
         model:FrameAdvance()
         if model:GetSequence() == 2 and model:GetCycle() == 1 then
-            model:SetSequence(0)
+            model:ResetSequence(0) -- idle animation
         end
 
         -- Refuse to draw the model on ourselves if we are in first person, since the parachute model lines up poorly.
@@ -75,12 +75,17 @@ end)
 
 hook.Add("PostDrawTranslucentRenderables", "dzents_model", function()
     for ply, tbl in pairs(DZ_ENTS.CL_PlayerAttachModels) do
-        if not IsValid(ply) or not ply:Alive() then
-            for name, mdl in pairs(tbl) do
-                if not IsValid(mdl) then continue end
+
+        for name, mdl in pairs(tbl) do
+            if not IsValid(mdl) then continue end
+            if not IsValid(ply) or not ply:Alive() then
                 tbl[name] = nil
                 mdl:SetRenderFX(kRenderFxFadeFast)
                 SafeRemoveEntityDelayed(mdl, 1)
+            elseif ply == LocalPlayer() and EyePos() == LocalPlayer():EyePos() then
+                -- Hide the model. We have to do this here because we can't DrawModel() every frame (renderfx will not work)
+                -- and PostPlayerDraw won't be called if we stopped drawing the player (switching from thirdperson, walking away from mirror, etc).
+                mdl:SetNoDraw(true)
             end
         end
     end
