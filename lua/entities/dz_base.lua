@@ -32,7 +32,7 @@ if SERVER then
             self:SetBodyGroups(self.Bodygroups)
         end
 
-        self:PhysWake()
+        -- self:PhysWake()
     end
 
     function ENT:PhysicsCollide(colData, collider)

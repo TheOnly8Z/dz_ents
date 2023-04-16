@@ -56,7 +56,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 ply.DZ_ENTS_ParachuteSound = nil
             end
             if GetConVar("dzents_parachute_consume"):GetBool() then
-                ply:DZ_ENTS_RemoveEquipment(DZ_ENTS_EQUIP_PARACHUTE)
+                ply:DZ_ENTS_RemoveEquipment(false, DZ_ENTS_EQUIP_PARACHUTE)
                 DZ_ENTS:Hint(ply, 14)
             end
         end

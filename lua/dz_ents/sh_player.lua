@@ -29,7 +29,7 @@ function PLAYER:DZ_ENTS_RemoveHelmet(drop)
             ent:SetPos(self:GetPos() + Vector(0, 0, 72))
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
-            ent:GetPhysicsObject():SetVelocityInstantaneous(ent:GetVelocity() + VectorRand() * 32)
+            ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
             SafeRemoveEntityDelayed(ent, 60)
         end
     end
@@ -61,10 +61,10 @@ function PLAYER:DZ_ENTS_RemoveArmor(drop)
         local ent = ents.Create("dz_armor_kevlar")
         if IsValid(ent) then
             ent.GiveArmor = math.min((self.PendingArmor or 0) or self:Armor(), 100)
-            ent:SetPos(self:GetPos() + Vector(0, 0, 72))
+            ent:SetPos(self:GetPos() + Vector(0, 0, 48))
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
-            ent:GetPhysicsObject():SetVelocityInstantaneous(ent:GetVelocity() + VectorRand() * 32)
+            ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
             SafeRemoveEntityDelayed(ent, 60)
         end
     end
@@ -87,11 +87,35 @@ function PLAYER:DZ_ENTS_GiveEquipment(equip)
     self:DZ_ENTS_SetEquipment(bit.bor(self:DZ_ENTS_GetEquipment(), equip))
 end
 
-function PLAYER:DZ_ENTS_RemoveEquipment(equip)
+function PLAYER:DZ_ENTS_RemoveEquipment(drop, equip)
+    local dropped = nil
     if equip then
+        dropped = equip
         self:DZ_ENTS_SetEquipment(bit.band(self:DZ_ENTS_GetEquipment(), bit.bnot(equip)))
     else
+        dropped = self:DZ_ENTS_GetEquipment()
         self:DZ_ENTS_SetEquipment(DZ_ENTS_EQUIP_NONE)
+    end
+
+    if drop and bit.band(dropped, DZ_ENTS_EQUIP_PARACHUTE) ~= 0 then
+        local ent = ents.Create("dz_pickup_parachute")
+        if IsValid(ent) then
+            ent:SetPos(self:GetPos() + Vector(0, 0, 36))
+            ent:SetAngles(self:GetAngles())
+            ent:Spawn()
+            ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
+            SafeRemoveEntityDelayed(ent, 60)
+        end
+    end
+    if drop and bit.band(dropped, DZ_ENTS_EQUIP_EXOJUMP) ~= 0 then
+        local ent = ents.Create("dz_pickup_exojump")
+        if IsValid(ent) then
+            ent:SetPos(self:GetPos() + Vector(0, 0, 16))
+            ent:SetAngles(self:GetAngles())
+            ent:Spawn()
+            ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
+            SafeRemoveEntityDelayed(ent, 60)
+        end
     end
 end
 
@@ -114,11 +138,12 @@ end
 
 -- DoPlayerDeath happens _before_ PostEntityTakeDamage, so Armor is 0 for purposes of damage calc.
 hook.Add("DoPlayerDeath", "dz_ents_player", function(ply)
-    local drop = GetConVar("dzents_armor_deathdrop"):GetBool() and (ply:Armor() > 0 or (ply.PendingArmor or 0) > 0)
+    local drop = GetConVar("dzents_armor_deathdrop"):GetBool() and (ply:Armor() > 0 or (ply.PendingArmor or 0) > 0) and not ply:DZ_ENTS_HasHeavyArmor()
+    local dropequip = GetConVar("dzents_equip_deathdrop"):GetBool()
     ply.DZ_ENTS_OriginalSpeed = nil
     ply:DZ_ENTS_RemoveHelmet(drop)
     ply:DZ_ENTS_RemoveArmor(drop)
-    ply:DZ_ENTS_RemoveEquipment()
+    ply:DZ_ENTS_RemoveEquipment(dropequip)
 end)
 
 hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
