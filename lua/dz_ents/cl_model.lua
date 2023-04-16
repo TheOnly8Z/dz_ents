@@ -1,5 +1,15 @@
 DZ_ENTS.CL_PlayerAttachModels = DZ_ENTS.CL_PlayerAttachModels or {}
 
+
+function DZ_ENTS.CleanupCSModels()
+    for ply, tbl in pairs(DZ_ENTS.CL_PlayerAttachModels) do
+        for _, mdl in pairs(tbl) do
+            SafeRemoveEntity(mdl)
+        end
+    end
+end
+concommand.Add("cl_dzents_debug_cleanupcsmodel", DZ_ENTS.CleanupCSModels)
+
 function DZ_ENTS.CollectGarbage()
     local removed = 0
     local newpile = {}
@@ -44,7 +54,7 @@ hook.Add("PostPlayerDraw", "dzents_model", function(ply, flags)
                 DZ_ENTS.CL_PlayerAttachModels[ply].chute:SetRenderFX(kRenderFxFadeFast)
                 DZ_ENTS.CL_PlayerAttachModels[ply].chute:ResetSequence(1)
             elseif clr.a == 0 then
-                SafeRemoveEntity(DZ_ENTS.CL_PlayerAttachModels[ply].chute) -- TODO: Animate
+                SafeRemoveEntity(DZ_ENTS.CL_PlayerAttachModels[ply].chute)
                 DZ_ENTS.CL_PlayerAttachModels[ply].chute = nil
             end
         end
@@ -74,6 +84,7 @@ hook.Add("PostPlayerDraw", "dzents_model", function(ply, flags)
 end)
 
 hook.Add("PostDrawTranslucentRenderables", "dzents_model", function()
+    if not DZ_ENTS.CL_PlayerAttachModels then return end
     for ply, tbl in pairs(DZ_ENTS.CL_PlayerAttachModels) do
 
         for name, mdl in pairs(tbl) do
@@ -87,6 +98,46 @@ hook.Add("PostDrawTranslucentRenderables", "dzents_model", function()
                 -- and PostPlayerDraw won't be called if we stopped drawing the player (switching from thirdperson, walking away from mirror, etc).
                 mdl:SetNoDraw(true)
             end
+        end
+    end
+end)
+
+hook.Add("PostDrawViewModel", "dzents_model", function(vm, ply, weapon)
+    if vm ~= ply:GetViewModel(0) then return end
+    DZ_ENTS.CL_PlayerAttachModels[ply] = DZ_ENTS.CL_PlayerAttachModels[ply] or {}
+
+    local model = DZ_ENTS.CL_PlayerAttachModels[ply].parastrap
+    if ply:GetNWBool("DZ_Ents.Para.Open") then
+        if GetConVar("cl_dzents_vmparachute"):GetBool() and not IsValid(DZ_ENTS.CL_PlayerAttachModels[ply].parastrap) then
+            DZ_ENTS.CL_PlayerAttachModels[ply].parastrap = ClientsideModel("models/weapons/v_parachute.mdl")
+            model = DZ_ENTS.CL_PlayerAttachModels[ply].parastrap
+            model:DrawShadow(false)
+            model:SetNoDraw(true)
+            model:ResetSequence(1)
+        end
+    else
+        if IsValid(model) then
+            if model:GetSequence() ~= 2 then
+                model:ResetSequence(2)
+                model:SetCycle(0)
+            elseif model:GetCycle() == 1 then
+                SafeRemoveEntity(model)
+                DZ_ENTS.CL_PlayerAttachModels[ply].parastrap = nil
+            end
+        end
+    end
+
+    if IsValid(model) then
+        local pos, ang = ply:EyePos(), ply:EyeAngles() --vm:GetPos(), vm:GetAngles()
+        model:SetPos(pos)
+        model:SetAngles(ang)
+        model:SetRenderOrigin(pos)
+        model:SetRenderAngles(ang)
+        model:FrameAdvance()
+        model:DrawModel()
+        if model:GetSequence() == 1 and model:GetCycle() == 1 then
+            model:ResetSequence(0)
+            model:SetCycle(0)
         end
     end
 end)

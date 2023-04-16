@@ -1,6 +1,8 @@
 if CLIENT then
     CreateConVar("cl_dzents_subcat", 1, FCVAR_ARCHIVE, "Show sub-categories in spawn menu.", 0, 1)
     CreateConVar("cl_dzents_autoparachute", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Automatically deploy parachute while falling.", 0, 1)
+    CreateConVar("cl_dzents_vmparachute", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Draw parachute straps in first person.", 0, 1)
+
 end
 
 -- General
