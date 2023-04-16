@@ -152,7 +152,7 @@ end)
 
 -- Simulate armor calculation
 -- https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/server/player.cpp#L1061
-local function calcarmor(dmginfo, armor, flBonus, flRatio, no_partial)
+local function calcarmor(dmginfo, armor, flBonus, flRatio, fHeavyArmorBonus)
     local old = GetConVar("player_old_armor"):GetBool()
     if not flBonus then
         flBonus = old and 0.5 or 1
@@ -165,14 +165,13 @@ local function calcarmor(dmginfo, armor, flBonus, flRatio, no_partial)
     end
     if armor > 0 then
         local flNew = dmg * flRatio
-        local flArmor = (dmg - flNew) * flBonus
+        local flArmor = (dmg - flNew) * flBonus * fHeavyArmorBonus
 
         if not old then
             flArmor = math.max(1, flArmor)
         end
 
-        -- In CS:GO, armor will always fully reduce damage even if the amount is insufficient (at least the wiki claims so).
-        if not no_partial and flArmor > armor then
+        if flArmor > armor then
             flArmor = armor * (1 / flBonus)
             flNew = dmg - flArmor
             -- m_DmgSave = armor -- ?
@@ -186,11 +185,6 @@ local function calcarmor(dmginfo, armor, flBonus, flRatio, no_partial)
     end
     return dmg, armor
 end
-
--- affects how much armor is reduced from damage
-local armorbonus = 0.5
--- affects what fraction of damage is converted to armor damage (1 means none)
-local armorratio = 0.5
 
 local bitflags_blockable = DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST
 local bitflags_nohitgroup = DMG_FALL + DMG_BLAST + DMG_RADIATION + DMG_CRUSH + DMG_DROWN + DMG_POISON
@@ -206,8 +200,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
     local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
 
-    -- Heavy Assault Suit reduces incoming damage before armor (even to non blockable damage).
-    if uselogic and ply:DZ_ENTS_HasHeavyArmor() then
+    if ply:DZ_ENTS_HasHeavyArmor() then
         dmginfo:ScaleDamage(GetConVar("dzents_armor_heavy_damage"):GetFloat())
     end
 
@@ -218,8 +211,21 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         if wep:IsPlayer() then wep = wep:GetActiveWeapon() end
         local class = IsValid(wep) and wep:GetClass() or ""
 
-        -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ")")
-        -- print("Armored: " .. tostring(armored) .. "; Blockable: " .. tostring(blockable))
+        -- affects how much armor is reduced from damage
+        local armorbonus = 0.5
+        -- affects what fraction of damage is converted to armor damage (1 means none)
+        local armorratio = 0.5
+        -- Additional multiplier onto armor damage if wearing heavy armor
+        local heavyarmorbonus = 1
+
+        if ply:DZ_ENTS_HasHeavyArmor() then
+            armorratio = armorratio * 0.5
+            armorbonus = 0.33 * 0.33
+            heavyarmorbonus = 0.33
+        end
+
+        print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ")")
+        print("Armored: " .. tostring(armored) .. "; Blockable: " .. tostring(blockable))
 
         if armored and blockable then -- Blockable damage is hitting a protected part. Do our job!
             local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo) or 1 -- penetration value. 1 means fully penetrate, 0 means no penetration
@@ -234,14 +240,16 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
                 end
             end
 
-            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio * ap * 2, true)
+            -- print(tostring(wep) .. ": " .. ap .. " armor pen")
+
+            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio * ap * 2, heavyarmorbonus)
             -- print("WANT", ply:Health() - healthdmg, newarmor, "(" .. healthdmg .. " dmg, " .. (ply:Armor() - newarmor) .. " armor)")
             ply.PendingArmor = newarmor
             ply.DZENTS_ArmorHit = hitgroup ~= HITGROUP_GENERIC
             ply:SetArmor(0) -- don't let engine do armor calculation
             dmginfo:SetDamage(healthdmg)
         elseif armored and hitgroup ~= HITGROUP_GENERIC then -- Damage is not blockable, but is hitting an armored part. Still do armor reduction, but don't use AP
-            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio)
+            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio, heavyarmorbonus)
             ply.PendingArmor = newarmor
             ply:SetArmor(0)
             dmginfo:SetDamage(healthdmg)
