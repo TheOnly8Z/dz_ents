@@ -172,6 +172,17 @@ hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
                 ply:DZ_ENTS_GiveHelmet()
             end
         end
+
+        local giveequip = 0
+        if GetConVar("dzents_parachute_onspawn"):GetBool() then
+            giveequip = giveequip + DZ_ENTS_EQUIP_PARACHUTE
+        end
+        if GetConVar("dzents_exojump_onspawn"):GetBool() then
+            giveequip = giveequip + DZ_ENTS_EQUIP_EXOJUMP
+        end
+        if giveequip > 0 then
+            ply:DZ_ENTS_GiveEquipment(giveequip)
+        end
     end)
 end)
 
