@@ -75,7 +75,10 @@ if SERVER then
                 max = math.ceil(max * limit)
                 ammogiven = math.min(ammogiven, max - ply:GetAmmoCount(ammotype))
             end
-            if ammogiven <= 0 then return end
+            if ammogiven <= 0 then
+                DZ_ENTS:Hint(ply, 16)
+                return
+            end
         end
 
         -- adjust ammo given with box cost ("efficiency" of each use) and store fractional boxes

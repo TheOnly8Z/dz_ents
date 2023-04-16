@@ -14,6 +14,7 @@ DZ_ENTS.Hints = {
     [13] = {"You already have an ExoJump.", true},
     [14] = {"Your parachute was used up."},
     [15] = {"Heavy Assault Suit cannot be used with Rifles.", true},
+    [16] = {"You can't hold any more ammo for this weapon.", true},
 }
 DZ_ENTS.HintBits = 6
 
