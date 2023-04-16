@@ -29,21 +29,20 @@ if SERVER then
         if (self.GiveArmor or 0) > 0 and ply:Armor() < self.GiveArmor then
             armor = true
             ply:SetArmor(self.GiveArmor)
-            if self.GiveArmorType and ply:DZ_ENTS_GetArmor() <= self.GiveArmorType then
-                ply:DZ_ENTS_SetArmor(self.GiveArmorType)
+            if self.GiveArmorType and (ply:DZ_ENTS_GetArmor() <= self.GiveArmorType or giveheavyarmor) then
                 if self.GiveArmorType == DZ_ENTS_ARMOR_KEVLAR then
                     ply:SetMaxArmor(100)
                 elseif giveheavyarmor then
                     ply:SetMaxArmor(200)
-
                     local speed = GetConVar("dzents_armor_heavy_speed"):GetInt()
-                    if speed > 0 then
+                    if speed > 0 and not ply:DZ_ENTS_HasHeavyArmor() then
                         ply.DZ_ENTS_OriginalSpeed = {ply:GetSlowWalkSpeed(), ply:GetWalkSpeed(), ply:GetRunSpeed()}
                         ply:SetSlowWalkSpeed(math.min(ply:GetSlowWalkSpeed(), speed))
                         ply:SetWalkSpeed(speed)
                         ply:SetRunSpeed(speed * 2)
                     end
                 end
+                ply:DZ_ENTS_SetArmor(self.GiveArmorType)
             end
         end
 

@@ -297,7 +297,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 end)
 
 hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
-    if not took or not ply:IsPlayer() then return end
+    if not ply:IsPlayer() then return end
     if ply.PendingArmor then
         ply:SetArmor(ply.PendingArmor)
     end
@@ -310,7 +310,7 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
     end
     ply.PendingArmor = nil
     ply.DZENTS_ArmorHit = nil
-    -- print("POST", ply:Health(), ply:Armor())
+    print("POST", ply:Health(), ply:Armor(), took)
 
     -- If armor value hits zero, we will lose our armor and helmet
     if ply:Alive() and ply:Armor() <= 0 then
