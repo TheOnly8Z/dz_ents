@@ -102,6 +102,7 @@ hook.Add("HUDPaint", "dz_ents_healthbar", function()
         local w, h = 192, 12
         local edge = 2
         local a = math.Clamp((v[1] + 2 - CurTime()) / 0.5, 0, 1)
+
         surface.SetDrawColor(0, 0, 0, a * 200)
         surface.DrawRect(pos2d[k].x - w / 2 - edge, pos2d[k].y - 8 - edge, w + edge * 2, h + edge * 2)
 

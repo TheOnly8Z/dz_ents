@@ -7,6 +7,7 @@ CreateConVar("dzents_case_reinforced", 1, FCVAR_ARCHIVE, "Reinforced cases canno
 CreateConVar("dzents_case_health", 1, FCVAR_ARCHIVE, "Health multiplier for newly spawned cases.", 0.01)
 CreateConVar("dzents_case_gib", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Configure gib settings. 0 - no gibs; 1 - client gibs; 2 - server gibs", 0, 2)
 
+CreateConVar("dzents_ammo_clip", 0, FCVAR_ARCHIVE, "If set, use clip size per ammo box, otherwise uses Danger Zone values.", 0, 1)
 CreateConVar("dzents_ammo_mult", 1, FCVAR_ARCHIVE, "Multiplier for amount of ammo given by Ammo Boxes.", 0)
 CreateConVar("dzents_ammo_cleanup", 1, FCVAR_ARCHIVE, "After being emptied, remove the box if it isn't regenerating.", 0, 1)
 CreateConVar("dzents_ammo_regen", 0, FCVAR_ARCHIVE, "Ammo boxes replenish themselves after being consumed.", 0, 1)

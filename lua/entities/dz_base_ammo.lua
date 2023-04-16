@@ -39,17 +39,24 @@ if SERVER then
 
     function ENT:Use(ply)
         local box = self:GetBoxes()
-        if box <= 0 or (ply.DZ_ENTS_NextUse or 0) > CurTime()
+        if (self.MaxBoxCount > 0 and box <= 0) or (ply.DZ_ENTS_NextUse or 0) > CurTime()
+                or (self.DZ_ENTS_NextUse or 0) > CurTime()
                 or not ply:Alive() or not IsValid(ply:GetActiveWeapon())
                 or ply:GetPos():DistToSqr(self:GetPos()) >= 10000 then return end
-
         local wep = ply:GetActiveWeapon()
         local ammotype = game.GetAmmoName(wep:GetPrimaryAmmoType() or -1) or ""
         local canonclass = DZ_ENTS:GetCanonicalClass(wep:GetClass())
-        local ammogiven = canonclass and DZ_ENTS.CanonicalWeapons[canonclass].AmmoPickup or DZ_ENTS.AmmoTypeGiven[DZ_ENTS:GetWeaponAmmoCategory(ammotype)]
+        local ammogiven
+        local ammocat = DZ_ENTS:GetWeaponAmmoCategory(ammotype)
 
-        if not ammogiven then return end
-        ammogiven = ammogiven * GetConVar("dzents_ammo_mult"):GetFloat()
+        if GetConVar("dzents_ammo_clip"):GetBool() then
+            ammogiven = wep:GetMaxClip1()
+        else
+            ammogiven = canonclass and DZ_ENTS.CanonicalWeapons[canonclass].AmmoPickup or DZ_ENTS.AmmoTypeGiven[ammocat]
+        end
+
+        if (ammogiven or 0) <= 0 then return end
+        ammogiven = ammogiven * self.AmmoMult * GetConVar("dzents_ammo_mult"):GetFloat()
 
         local adjustedammo = ammogiven / self.BoxCost
         self.Remainder = (self.Remainder or 0) + (adjustedammo - math.floor(adjustedammo)) / adjustedammo
@@ -61,28 +68,57 @@ if SERVER then
             adjustedammo = adjustedammo + remainderammo
         end
 
-
-        if box == 1 and self.Remainder > 0 then
+        if self.MaxBoxCount > 0 and box == 1 and self.Remainder > 0 then
             adjustedammo = adjustedammo + math.Round(self.Remainder * ammogiven / self.BoxCost)
             self.Remainder = 0
         end
 
+        -- the player cannot use other ammo boxes while this one is on cooldown.
+        -- we also go on cooldown ourselves so other players can't pick us up.
         ply.DZ_ENTS_NextUse = CurTime() + self.PickupDelay
-        self:SetBoxes(box - 1)
-        self:UpdateBoxes()
+        self.DZ_ENTS_NextUse = CurTime() + self.PickupDelay
+
+        if self.MaxBoxCount > 0 then
+            self:SetBoxes(box - 1)
+            self:UpdateBoxes()
+
+            -- TODO: Maybe give some sort of indication for infinite ammo box being used
+            net.Start("dz_ents_takeammo")
+                net.WriteEntity(self)
+                net.WriteUInt(box, 6)
+            net.Send(ply)
+        end
 
         if swcs and wep.IsSWCSWeapon and wep.GetReserveAmmo then
-            wep:SetReserveAmmo(wep:GetReserveAmmo() + math.min(adjustedammo * self.AmmoMult))
+            wep:SetReserveAmmo(wep:GetReserveAmmo() + adjustedammo)
         else
-            ply:GiveAmmo(math.min(adjustedammo * self.AmmoMult), ammotype, true)
+            ply:GiveAmmo(adjustedammo, ammotype, true)
         end
 
         self:EmitSound("dz_ents/pickup_ammo_0" .. math.random(1, 2) .. ".wav")
 
-        net.Start("dz_ents_takeammo")
-            net.WriteEntity(self)
-            net.WriteUInt(box, 6)
-        net.Send(ply)
+        if self.ShellEffects then
+            local eff = EffectData()
+            eff:SetOrigin(self:GetPos())
+
+            local shelltype = "RifleShellEject" -- used for effect
+            if canonclass then
+                if DZ_ENTS.CanonicalWeapons[canonclass].Category == "Pistol" or DZ_ENTS.CanonicalWeapons[canonclass].Category == "SMG" then
+                    shelltype = "ShellEject"
+                elseif DZ_ENTS.CanonicalWeapons[canonclass].Type == "Shotgun" then
+                    shelltype = "ShotgunShellEject"
+                end
+            elseif ammocat == "shotgun" then
+                shelltype = "ShotgunShellEject"
+            elseif ammocat == "pistol" then
+                shelltype = "ShellEject"
+            end
+
+            for i = 1, math.random(1, 4) do
+                eff:SetAngles((self:GetUp() + VectorRand() * 0.1):Angle())
+                util.Effect(shelltype, eff)
+            end
+        end
 
         if GetConVar("dzents_ammo_regen"):GetBool() then
             self:SetRegenTime(CurTime() + GetConVar("dzents_ammo_regen_delay"):GetFloat())

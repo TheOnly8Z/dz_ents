@@ -55,21 +55,25 @@ DZ_ENTS.CanonicalWeapons = {
     ------------------------- Heavy
     ["nova"] = {
         Category = "Heavy",
+        Type = "Shotgun",
         AmmoPickup = 5,
         ArmorPenetration = 0.5,
     },
     ["sawedoff"] = {
         Category = "Heavy",
+        ShellType = "Shotgun",
         AmmoPickup = 5,
         ArmorPenetration = 0.75,
     },
     ["mag7"] = {
         Category = "Heavy",
+        ShellType = "Shotgun",
         AmmoPickup = 5,
         ArmorPenetration = 0.75,
     },
     ["xm1014"] = {
         Category = "Heavy",
+        ShellType = "Shotgun",
         AmmoPickup = 5,
         ArmorPenetration = 0.8,
     },
