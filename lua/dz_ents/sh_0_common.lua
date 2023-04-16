@@ -319,3 +319,29 @@ DZ_ENTS.AmmoTypeGiven = {
     ["magnum"] = 2,
     ["sniper"] = 1,
 }
+
+DZ_ENTS.AmmoMaxReserveSWCS = {
+    ["BULLET_PLAYER_50AE"] = 35,
+    ["BULLET_PLAYER_762MM"] = 90,
+    ["BULLET_PLAYER_556MM"] = 90,
+    ["BULLET_PLAYER_556MM_SMALL"] = 80, -- M4A1-S
+    ["BULLET_PLAYER_556MM_BOX"] = 200,
+    ["BULLET_PLAYER_338MAG"] = 30,
+    ["BULLET_PLAYER_9MM"] = 120,
+    ["BULLET_PLAYER_BUCKSHOT"] = 32,
+    ["BULLET_PLAYER_45ACP"] = 100,
+    ["BULLET_PLAYER_57MM"] = 100,
+    ["BULLET_PLAYER_357SIG"] = 52, -- Valve really doesn't know what a caliber is huh
+    ["BULLET_PLAYER_357SIG_SMALL"] = 24, -- USP-S
+    ["BULLET_PLAYER_357SIG_MIN"] = 12, -- CZ-75
+    ["BULLET_PLAYER_357SIG_P250"] = 26, -- P250
+}
+
+DZ_ENTS.AmmoMaxReserve = { -- only used when max ammo is not defined in ammo type (read: cw 2.0)
+    ["pistol"] = 120,
+    ["smg"] = 225,
+    ["rifle"] = 60,
+    ["shotgun"] = 30,
+    ["magnum"] = 12,
+    ["sniper"] = 15,
+}

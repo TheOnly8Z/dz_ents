@@ -56,19 +56,41 @@ if SERVER then
             ammogiven = canonclass and DZ_ENTS.CanonicalWeapons[canonclass].AmmoPickup or DZ_ENTS.AmmoTypeGiven[ammocat]
         end
 
+        -- ideal amount of ammo to give out, not counting box cost and limit
         if (ammogiven or 0) <= 0 then return end
         ammogiven = ammogiven * self.AmmoMult * GetConVar("dzents_ammo_mult"):GetFloat()
 
+        -- see if we are reaching ammo limit
+        local max = 9999
+        local limit = GetConVar("dzents_ammo_limit"):GetFloat()
+        if limit > 0 then
+            if swcs and wep.IsSWCSWeapon and GetConVar("swcs_weapon_individual_ammo") and GetConVar("swcs_weapon_individual_ammo"):GetBool() and wep.GetReserveAmmo then
+                max = math.ceil(wep:GetPrimaryReserveMax() * limit)
+                ammogiven = math.min(ammogiven, max - wep:GetReserveAmmo())
+            else
+                max = DZ_ENTS.AmmoMaxReserveSWCS[ammotype] or game.GetAmmoMax(wep:GetPrimaryAmmoType() or -1)
+                if not max or max == 9999 then
+                    max = DZ_ENTS.AmmoMaxReserve[ammocat] or (GetConVar("gmod_maxammo"):GetInt() > 0 and GetConVar("gmod_maxammo"):GetInt()) or 100
+                end
+                max = math.ceil(max * limit)
+                ammogiven = math.min(ammogiven, max - ply:GetAmmoCount(ammotype))
+            end
+            if ammogiven <= 0 then return end
+        end
+
+        -- adjust ammo given with box cost ("efficiency" of each use) and store fractional boxes
         local adjustedammo = ammogiven / self.BoxCost
         self.Remainder = (self.Remainder or 0) + (adjustedammo - math.floor(adjustedammo)) / adjustedammo
         adjustedammo = math.floor(adjustedammo)
 
+        -- see if fractional boxes is enough to give ammo and deduct if so
         local remainderammo = math.floor(self.Remainder * ammogiven / self.BoxCost)
         if remainderammo > 0 then
             self.Remainder = self.Remainder - remainderammo / ammogiven * self.BoxCost
             adjustedammo = adjustedammo + remainderammo
         end
 
+        -- on the last box, give out all remainder
         if self.MaxBoxCount > 0 and box == 1 and self.Remainder > 0 then
             adjustedammo = adjustedammo + math.Round(self.Remainder * ammogiven / self.BoxCost)
             self.Remainder = 0
