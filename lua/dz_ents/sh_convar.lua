@@ -46,4 +46,4 @@ CreateConVar("dzents_exojump_vel_up", 1100, FCVAR_ARCHIVE + FCVAR_REPLICATED, "V
 CreateConVar("dzents_exojump_vel_long", 1100, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity when long jumping with the ExoJump.", 0)
 CreateConVar("dzents_exojump_boostdur", 0.5, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Duration of the ExoJump boost.", 0)
 CreateConVar("dzents_exojump_drag", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when high jumping with the ExoJump. Higher value slows players down further.", 0)
-CreateConVar("dzents_exojump_cooldown", 0.25, FCVAR_ARCHIVE + FCVAR_REPLICATED, "After using the ExoJump and landing, how long until you can jump again.", 0)
+CreateConVar("dzents_exojump_cooldown", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED, "After using the ExoJump and landing, how long until you can jump again.", 0)

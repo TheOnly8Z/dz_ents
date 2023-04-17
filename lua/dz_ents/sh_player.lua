@@ -100,20 +100,24 @@ function PLAYER:DZ_ENTS_RemoveEquipment(drop, equip)
     if drop and bit.band(dropped, DZ_ENTS_EQUIP_PARACHUTE) ~= 0 then
         local ent = ents.Create("dz_pickup_parachute")
         if IsValid(ent) then
-            ent:SetPos(self:GetPos() + Vector(0, 0, 36))
-            ent:SetAngles(self:GetAngles())
+            ent:SetPos(self:GetPos() + Vector(0, 0, 40))
+            local ang = self:GetAngles()
+            ang:RotateAroundAxis(ang:Right(), 90)
+            ent:SetAngles(ang)
             ent:Spawn()
-            ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
+            ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 96)
             ent:MarkForRemove()
         end
     end
     if drop and bit.band(dropped, DZ_ENTS_EQUIP_EXOJUMP) ~= 0 then
         local ent = ents.Create("dz_pickup_exojump")
         if IsValid(ent) then
-            ent:SetPos(self:GetPos() + Vector(0, 0, 16))
-            ent:SetAngles(self:GetAngles())
+            ent:SetPos(self:GetPos() + Vector(0, 0, 20))
+            local ang = self:GetAngles()
+            ang:RotateAroundAxis(ang:Forward(), 90)
+            ent:SetAngles(ang)
             ent:Spawn()
-            ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
+            ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 96)
             ent:MarkForRemove()
         end
     end
@@ -121,6 +125,7 @@ end
 
 local armorregions = {
     [HITGROUP_GENERIC] = true, -- blast damage etc.
+    [HITGROUP_GEAR] = true,
     [HITGROUP_CHEST] = true,
     [HITGROUP_STOMACH] = true,
     [HITGROUP_LEFTARM] = true,
@@ -334,7 +339,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             ply.DZENTS_ArmorHit = hitgroup ~= HITGROUP_GENERIC
             ply:SetArmor(0) -- don't let engine do armor calculation
             dmginfo:SetDamage(healthdmg)
-        elseif armored and hitgroup ~= HITGROUP_GENERIC then -- Damage is not blockable, but is hitting an armored part. Still do armor reduction, but don't use AP
+        elseif armored then -- Damage is not blockable, but is hitting an armored part. Still do armor reduction, but don't use AP
             local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio, heavyarmorbonus)
             ply.PendingArmor = newarmor
             ply:SetArmor(0)
