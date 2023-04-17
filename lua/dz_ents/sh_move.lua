@@ -14,7 +14,7 @@ sound.Add({
 
 
 hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
-    if ply:DZ_ENTS_HasHeavyArmor() and not GetConVar("dzents_armor_heavy_sprint"):GetBool() then
+    if ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_nosprint"):GetBool() then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     end
 
