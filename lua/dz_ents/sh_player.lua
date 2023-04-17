@@ -243,8 +243,9 @@ local function calcarmor(dmginfo, armor, flBonus, flRatio, fHeavyArmorBonus)
         local flNew = dmg * flRatio
         local flArmor = (dmg - flNew) * flBonus * fHeavyArmorBonus
 
-        if not old then
-            flArmor = math.max(1, flArmor)
+        if not old and flArmor == 0 then
+            flArmor = 1
+            -- flArmor = math.max(1, flArmor)
         end
 
         if flArmor > armor then
@@ -294,10 +295,18 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         -- Additional multiplier onto armor damage if wearing heavy armor
         local heavyarmorbonus = 1
 
+        -- This value matches the wiki damage tables and the source code leak.
+        -- However it doesn't appear to match current build CSGO.
+        -- Valve must've changed how heavy armor works for Coop Strike.
+        -- I don't have the code so I'm not gonna try to replicate it.
         if ply:DZ_ENTS_HasHeavyArmor() then
             armorratio = armorratio * 0.5
             armorbonus = 0.33
-            heavyarmorbonus = 0.33
+            heavyarmorbonus = 0.33 * GetConVar("dzents_armor_heavy_durability"):GetFloat()
+
+            if hitgroup == HITGROUP_HEAD then
+                dmginfo:ScaleDamage(0.5) -- csgo does it, so do we
+            end
         end
 
         -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ")")
@@ -316,6 +325,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
                 end
             end
 
+            -- print(armorratio, armorbonus, heavyarmorbonus)
             -- print(tostring(wep) .. ": " .. ap .. " armor pen")
 
             local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio * ap * 2, heavyarmorbonus)
@@ -350,7 +360,7 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
     end
     ply.PendingArmor = nil
     ply.DZENTS_ArmorHit = nil
-    -- print("POST", ply:Health(), ply:Armor(), took)
+    print("POST", ply:Health(), ply:Armor(), took)
 
     -- If armor value hits zero, we will lose our armor and helmet
     if ply:Alive() and ply:Armor() <= 0 then
