@@ -194,6 +194,8 @@ DZ_ENTS.CanonicalLookup = {
     ["arccw_go_m9"] = "elite", -- one instead of two. fine though right?
     ["arccw_go_r8"] = "revolver",
     ["arccw_go_usp"] = "usp_silencer",
+    ["arccw_go_fnfal"] = "g3sg1", -- non-canon but let's match it anyways
+    ["arccw_go_sw29"] = "revolver",
     ---------------------------------------- ArcCW Gunsmith Offensive Extras
     ["arccw_go_galil_ar"] = "galilar",
     ["arccw_go_m16a2"] = "m4a1_silencer",

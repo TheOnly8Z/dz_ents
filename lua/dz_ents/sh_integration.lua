@@ -27,3 +27,20 @@ hook.Add("TFA_GetStat", "dz_ents_integration", function(wep, stat, value)
         return (value or 1) * GetConVar("dzents_armor_heavy_deployspeed"):GetFloat()
     end
 end)
+
+hook.Add("InitPostEntity", "dz_ents_integration", function()
+
+    -- dirty, but should be fine
+    local swcs_base = weapons.GetStored("weapon_swcs_base")
+    if swcs_base then
+        local old_deploy = swcs_base.GetDeploySpeed
+        swcs_base.GetDeploySpeed = function(self)
+            local rate = old_deploy(self)
+            local ply = self:GetOwner()
+            if IsValid(ply) and ply:IsPlayer() and ply:DZ_ENTS_HasHeavyArmor() then
+                rate = rate * GetConVar("dzents_armor_heavy_deployspeed"):GetFloat()
+            end
+            return rate
+        end
+    end
+end)
