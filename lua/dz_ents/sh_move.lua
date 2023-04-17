@@ -36,9 +36,10 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
     -- Open the parachute
     if (ply.DZ_ENTS_ParachutePending or mv:KeyPressed(IN_JUMP)) and ply:GetMoveType() == MOVETYPE_WALK
-            and not ply:IsOnGround() and ply:WaterLevel() == 0 and not ply:GetNWBool("DZ_Ents.Para.Open")
+            and not ply:IsOnGround() and ply:WaterLevel() == 0 and not ply:GetNWBool("DZ_Ents.Para.Open") and (ply.DZ_ENTS_NextParachute or 0) < CurTime()
             and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE) and ply:GetVelocity().z < -GetConVar("dzents_parachute_threshold"):GetFloat() then
         ply:SetNWBool("DZ_Ents.Para.Open", true)
+        ply:SetNWBool("DZ_Ents.Para.Consume", true)
         ply.DZ_ENTS_ParachutePending = nil
         if SERVER then
             ply.DZ_ENTS_ParachuteSound = CreateSound(ply, "DZ_ENTS.ParachuteDeploy")
@@ -50,25 +51,32 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE)
             and ply:GetInfoNum("cl_dzents_autoparachute", 0) == 1 then
         ply:SetNWBool("DZ_Ents.Para.Auto", true)
+    elseif ply:GetNWBool("DZ_Ents.Para.Open") and mv:KeyPressed(IN_JUMP) then
+        ply:SetNWBool("DZ_Ents.Para.Open", false)
+        ply.DZ_ENTS_NextParachute = CurTime() + 0.5
+        if ply.DZ_ENTS_ParachuteSound then
+            ply.DZ_ENTS_ParachuteSound:FadeOut(0.25)
+            ply.DZ_ENTS_ParachuteSound = nil
+        end
     end
 
     -- Parachute slow fall
     if not ply:Alive() or ply:IsOnGround() or ply:WaterLevel() > 0 or ply:GetMoveType() ~= MOVETYPE_WALK then
-        if ply:GetNWBool("DZ_Ents.Para.Open") then
-            ply:SetNWBool("DZ_Ents.Para.Open", false)
+        if ply:GetNWBool("DZ_Ents.Para.Open") or ply:GetNWBool("DZ_Ents.Para.Consume") then
             if ply.DZ_ENTS_ParachuteSound then
                 ply.DZ_ENTS_ParachuteSound:FadeOut(0.25)
                 ply.DZ_ENTS_ParachuteSound = nil
             end
-            if ply:Alive() and GetConVar("dzents_parachute_consume"):GetBool() then
+            if SERVER and ply:Alive() and ply:GetNWBool("DZ_Ents.Para.Consume") and GetConVar("dzents_parachute_consume"):GetBool() then
                 ply:DZ_ENTS_RemoveEquipment(false, DZ_ENTS_EQUIP_PARACHUTE)
                 DZ_ENTS:Hint(ply, 14)
             end
+            ply:SetNWBool("DZ_Ents.Para.Open", false)
+            ply:SetNWBool("DZ_Ents.Para.Consume", false)
         end
         ply:SetNWBool("DZ_Ents.Para.Auto", false)
         ply.DZ_ENTS_ParachutePending = nil
     elseif ply:GetNWBool("DZ_Ents.Para.Open") then
-
 
         local slowfall = GetConVar("dzents_parachute_fall"):GetFloat()
         local decel = slowfall * 5
@@ -108,7 +116,6 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             vel.x = math.Approach(vel.x, 0, damp * x_weight)
             vel.y = math.Approach(vel.y, 0, damp * (1 - x_weight))
         end
-
 
         mv:SetVelocity(vel)
 
@@ -163,11 +170,11 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 vel.z = vel.z + tgtvel * FrameTime()
 
                 local drag = GetConVar("dzents_exojump_drag"):GetFloat()
-                    if drag > 0 then
-                    local horiz_max = ply:GetWalkSpeed() + 50
+                if drag > 0 then
+                    local horiz_max = ply:GetWalkSpeed()
                     local speedSqr = vel.x * vel.x + vel.y * vel.y
-                    local diff = speedSqr / (horiz_max * horiz_max)
-                    local damp = FrameTime() * Lerp(math.Clamp(diff / 3, 0, 1), 0, 500)
+                    local diff = math.max(0, speedSqr / (horiz_max * horiz_max) - 1)
+                    local damp = FrameTime() * Lerp(math.Clamp(diff / 2, 0, 1), 0, 1000) * drag
 
                     -- apply dampening to each axis relative to their magnitude to preserve direction
                     local x_weight = math.abs(vel.x) / (math.abs(vel.x) + math.abs(vel.y))
