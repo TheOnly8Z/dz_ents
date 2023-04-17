@@ -132,16 +132,26 @@ local function menu_armor(panel)
         command = "dzents_armor_heavy_adminonly"
     })
     panel:ControlHelp("Requires a map reload to take effect.")
-
+    panel:AddControl("checkbox", {
+        label = "Heavy Armor can break",
+        command = "dzents_armor_heavy_break"
+    })
+    panel:ControlHelp("When broken, movement speed and other attributes will be restored.")
     panel:AddControl("checkbox", {
         label = "Disallow sprinting",
         command = "dzents_armor_heavy_nosprint"
     })
     panel:AddControl("checkbox", {
-        label = "Disallow rifles",
-        command = "dzents_armor_heavy_norifle"
+        label = "Always take realistic fall damage",
+        command = "dzents_armor_heavy_falldamage"
     })
-    panel:ControlHelp("Only restricts CS:GO rifles.")
+    panel:ControlHelp("Damage is identical to turning on 'Realistic fall damage'.")
+    combobox(panel, "Restrict using rifles", "dzents_armor_heavy_norifle", {
+        ["0 - No restriction"] = "0",
+        ["1 - CS:GO rifles"] = "1",
+        ["2 - All rifles"] = "2",
+    })
+    panel:ControlHelp("Restricted weapons cannot be picked up or switched to.\n'All rifles' option uses autodetection based on weapon base and may not be perfectly accurate.")
     panel:AddControl("slider", {
         label = "Damage taken",
         command = "dzents_armor_heavy_damage",
@@ -256,11 +266,11 @@ local function menu_pickups(panel)
         max = 5,
     })
     panel:AddControl("slider", {
-        label = "Jump cooldown",
-        command = "dzents_exojump_drag",
+        label = "Cooldown",
+        command = "dzents_exojump_cooldown",
         type = "float",
         min = 0,
-        max = 5,
+        max = 3,
     })
 
     header(panel, "\nParachute")

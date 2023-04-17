@@ -192,23 +192,52 @@ hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
 end)
 
 function DZ_ENTS.HeavyArmorCanPickup(class)
-    if not GetConVar("dzents_armor_heavy_norifle"):GetBool() then
+    local mode = GetConVar("dzents_armor_heavy_norifle"):GetInt()
+    if mode == 0 then
         return true
     end
     local canontbl = DZ_ENTS.CanonicalWeapons[DZ_ENTS:GetCanonicalClass(class)]
     if canontbl and canontbl.Category == "Rifle" then
         return false
     end
+    if mode == 2 then
+        DZ_ENTS:GetLootType("rifle") -- generate the list just in case
+        if DZ_ENTS.LootTypeListLookup["rifle"][class] then return false end
+    end
     return true
 end
 
-hook.Add("PlayerSwitchWeapon", "dz_ents_player", function(ply, old, new)
-    if ply:DZ_ENTS_HasHeavyArmor() and not DZ_ENTS.HeavyArmorCanPickup(new:GetClass()) then
-        if SERVER then
-            DZ_ENTS:Hint(ply, 15)
-            ply:DropWeapon(new)
+hook.Add("PlayerSwitchWeapon", "dz_ents_player", function(ply, oldwep, wep)
+    if ply:DZ_ENTS_HasHeavyArmor() then
+        local class = wep:GetClass()
+        if not DZ_ENTS.HeavyArmorCanPickup(class) then
+            if SERVER then
+                DZ_ENTS:Hint(ply, 15)
+                ply:DropWeapon(wep)
+            end
+            return true
+        elseif GetConVar("dzents_armor_heavy_deployspeed"):GetFloat() < 1 then
+            local speed = GetConVar("dzents_armor_heavy_deployspeed"):GetFloat()
+            if weapons.IsBasedOn(class, "mg_base") then
+                -- EWWWWWWWWWWWWWWWWWW
+                -- mw base doesn't have cool live stats like arccw so we'll have to do this the ugly way
+                local oldfps = wep.Animations.Draw.Fps
+                wep.Animations.Draw.Fps = wep.Animations.Draw.Fps * speed
+                timer.Simple(0, function()
+                    if IsValid(wep) then wep.Animations.Draw.Fps = oldfps end
+                end)
+            elseif wep.CW20Weapon then
+                local olddsm = wep.DrawSpeedMult
+                wep.DrawSpeedMult = wep.DrawSpeedMult * speed
+                wep:recalculateDeployTime()
+                timer.Simple(0, function()
+                    if IsValid(wep) then
+                        wep.DrawSpeedMult = olddsm
+                        wep:recalculateDeployTime()
+                    end
+                end)
+            end
         end
-        return true
     end
 end)
 
@@ -270,9 +299,26 @@ end
 
 local bitflags_blockable = DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST
 local bitflags_nohitgroup = DMG_FALL + DMG_BLAST + DMG_RADIATION + DMG_CRUSH + DMG_DROWN + DMG_POISON
+
+-- https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/game/shared/shareddefs.h#L369
+local PLAYER_FATAL_FALL_SPEED = 922.5
+local PLAYER_MAX_SAFE_FALL_SPEED = 526.5
+local DAMAGE_FOR_FALL_SPEED = 100 / ( PLAYER_FATAL_FALL_SPEED - PLAYER_MAX_SAFE_FALL_SPEED )
+
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
     if not ply:IsPlayer() then return end
-    if dmginfo:IsFallDamage() then return end
+    if dmginfo:IsFallDamage() then
+        -- Nasty. Do it late here and with a hard-coded fall damage check in case some other addon is doing their own fall damage thing.
+        -- Don't want to mess with hook loading orders now, do we?
+        if not GetConVar("mp_falldamage"):GetBool() and ply:DZ_ENTS_HasHeavyArmor()
+                and GetConVar("dzents_armor_heavy_falldamage"):GetBool() and dmginfo:GetDamage() == 10 then
+            -- SDK2013 damage calc. gets pretty close, the difference is probably related to velocity being a tick off or whatever
+            dmginfo:SetDamage(math.max(math.abs(ply:GetVelocity().z) - PLAYER_MAX_SAFE_FALL_SPEED, 0) * DAMAGE_FOR_FALL_SPEED)
+        end
+
+        -- armor can't handle fall damage!
+        return
+    end
 
     -- Check the hitgroup of the damage. Certain damage types should not have hitgroups so strip hitgroup if that's the case.
     local hitgroup = ply:LastHitGroup()
@@ -367,21 +413,32 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
     ply.DZENTS_ArmorHit = nil
     -- print("POST", ply:Health(), ply:Armor(), took)
 
+    -- Let's make fall damage hurt heavy armor... for funsies.
+    if dmginfo:IsFallDamage() and ply:DZ_ENTS_HasHeavyArmor() then
+        ply:SetArmor(math.max(0, ply:Armor() - dmginfo:GetDamage() * 1.5))
+    end
+
     -- If armor value hits zero, we will lose our armor and helmet
     if ply:Alive() and ply:Armor() <= 0 then
         if ply:DZ_ENTS_HasHeavyArmor() then
-            ply:DZ_ENTS_RemoveArmor()
-            if ply.DZ_ENTS_OriginalSpeed then
-                ply:SetSlowWalkSpeed(ply.DZ_ENTS_OriginalSpeed[1])
-                ply:SetWalkSpeed(ply.DZ_ENTS_OriginalSpeed[2])
-                ply:SetRunSpeed(ply.DZ_ENTS_OriginalSpeed[3])
+            -- break if convar allows, otherwise do nothing
+            if GetConVar("dzents_armor_heavy_break"):GetBool() then
+                ply:DZ_ENTS_RemoveHelmet()
+                ply:DZ_ENTS_RemoveArmor()
+                if ply.DZ_ENTS_OriginalSpeed then
+                    ply:SetSlowWalkSpeed(ply.DZ_ENTS_OriginalSpeed[1])
+                    ply:SetWalkSpeed(ply.DZ_ENTS_OriginalSpeed[2])
+                    ply:SetRunSpeed(ply.DZ_ENTS_OriginalSpeed[3])
+                end
+                ply.DZ_ENTS_OriginalSpeed = nil
             end
-            ply.DZ_ENTS_OriginalSpeed = nil
-        elseif ply:DZ_ENTS_HasArmor() then
-            ply:DZ_ENTS_RemoveArmor()
-        end
-        if ply:DZ_ENTS_HasHelmet() then
-            ply:DZ_ENTS_RemoveHelmet()
+        else
+            if ply:DZ_ENTS_HasArmor() then
+                ply:DZ_ENTS_RemoveArmor()
+            end
+            if ply:DZ_ENTS_HasHelmet() then
+                ply:DZ_ENTS_RemoveHelmet()
+            end
         end
     end
 end)

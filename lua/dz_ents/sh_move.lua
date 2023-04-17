@@ -18,16 +18,18 @@ hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     end
 
-    if ply:GetNWFloat("DZ_Ents.ExoJump.NextUse", 0) > CurTime() then
-        cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_JUMP)))
-    end
+    -- if ply:GetNWFloat("DZ_Ents.ExoJump.NextUse", 0) > CurTime() then
+    --     cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_JUMP)))
+    -- end
 end)
 
 hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
-    if ply:DZ_ENTS_HasHeavyArmor() and not ply:IsOnGround() and ply:GetVelocity().z < 0 then
+    local gravity = GetConVar("sv_gravity"):GetFloat()
+
+    if ply:DZ_ENTS_HasHeavyArmor() and not ply:IsOnGround() and (ply:GetVelocity().z < (600 - gravity)) then
         local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()
-        mv:SetVelocity(mv:GetVelocity() + physenv.GetGravity() * grav * FrameTime())
+        mv:SetVelocity(mv:GetVelocity() - Vector(0, 0, gravity * grav * FrameTime()))
     end
 
     -- local ang = ply:GetAngles()
@@ -137,6 +139,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     local boostdur = GetConVar("dzents_exojump_boostdur"):GetFloat()
     local boostvel = GetConVar("dzents_exojump_vel_up"):GetFloat() * ha
     local longjumpvel = GetConVar("dzents_exojump_vel_long"):GetFloat() * ha
+    local forward = Angle(-25, ply:GetAngles().y, 0):Forward()
     vel = mv:GetVelocity()
     if ply:KeyPressed(IN_JUMP) and ply:IsOnGround() and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetNWFloat("DZ_Ents.ExoJump.NextUse", 0) < CurTime()
             and ply:GetMoveType() == MOVETYPE_WALK
@@ -147,6 +150,12 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             ply.DZ_ENTS_ExoSound = true
             ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", true)
             ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, ha and 95 or 100, 1)
+
+            -- leave the ground NOW so we don't get caught by friction
+            ply:SetGroundEntity(NULL)
+
+            -- impulse force
+            vel = forward * longjumpvel
         else
             ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", false)
             ply.DZ_ENTS_ExoSound = false
@@ -166,13 +175,15 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             local delta = math.Clamp((ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur - CurTime()) / boostdur, 0, 1)
 
             -- If we're running up some slope or whatever it's possible we're still stuck on ground.
-            local tgtvel = delta * (boostvel + (ply:IsOnGround() and 20000 or 0))
 
             if ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") then
-                local forward = Angle(-20, ply:GetAngles().y, 0):Forward()
-                vel = LerpVector(delta ^ 2, vel, forward * longjumpvel)
-                -- vel = vel + forward * longjumpvel * FrameTime() * 1
+                -- vel = LerpVector(delta ^ 2, vel, forward * longjumpvel)
+                vel = vel + forward * longjumpvel * FrameTime() * (delta ^ 2)
+
+                -- additional counteracting of gravity
+                vel = vel + Vector(0, 0, GetConVar("sv_gravity"):GetFloat() * (delta ^ 0.5) * 0.5 * FrameTime())
             else
+                local tgtvel = delta * (boostvel + (ply:IsOnGround() and 20000 or 0))
                 vel.z = vel.z + tgtvel * FrameTime()
 
                 local drag = GetConVar("dzents_exojump_drag"):GetFloat()
@@ -188,8 +199,6 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                     vel.y = math.Approach(vel.y, 0, damp * (1 - x_weight))
                 end
             end
-
-            mv:SetVelocity(vel)
         else
             if not ply.DZ_ENTS_ExoSound then
                 ply.DZ_ENTS_ExoSound = true
@@ -202,6 +211,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", false)
         ply:SetNWFloat("DZ_Ents.ExoJump.NextUse", CurTime() + GetConVar("dzents_exojump_cooldown"):GetFloat())
     end
+    mv:SetVelocity(vel)
 end)
 
 hook.Add("Move", "dz_ents_move", function(ply, mv)
