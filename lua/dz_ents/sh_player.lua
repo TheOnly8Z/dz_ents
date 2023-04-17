@@ -145,13 +145,13 @@ end
 hook.Add("DoPlayerDeath", "dz_ents_player", function(ply)
     local drop = GetConVar("dzents_drop_armor"):GetBool() and (ply:Armor() > 0 or (ply.PendingArmor or 0) > 0) and not ply:DZ_ENTS_HasHeavyArmor()
     local dropequip = GetConVar("dzents_drop_equip"):GetBool()
-    ply.DZ_ENTS_OriginalSpeed = nil
     ply:DZ_ENTS_RemoveHelmet(drop)
     ply:DZ_ENTS_RemoveArmor(drop)
     ply:DZ_ENTS_RemoveEquipment(dropequip)
 end)
 
 hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
+    ply.DZ_ENTS_OriginalSpeed = nil
     timer.Simple(0, function()
         local give = GetConVar("dzents_armor_onspawn"):GetInt()
         if give == 3 then
@@ -316,6 +316,28 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             dmginfo:SetDamage(math.max(math.abs(ply:GetVelocity().z) - PLAYER_MAX_SAFE_FALL_SPEED, 0) * DAMAGE_FOR_FALL_SPEED)
         end
 
+        -- goomba stomp
+        local groundent = ply:GetGroundEntity()
+        if ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_fallstomp"):GetBool() and IsValid(groundent) then
+            local dmg = dmginfo:GetDamage()
+            timer.Simple(0, function() -- can't do it immediately (creating new DamageInfo overrides our current one)
+                if not IsValid(groundent) then return end
+                local dmg2 = DamageInfo()
+                dmg2:SetDamage(dmg * 3)
+                dmg2:SetDamageForce(Vector(0, 0, dmg * -1000))
+                dmg2:SetDamagePosition(ply:GetPos())
+                dmg2:SetDamageType(DMG_CRUSH + DMG_NEVERGIB)
+                dmg2:SetAttacker(ply)
+                dmg2:SetInflictor(ply)
+                groundent:TakeDamageInfo(dmg2)
+            end)
+            if groundent:IsPlayer() or groundent:IsNPC() or groundent:IsNextBot() then
+                -- cushion some damage for ourselves
+                dmginfo:SetDamage(dmginfo:GetDamage() - math.min(groundent:Health(), dmg * 0.5))
+                groundent:EmitSound("dz_ents/mantreads.wav", 80)
+            end
+        end
+
         -- armor can't handle fall damage!
         return
     end
@@ -415,7 +437,7 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
 
     -- Let's make fall damage hurt heavy armor... for funsies.
     if dmginfo:IsFallDamage() and ply:DZ_ENTS_HasHeavyArmor() then
-        ply:SetArmor(math.max(0, ply:Armor() - dmginfo:GetDamage() * 1.5))
+        ply:SetArmor(math.max(0, ply:Armor() - dmginfo:GetDamage() * GetConVar("dzents_armor_heavy_durability"):GetFloat()))
     end
 
     -- If armor value hits zero, we will lose our armor and helmet

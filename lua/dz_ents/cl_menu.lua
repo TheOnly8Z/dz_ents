@@ -145,7 +145,12 @@ local function menu_armor(panel)
         label = "Always take realistic fall damage",
         command = "dzents_armor_heavy_falldamage"
     })
-    panel:ControlHelp("Damage is identical to turning on 'Realistic fall damage'.")
+    panel:ControlHelp("Fall damage taken is identical to turning on 'Realistic fall damage'.")
+    panel:AddControl("checkbox", {
+        label = "Goomba stomp on landing",
+        command = "dzents_armor_heavy_fallstomp"
+    })
+    panel:ControlHelp("Stomp damage is 3x fall damage.")
     combobox(panel, "Restrict using rifles", "dzents_armor_heavy_norifle", {
         ["0 - No restriction"] = "0",
         ["1 - CS:GO rifles"] = "1",
