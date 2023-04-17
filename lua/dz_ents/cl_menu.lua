@@ -231,21 +231,21 @@ local function menu_pickups(panel)
         label = "High jump velocity",
         command = "dzents_exojump_vel_up",
         type = "int",
-        min = 0,
-        max = 3000,
+        min = 500,
+        max = 1500,
     })
     panel:AddControl("slider", {
         label = "Long jump velocity",
         command = "dzents_exojump_vel_long",
         type = "int",
-        min = 0,
-        max = 2000,
+        min = 200,
+        max = 1000,
     })
     panel:AddControl("slider", {
         label = "Boost length",
         command = "dzents_exojump_boostdur",
         type = "float",
-        min = 0,
+        min = 0.3,
         max = 1,
     })
     panel:AddControl("slider", {

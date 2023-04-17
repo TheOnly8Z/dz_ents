@@ -166,7 +166,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             local delta = math.Clamp((ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur - CurTime()) / boostdur, 0, 1)
 
             -- If we're running up some slope or whatever it's possible we're still stuck on ground.
-            local tgtvel = delta ^ 0.5 * (boostvel + (ply:IsOnGround() and 20000 or 0))
+            local tgtvel = delta * (boostvel + (ply:IsOnGround() and 20000 or 0))
 
             if ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") then
                 local forward = Angle(-20, ply:GetAngles().y, 0):Forward()
