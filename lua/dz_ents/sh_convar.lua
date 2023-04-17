@@ -42,3 +42,8 @@ CreateConVar("dzents_parachute_fall", 200, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Ta
 CreateConVar("dzents_parachute_threshold", 650, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Minimum downwards velocity for parachute deployment. Negative values allow for deploying while rising in the air.")
 CreateConVar("dzents_parachute_drag", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when using parachute. Higher value slows players down further.", 0)
 CreateConVar("dzents_exojump_onspawn", 0, FCVAR_ARCHIVE, "Give an ExoJump on spawn.", 0, 1)
+CreateConVar("dzents_exojump_vel_up", 1100, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity when high jumping with the ExoJump.", 0)
+CreateConVar("dzents_exojump_vel_long", 1100, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity when long jumping with the ExoJump.", 0)
+CreateConVar("dzents_exojump_boostdur", 0.5, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Duration of the ExoJump boost.", 0)
+CreateConVar("dzents_exojump_drag", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when high jumping with the ExoJump. Higher value slows players down further.", 0)
+CreateConVar("dzents_exojump_cooldown", 0.25, FCVAR_ARCHIVE + FCVAR_REPLICATED, "After using the ExoJump and landing, how long until you can jump again.", 0)

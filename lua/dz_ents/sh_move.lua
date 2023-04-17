@@ -17,11 +17,15 @@ hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
     if ply:DZ_ENTS_HasHeavyArmor() and not GetConVar("dzents_armor_heavy_sprint"):GetBool() then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     end
+
+    if ply:GetNWFloat("DZ_Ents.ExoJump.NextUse", 0) > CurTime() then
+        cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_JUMP)))
+    end
 end)
 
 hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
-    local ang = ply:GetAngles()
+    -- local ang = ply:GetAngles()
     local eyeangles = mv:GetAngles()
     local vel = mv:GetVelocity()
 
@@ -107,6 +111,69 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             ply.DZ_ENTS_ParachutePending = true
             ply:SetNWBool("DZ_Ents.Para.Auto", false)
         end
+    end
+
+    local boostdur = GetConVar("dzents_exojump_boostdur"):GetFloat()
+    local boostvel = GetConVar("dzents_exojump_vel_up"):GetFloat()
+    local longjumpvel = GetConVar("dzents_exojump_vel_long"):GetFloat()
+    vel = mv:GetVelocity()
+    if ply:KeyPressed(IN_JUMP) and ply:IsOnGround() and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetNWFloat("DZ_Ents.ExoJump.NextUse", 0) < CurTime()
+            and ply:GetMoveType() == MOVETYPE_WALK
+            and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) == 0 and not ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
+        ply:SetNWFloat("DZ_Ents.ExoJump.BoostTime", CurTime())
+        ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", true)
+        if ply:KeyDown(IN_DUCK) then
+            ply.DZ_ENTS_ExoSound = true
+            ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", true)
+            ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, 100, 1)
+        else
+            ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", false)
+            ply.DZ_ENTS_ExoSound = false
+        end
+    elseif not ply:IsOnGround() and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetMoveType() == MOVETYPE_WALK
+            and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0 and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur > CurTime() then
+        local vol = math.Clamp(1 - (ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + 0.2 - CurTime()) / 0.2, 0, 1) ^ 2
+        if vol == 1 and not ply.DZ_ENTS_ExoSound then
+            ply.DZ_ENTS_ExoSound = true
+            ply:EmitSound("dz_ents/jump_ability_01.wav", 75, 100, vol)
+        end
+        if (ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") or ply:KeyDown(IN_JUMP)) and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0 then
+            local delta = math.Clamp((ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur - CurTime()) / boostdur, 0, 1)
+            local tgtvel = delta ^ 0.5 * boostvel
+
+            if ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") then
+                local forward = Angle(-20, ply:GetAngles().y, 0):Forward()
+                vel = LerpVector(delta ^ 2, vel, forward * longjumpvel)
+                -- vel = vel + forward * longjumpvel * FrameTime() * 1
+            else
+                vel.z = vel.z + tgtvel * FrameTime()
+
+                local drag = GetConVar("dzents_exojump_drag"):GetFloat()
+                    if drag > 0 then
+                    local horiz_max = ply:GetWalkSpeed() + 50
+                    local speedSqr = vel.x * vel.x + vel.y * vel.y
+                    local diff = speedSqr / (horiz_max * horiz_max)
+                    local damp = FrameTime() * Lerp(math.Clamp(diff / 3, 0, 1), 0, 500)
+
+                    -- apply dampening to each axis relative to their magnitude to preserve direction
+                    local x_weight = math.abs(vel.x) / (math.abs(vel.x) + math.abs(vel.y))
+                    vel.x = math.Approach(vel.x, 0, damp * x_weight)
+                    vel.y = math.Approach(vel.y, 0, damp * (1 - x_weight))
+                end
+            end
+
+            mv:SetVelocity(vel)
+        else
+            if not ply.DZ_ENTS_ExoSound then
+                ply.DZ_ENTS_ExoSound = true
+                ply:EmitSound("dz_ents/jump_ability_01.wav", 60 + vol * 20, 100, vol)
+            end
+            ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", false)
+        end
+    elseif ply:IsOnGround() and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0 then
+        ply:SetNWFloat("DZ_Ents.ExoJump.BoostTime", 0)
+        ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", false)
+        ply:SetNWFloat("DZ_Ents.ExoJump.NextUse", CurTime() + GetConVar("dzents_exojump_cooldown"):GetFloat())
     end
 end)
 
