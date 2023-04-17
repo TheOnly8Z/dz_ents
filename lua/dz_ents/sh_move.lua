@@ -113,9 +113,10 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         end
     end
 
+    local ha = ply:DZ_ENTS_HasHeavyArmor()
     local boostdur = GetConVar("dzents_exojump_boostdur"):GetFloat()
-    local boostvel = GetConVar("dzents_exojump_vel_up"):GetFloat()
-    local longjumpvel = GetConVar("dzents_exojump_vel_long"):GetFloat()
+    local boostvel = GetConVar("dzents_exojump_vel_up"):GetFloat() * (ha and 0.75 or 1)
+    local longjumpvel = GetConVar("dzents_exojump_vel_long"):GetFloat() * (ha and 0.75 or 1)
     vel = mv:GetVelocity()
     if ply:KeyPressed(IN_JUMP) and ply:IsOnGround() and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetNWFloat("DZ_Ents.ExoJump.NextUse", 0) < CurTime()
             and ply:GetMoveType() == MOVETYPE_WALK
@@ -125,7 +126,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         if ply:KeyDown(IN_DUCK) then
             ply.DZ_ENTS_ExoSound = true
             ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", true)
-            ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, 100, 1)
+            ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, ha and 95 or 100, 1)
         else
             ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", false)
             ply.DZ_ENTS_ExoSound = false
@@ -135,7 +136,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         local vol = math.Clamp(1 - (ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + 0.2 - CurTime()) / 0.2, 0, 1) ^ 2
         if vol == 1 and not ply.DZ_ENTS_ExoSound then
             ply.DZ_ENTS_ExoSound = true
-            ply:EmitSound("dz_ents/jump_ability_01.wav", 75, 100, vol)
+            ply:EmitSound("dz_ents/jump_ability_01.wav", 75, ha and 95 or 100, vol)
         end
         if (ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") or ply:KeyDown(IN_JUMP)) and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0 then
             local delta = math.Clamp((ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur - CurTime()) / boostdur, 0, 1)

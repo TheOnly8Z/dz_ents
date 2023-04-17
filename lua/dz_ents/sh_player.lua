@@ -365,7 +365,7 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
     end
     ply.PendingArmor = nil
     ply.DZENTS_ArmorHit = nil
-    print("POST", ply:Health(), ply:Armor(), took)
+    -- print("POST", ply:Health(), ply:Armor(), took)
 
     -- If armor value hits zero, we will lose our armor and helmet
     if ply:Alive() and ply:Armor() <= 0 then
