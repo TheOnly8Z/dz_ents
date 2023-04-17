@@ -151,7 +151,11 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", false)
             ply.DZ_ENTS_ExoSound = false
         end
-    elseif not ply:IsOnGround() and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetMoveType() == MOVETYPE_WALK
+
+        mv:SetMaxSpeed(ply:GetWalkSpeed())
+        mv:SetMaxClientSpeed(ply:GetWalkSpeed())
+
+    elseif ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetMoveType() == MOVETYPE_WALK
             and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0 and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur > CurTime() then
         local vol = math.Clamp(1 - (ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + 0.2 - CurTime()) / 0.2, 0, 1) ^ 2
         if vol == 1 and not ply.DZ_ENTS_ExoSound then
@@ -160,7 +164,9 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         end
         if (ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") or ply:KeyDown(IN_JUMP)) and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0 then
             local delta = math.Clamp((ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur - CurTime()) / boostdur, 0, 1)
-            local tgtvel = delta ^ 0.5 * boostvel
+
+            -- If we're running up some slope or whatever it's possible we're still stuck on ground.
+            local tgtvel = delta ^ 0.5 * (boostvel + (ply:IsOnGround() and 20000 or 0))
 
             if ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") then
                 local forward = Angle(-20, ply:GetAngles().y, 0):Forward()
