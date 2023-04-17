@@ -53,6 +53,11 @@ local function menu_ammo(panel)
         min = 0,
         max = 5,
     })
+    panel:AddControl("checkbox", {
+        label = "Infinite ammo can is admin only",
+        command = "dzents_ammo_adminonly"
+    })
+    panel:ControlHelp("Requires a map reload to take effect.")
 
     header(panel, "Regeneration")
     panel:AddControl("checkbox", {
@@ -95,43 +100,8 @@ local function menu_cases(panel)
     panel:ControlHelp("Serverside gibs may be more performance intensive.")
 end
 
-local function menu_pickups(panel)
 
-    header(panel, "Drop on Death")
-    panel:AddControl("slider", {
-        label = "Drop cleanup",
-        command = "dzents_drop_cleanup",
-        type = "int",
-        min = 0,
-        max = 300,
-    })
-    panel:ControlHelp("Timer for removing items dropped on death. 0 - never remove.")
-    panel:AddControl("checkbox", {
-        label = "Drop armor on death",
-        command = "dzents_drop_armor"
-    })
-    panel:AddControl("checkbox", {
-        label = "Drop equipment on death",
-        command = "dzents_drop_equip"
-    })
-
-    header(panel, "\nGive on Spawn")
-    combobox(panel, "Armor on spawn", "dzents_armor_onspawn", {
-        ["0 - Disabled"] = "0",
-        ["1 - Armor only"] = "1",
-        ["2 - Armor + Helmet"] = "2",
-        ["3 - Heavy Assault Armor"] = "3",
-    })
-    panel:AddControl("checkbox", {
-        label = "ExoJump on spawn",
-        command = "dzents_exojump_onspawn"
-    })
-    panel:AddControl("checkbox", {
-        label = "Parachute on spawn",
-        command = "dzents_parachute_onspawn"
-    })
-
-    header(panel, "\nArmor")
+local function menu_armor(panel)
     combobox(panel, "CS:GO behavior", "dzents_armor_enabled", {
         ["0 - Disabled"] = "0",
         ["1 - With armor/helmet"] = "1",
@@ -145,8 +115,24 @@ local function menu_pickups(panel)
     })
     panel:ControlHelp("Damage not protected by CS:GO armor will be handled like HL2 logic. If disabled, armor will be ignored.")
 
+    combobox(panel, "Armor on spawn", "dzents_armor_onspawn", {
+        ["0 - Disabled"] = "0",
+        ["1 - Armor only"] = "1",
+        ["2 - Armor + Helmet"] = "2",
+        ["3 - Heavy Assault Armor"] = "3",
+    })
+    panel:AddControl("checkbox", {
+        label = "Drop armor on death",
+        command = "dzents_drop_armor"
+    })
 
     header(panel, "\nHeavy Assault Armor")
+    panel:AddControl("checkbox", {
+        label = "Restrict to admins only",
+        command = "dzents_armor_heavy_adminonly"
+    })
+    panel:ControlHelp("Requires a map reload to take effect.")
+
     panel:AddControl("checkbox", {
         label = "Disallow sprinting",
         command = "dzents_armor_heavy_nosprint"
@@ -185,6 +171,60 @@ local function menu_pickups(panel)
         max = 1,
     })
     panel:ControlHelp("Only affects certain weapon bases.")
+    panel:AddControl("slider", {
+        label = "Additional gravity",
+        command = "dzents_armor_heavy_gravity",
+        type = "float",
+        min = 0,
+        max = 1,
+    })
+    panel:ControlHelp("Makes you fall faster, and makes parachute less effective.")
+    panel:AddControl("slider", {
+        label = "ExoJump strength",
+        command = "dzents_armor_heavy_exojump",
+        type = "float",
+        min = 0.4,
+        max = 1,
+    })
+    panel:ControlHelp("Velocity multiplier when using the ExoJump with the Heavy Assault Armor.")
+
+end
+
+local function menu_pickups(panel)
+
+    header(panel, "Drop on Death")
+    panel:AddControl("slider", {
+        label = "Drop cleanup",
+        command = "dzents_drop_cleanup",
+        type = "int",
+        min = 0,
+        max = 300,
+    })
+    panel:ControlHelp("Timer for removing items dropped on death. 0 - never remove.")
+    panel:AddControl("checkbox", {
+        label = "Drop armor on death",
+        command = "dzents_drop_armor"
+    })
+    panel:AddControl("checkbox", {
+        label = "Drop equipment on death",
+        command = "dzents_drop_equip"
+    })
+
+    header(panel, "\nGive on Spawn")
+    combobox(panel, "Armor on spawn", "dzents_armor_onspawn", {
+        ["0 - Disabled"] = "0",
+        ["1 - Armor only"] = "1",
+        ["2 - Armor + Helmet"] = "2",
+        ["3 - Heavy Assault Armor"] = "3",
+    })
+    panel:AddControl("checkbox", {
+        label = "ExoJump on spawn",
+        command = "dzents_exojump_onspawn"
+    })
+    panel:AddControl("checkbox", {
+        label = "Parachute on spawn",
+        command = "dzents_parachute_onspawn"
+    })
 
     header(panel, "\nExoJump")
     panel:AddControl("slider", {
@@ -263,13 +303,16 @@ local menus = {
         text = "Client", func = menu_client
     },
     {
-        text = "Ammo", func = menu_ammo
+        text = "Server - Ammo", func = menu_ammo
     },
     {
-        text = "Cases", func = menu_cases
+        text = "Server - Cases", func = menu_cases
     },
     {
-        text = "Pickups", func = menu_pickups
+        text = "Server - Pickups", func = menu_pickups
+    },
+    {
+        text = "Server - Armor", func = menu_armor
     },
 }
 hook.Add("PopulateToolMenu", "dz_ents_menu", function()

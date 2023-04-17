@@ -4,7 +4,7 @@ ENT.Base = "dz_base_ammo"
 
 ENT.PrintName = "Ammo Can (Infinite)"
 ENT.Spawnable = true
-ENT.AdminOnly = true
+ENT.AdminOnly = GetConVar("dzents_ammo_adminonly"):GetBool()
 ENT.Category = "Danger Zone"
 
 ENT.SubCategory = "Ammo"

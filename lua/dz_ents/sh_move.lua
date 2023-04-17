@@ -14,7 +14,7 @@ sound.Add({
 
 
 hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
-    if ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_nosprint"):GetBool() then
+    if ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_nosprint"):GetBool() and ply:GetMoveType() == MOVETYPE_WALK then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     end
 
@@ -24,6 +24,11 @@ hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
 end)
 
 hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
+
+    if ply:DZ_ENTS_HasHeavyArmor() and not ply:IsOnGround() and ply:GetVelocity().z < 0 then
+        local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()
+        mv:SetVelocity(mv:GetVelocity() + physenv.GetGravity() * grav * FrameTime())
+    end
 
     -- local ang = ply:GetAngles()
     local eyeangles = mv:GetAngles()
@@ -64,12 +69,20 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         ply.DZ_ENTS_ParachutePending = nil
     elseif ply:GetNWBool("DZ_Ents.Para.Open") then
 
+
         local slowfall = GetConVar("dzents_parachute_fall"):GetFloat()
+        local decel = slowfall * 5
+
+        if ply:DZ_ENTS_HasHeavyArmor() then
+            local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()
+            decel = decel * 0.5 * (1 + grav)
+        end
+
         local horiz_max = ply:GetWalkSpeed() + 50 --250
         if vel.z < -slowfall then
-            vel.z = math.Approach(vel.z, -slowfall, FrameTime() * (slowfall * 6 + math.abs(vel.z * 3)))
+            vel.z = math.Approach(vel.z, -slowfall, FrameTime() * (decel * Lerp(math.abs(vel.z) / 2500, 1, 5)))
         else
-            vel.z = math.Approach(vel.z, -slowfall, FrameTime() * slowfall * 3)
+            vel.z = math.Approach(vel.z, -slowfall, FrameTime() * decel * 0.5)
         end
 
         -- vel = vel + eyeangles:Forward() * 100 * FrameTime()
@@ -100,23 +113,23 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         mv:SetVelocity(vel)
 
     elseif ply:GetNWBool("DZ_Ents.Para.Auto") then
-        local trlen = math.Clamp(vel.z * 0.5, -1024, -328)
+        local trlen = math.Clamp(vel.z * 0.5, -2048, -328) * (1 + (ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_gravity"):GetFloat() or 0))
         local tr = util.TraceLine({
             start = ply:GetPos(),
             endpos = ply:GetPos() + Vector(0, 0, trlen),
             mask = bit.bor(MASK_PLAYERSOLID, MASK_WATER),
             filter = ply
         })
-        if tr.Hit and (tr.Fraction * -trlen) > 72 then
+        if tr.Hit and (tr.Fraction * -trlen) > 36 then
             ply.DZ_ENTS_ParachutePending = true
             ply:SetNWBool("DZ_Ents.Para.Auto", false)
         end
     end
 
-    local ha = ply:DZ_ENTS_HasHeavyArmor()
+    local ha = ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_exojump"):GetFloat() or 1
     local boostdur = GetConVar("dzents_exojump_boostdur"):GetFloat()
-    local boostvel = GetConVar("dzents_exojump_vel_up"):GetFloat() * (ha and 0.75 or 1)
-    local longjumpvel = GetConVar("dzents_exojump_vel_long"):GetFloat() * (ha and 0.75 or 1)
+    local boostvel = GetConVar("dzents_exojump_vel_up"):GetFloat() * ha
+    local longjumpvel = GetConVar("dzents_exojump_vel_long"):GetFloat() * ha
     vel = mv:GetVelocity()
     if ply:KeyPressed(IN_JUMP) and ply:IsOnGround() and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetNWFloat("DZ_Ents.ExoJump.NextUse", 0) < CurTime()
             and ply:GetMoveType() == MOVETYPE_WALK

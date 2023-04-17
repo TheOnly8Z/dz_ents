@@ -17,6 +17,7 @@ CreateConVar("dzents_ammo_limit", 1, FCVAR_ARCHIVE, "Multiplier for reserve ammo
 CreateConVar("dzents_ammo_regen", 0, FCVAR_ARCHIVE, "Ammo boxes replenish themselves after being consumed.", 0, 1)
 CreateConVar("dzents_ammo_regen_delay", 60, FCVAR_ARCHIVE, "Time for the ammo box to regenerate fully after last use.", 1)
 CreateConVar("dzents_ammo_regen_partial", 0, FCVAR_ARCHIVE, "Regenerate ammo boxes one by one instead of all at once.", 0, 1)
+CreateConVar("dzents_ammo_adminonly", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Infinite Ammo Can is admin only. Requires reload.", 0, 1)
 
 -- Armor
 CreateConVar("dzents_armor_enabled", 1, FCVAR_ARCHIVE, "Whether to use CS:GO armor logic. 1 - If player equipped armor/helmet. 2 - always use custom logic.", 0, 2)
@@ -28,6 +29,9 @@ CreateConVar("dzents_armor_heavy_speed", 130, FCVAR_ARCHIVE + FCVAR_REPLICATED, 
 CreateConVar("dzents_armor_heavy_nosprint", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "When using Heavy Assault Suit, allow sprinting. Sprinting speed will be twice the walk speed.", 0, 1)
 CreateConVar("dzents_armor_heavy_norifle", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED, "When using Heavy Assault Suit, disallow equipping rifles. This only affects canonical CS:GO weapons.", 0, 1)
 CreateConVar("dzents_armor_heavy_deployspeed", 0.8, FCVAR_ARCHIVE + FCVAR_REPLICATED, "When using Heavy Assault Suit, multiply deploy speed by this number. Only works for certain weapon bases.", 0, 1)
+CreateConVar("dzents_armor_heavy_adminonly", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Heavy Assault Suit is admin only. Requires reload.", 0, 1)
+CreateConVar("dzents_armor_heavy_gravity", 0.3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Additional gravity multiplier when you have the Heavy Assault Suit. Also affects parachute.", 0)
+CreateConVar("dzents_armor_heavy_exojump", 0.75, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity multiplier when using the ExoJump with the Heavy Assault Suit.", 0, 1)
 
 -- Death drop
 CreateConVar("dzents_drop_armor", 1, FCVAR_ARCHIVE, "On death, drop helmet and armor. Does not drop the Heavy Assault Suit.", 0, 1)
