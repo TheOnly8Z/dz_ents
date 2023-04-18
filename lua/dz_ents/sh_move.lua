@@ -22,6 +22,23 @@ hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
     -- end
 end)
 
+local function movedir(ang, cmd)
+    local forward = cmd:GetForwardMove() / 10000
+    local side = cmd:GetSideMove() / 10000
+
+    local abs_xy_move = math.abs(forward) + math.abs(side)
+    local vec = Vector()
+    if abs_xy_move == 0 then
+        vec = Vector(0, 0, 1)
+    else
+        local div = (forward ^ 2 + side ^ 2) ^ 0.5
+        vec:Add(ang:Forward() * forward / div)
+        vec:Add(ang:Right() * side / div)
+    end
+
+    return vec
+end
+
 hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
     local ft = FrameTime()
@@ -50,7 +67,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                     ply.DZ_ENTS_ParachuteSound = CreateSound(ply, "DZ_ENTS.ParachuteDeploy")
                     ply.DZ_ENTS_ParachuteSound:Play()
                 end
-            elseif ply.DZ_ENTS_ParachutePending == nil and ply:GetVelocity().z < 0 then
+            elseif ply.DZ_ENTS_ParachutePending == nil and ply:GetVelocity().z < -50 then
                 local tr = util.TraceHull({
                     start = ply:GetPos(),
                     endpos = ply:GetPos() - Vector(0, 0, 196),
@@ -100,7 +117,8 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
         if ply:DZ_ENTS_HasHeavyArmor() then
             local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()
-            decel = decel * 0.5 * (1 + grav)
+            decel = decel * 0.75 * (1 + grav)
+            slowfall = slowfall * (1 + grav)
         end
 
         local horiz_max = ply:GetWalkSpeed() + 50 --250
@@ -148,9 +166,11 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
     local ha = ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_exojump"):GetFloat() or 1
     local boostdur = 0.5 --GetConVar("dzents_exojump_boostdur"):GetFloat()
-    local boostvel = 700 * (1 + GetConVar("dzents_exojump_boost_up"):GetFloat()) * ha
+    local acceldur = 0.15
+    local boostvel = 700 * (1 + GetConVar("dzents_exojump_boost_up"):GetFloat()) * ha * (ply:DZ_ENTS_HasHeavyArmor() and (1 / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat())) or 1)
     local longjumpvel = GetConVar("dzents_exojump_boost_forward"):GetFloat() * ha
     local yawang = Angle(0, ply:GetAngles().y, 0)
+    local horiz_max = (not GetConVar("dzents_exojump_runboost"):GetBool()) and ply:GetWalkSpeed() or ply:GetRunSpeed()
 
     if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
 
@@ -169,27 +189,23 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 ply.DZ_ENTS_ExoSound = true
                 ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, ha and 95 or 100, 1)
 
-                local forward = cmd:GetForwardMove() / 10000
-                local side = cmd:GetSideMove() / 10000
-
-                local abs_xy_move = math.abs(forward) + math.abs(side)
-                local vec = Vector()
-                if abs_xy_move == 0 then
-                    vec = Vector(0, 0, 1)
-                else
-                    local div = (forward ^ 2 + side ^ 2) ^ 0.5
-                    vec:Add(yawang:Forward() * forward / div)
-                    vec:Add(yawang:Right() * side / div)
-                end
+                local vec = movedir(yawang, cmd)
 
                 -- If we don't do this, we seem to lose a bit of vertical velocity for no reason?
                 vel.z = vel.z + ply:GetJumpPower()
                 ply:SetGroundEntity(NULL)
 
-                vel = vel + vec * math.min(ply:GetVelocity():Length2D(), ply:GetRunSpeed()) * longjumpvel
+                local startvel = math.min(vel:Length2D(), horiz_max)
+                ply:SetNWFloat("DZ_Ents.ExoJump.Vel", startvel)
+
+                vel = vel + vec * startvel * longjumpvel
             else
                 ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", false)
                 ply.DZ_ENTS_ExoSound = false
+
+                -- cancel sandbox sprint jump boost
+                vel = vel / 2
+                -- print(vel:Length2D())
             end
 
             -- there seems to be a convar for jump impulse boost in csgo.
@@ -198,28 +214,37 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         elseif ply:GetMoveType() == MOVETYPE_WALK and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0
                 and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur > CurTime() then
 
-            if not ply:KeyDown(IN_JUMP) then
-                ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", false)
-            end
-
             local delta = math.Clamp((ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur - CurTime()) / boostdur, 0, 1)
 
             if ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
-                local tgtvel = delta * boostvel
-                vel.z = vel.z + tgtvel * ft
 
-                local drag = GetConVar("dzents_exojump_drag"):GetFloat()
-                if drag > 0 then
-                    local horiz_max = ply:GetRunSpeed()
-                    local speedSqr = vel.x * vel.x + vel.y * vel.y
-                    local diff = math.max(0, speedSqr / (horiz_max * horiz_max) - 1)
-                    local damp = ft * Lerp(math.Clamp(diff / 2, 0, 1), 0, 2000) * drag
+                if not mv:KeyDown(IN_JUMP) then
+                    ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", false)
+                else
+                    local tgtvel = delta * boostvel
+                    vel.z = vel.z + tgtvel * ft
 
-                    -- apply dampening to each axis relative to their magnitude to preserve direction
-                    local x_weight = math.abs(vel.x) / (math.abs(vel.x) + math.abs(vel.y))
-                    vel.x = math.Approach(vel.x, 0, damp * x_weight)
-                    vel.y = math.Approach(vel.y, 0, damp * (1 - x_weight))
+                    local diff = vel:Length2D() - ply:GetNWFloat("DZ_Ents.ExoJump.Vel") * (1 + longjumpvel * 0.25)
+                    if ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") and diff > 0 then
+                        local v2d = Vector(vel.x, vel.y, 0)
+                        v2d = v2d:GetNormalized() * (v2d:Length() - FrameTime() * (diff / acceldur))
+                        vel.x = v2d.x
+                        vel.y = v2d.y
+                    end
                 end
+            end
+
+            local drag = GetConVar("dzents_exojump_drag"):GetFloat()
+            if not ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") and drag > 0 then
+
+                local speedSqr = vel.x * vel.x + vel.y * vel.y
+                local diff = math.max(0, speedSqr / (horiz_max * horiz_max) - 1)
+                local damp = ft * Lerp(math.Clamp(diff / 2, 0, 1), 0, 1500) * drag
+
+                -- apply dampening to each axis relative to their magnitude to preserve direction
+                local x_weight = math.abs(vel.x) / (math.abs(vel.x) + math.abs(vel.y))
+                vel.x = math.Approach(vel.x, 0, damp * x_weight)
+                vel.y = math.Approach(vel.y, 0, damp * (1 - x_weight))
             end
 
             if not ply.DZ_ENTS_ExoSound then

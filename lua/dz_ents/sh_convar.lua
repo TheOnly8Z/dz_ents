@@ -34,7 +34,7 @@ CreateConVar("dzents_armor_heavy_norifle", 2, FCVAR_ARCHIVE + FCVAR_REPLICATED, 
 CreateConVar("dzents_armor_heavy_deployspeed", 0.8, FCVAR_ARCHIVE + FCVAR_REPLICATED, "When using Heavy Assault Suit, multiply deploy speed by this number. Only works for certain weapon bases.", 0.25, 1)
 CreateConVar("dzents_armor_heavy_adminonly", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Heavy Assault Suit is admin only. Requires reload.", 0, 1)
 CreateConVar("dzents_armor_heavy_gravity", 0.3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Additional gravity multiplier when you have the Heavy Assault Suit. Also affects parachute.", 0)
-CreateConVar("dzents_armor_heavy_exojump", 0.8, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity multiplier when using the ExoJump with the Heavy Assault Suit.", 0, 1)
+CreateConVar("dzents_armor_heavy_exojump", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity multiplier when using the ExoJump with the Heavy Assault Suit.", 0)
 
 -- Death drop
 CreateConVar("dzents_drop_armor", 1, FCVAR_ARCHIVE, "On death, drop helmet and armor. Does not drop the Heavy Assault Suit.", 0, 1)
@@ -49,6 +49,7 @@ CreateConVar("dzents_parachute_fall", 200, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Ta
 CreateConVar("dzents_parachute_threshold", 500, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Minimum downwards velocity for instant parachute deployment. Below this threshold there is a short deployment delay.", 0)
 CreateConVar("dzents_parachute_drag", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when using parachute. Higher value slows players down further.", 0)
 CreateConVar("dzents_exojump_onspawn", 0, FCVAR_ARCHIVE, "Give an ExoJump on spawn.", 0, 1)
+CreateConVar("dzents_exojump_runboost", 1, FCVAR_ARCHIVE, "Allow using ExoJump at running speeds.", 0, 1)
 CreateConVar("dzents_exojump_boost_up", 0.58, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity boost when high jumping with the ExoJump.", 0)
 CreateConVar("dzents_exojump_boost_forward", 0.4, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity boost when long jumping with the ExoJump.", 0)
 CreateConVar("dzents_exojump_falldamage", 0.4, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Fall damage multiplier when wearing the ExoJump.", 0, 1)

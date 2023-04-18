@@ -194,13 +194,13 @@ local function menu_armor(panel)
         min = 0,
         max = 1,
     })
-    panel:ControlHelp("Makes you fall faster, and makes parachute less effective.")
+    panel:ControlHelp("Makes you fall faster, and makes parachute and ExoJump less effective.")
     panel:AddControl("slider", {
         label = "ExoJump strength",
         command = "dzents_armor_heavy_exojump",
         type = "float",
-        min = 0.4,
-        max = 1,
+        min = 0,
+        max = 2,
     })
     panel:ControlHelp("Velocity multiplier when using the ExoJump with the Heavy Assault Armor.")
 
@@ -243,6 +243,12 @@ local function menu_pickups(panel)
     })
 
     header(panel, "\nExoJump")
+    panel:AddControl("checkbox", {
+        label = "Sprint boost",
+        command = "dzents_exojump_runboost"
+    })
+    panel:ControlHelp("Allow using running speed to boost with the ExoJump. If disabled, drag will slow down velocity to walking speed.")
+
     panel:AddControl("slider", {
         label = "High jump boost",
         command = "dzents_exojump_boost_up",
@@ -258,19 +264,20 @@ local function menu_pickups(panel)
         max = 2,
     })
     panel:AddControl("slider", {
-        label = "High jump drag",
-        command = "dzents_exojump_drag",
-        type = "float",
-        min = 0,
-        max = 2,
-    })
-    panel:AddControl("slider", {
         label = "Fall damage",
         command = "dzents_exojump_falldamage",
         type = "float",
         min = 0,
         max = 1,
     })
+    panel:AddControl("slider", {
+        label = "Drag",
+        command = "dzents_exojump_drag",
+        type = "float",
+        min = 0,
+        max = 2,
+    })
+    panel:ControlHelp("Drag reduces horizontal velocity when it exceeds maximum.")
 
     header(panel, "\nParachute")
     panel:AddControl("checkbox", {
@@ -295,13 +302,6 @@ local function menu_pickups(panel)
         type = "int",
         min = 50,
         max = 500,
-    })
-    panel:AddControl("slider", {
-        label = "Boost length",
-        command = "dzents_exojump_boostdur",
-        type = "float",
-        min = 0,
-        max = 1,
     })
     panel:AddControl("slider", {
         label = "Horizontal drag",
