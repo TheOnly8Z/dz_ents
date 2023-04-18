@@ -51,6 +51,55 @@ sound.Add({
     chan = CHAN_STATIC,
 })
 
+sound.Add({
+    name = "DZ_Ents.Suit.CT",
+    pitch = {90, 100},
+    volume = {0.05, 0.1},
+    level = 70,
+    sound = {
+        "dz_ents/footsteps/suit_ct_03.wav",
+        "dz_ents/footsteps/suit_ct_06.wav",
+        "dz_ents/footsteps/suit_ct_07.wav",
+        "dz_ents/footsteps/suit_ct_08.wav",
+        "dz_ents/footsteps/suit_ct_11.wav",
+    },
+    chan = CHAN_STATIC,
+})
+
+sound.Add({
+    name = "DZ_Ents.Healthshot.Success",
+    volume = 0.6,
+    level = 75,
+    sound =  ")dz_ents/healthshot_success_01.wav",
+    chan = CHAN_STATIC,
+})
+
+sound.Add({
+    name = "DZ_Ents.Healthshot.Prepare",
+    volume = 1,
+    level = 75,
+    sound =  ")dz_ents/healthshot_prepare_01.wav",
+    chan = CHAN_STATIC,
+})
+
+sound.Add({
+    name = "DZ_Ents.Healthshot.Thud",
+    volume = 0.6,
+    level = 75,
+    sound =  ")dz_ents/healthshot_thud_01.wav",
+    chan = CHAN_STATIC,
+})
+
+-- used on health shot, actually
+sound.Add({
+    name = "DZ_Ents.HEGrenade.Draw",
+    volume = 0.3,
+    level = 65,
+    sound =  ")dz_ents/he_draw.wav",
+    chan = CHAN_STATIC,
+})
+
+
 hook.Add("PlayerFootstep", "dz_ents_sound", function(ply, pos, foot, snd, volume, rf)
     if ply:DZ_ENTS_HasHeavyArmor() then
         ply:EmitSound("DZ_Ents.Suit.Heavy")

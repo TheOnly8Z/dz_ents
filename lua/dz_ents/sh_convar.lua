@@ -41,7 +41,7 @@ CreateConVar("dzents_drop_armor", 1, FCVAR_ARCHIVE, "On death, drop helmet and a
 CreateConVar("dzents_drop_equip", 1, FCVAR_ARCHIVE, "On death, drop the Parachute or ExoJump.", 0, 1)
 CreateConVar("dzents_drop_cleanup", 60, FCVAR_ARCHIVE, "Timer for removing items dropped on death. 0 - never remove.", 0)
 
--- Equipment
+-- Pickups
 CreateConVar("dzents_parachute_onspawn", 0, FCVAR_ARCHIVE, "Give a parachute on spawn.", 0, 1)
 CreateConVar("dzents_parachute_detach", 0, FCVAR_ARCHIVE, "Allow premature detaching of the parachute.", 0, 1)
 CreateConVar("dzents_parachute_consume", 1, FCVAR_ARCHIVE, "After parachute is deployed and released, it is used up.", 0, 1)
@@ -56,3 +56,16 @@ CreateConVar("dzents_exojump_falldamage", 0.4, FCVAR_ARCHIVE + FCVAR_REPLICATED,
 CreateConVar("dzents_exojump_drag", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when high jumping with the ExoJump. Higher value slows players down further.", 0)
 -- CreateConVar("dzents_exojump_cooldown", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED, "After using the ExoJump and landing, how long until you can use it again.", 0)
 -- CreateConVar("dzents_exojump_boostdur", 0.5, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Duration of the ExoJump boost.", 0)
+
+-- Equipment
+CreateConVar("dzents_equipment_swcs", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Use SWCS as our weapon base if possible.", 0, 1)
+
+CreateConVar("dzents_healthshot_health", 50, FCVAR_ARCHIVE, "How much health is restored by the Medi-Shot.", 0)
+CreateConVar("dzents_healthshot_use_at_full", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Allow using the Medi-Shot at full health.", 0, 1)
+CreateConVar("dzents_healthshot_healtime", 0, FCVAR_ARCHIVE, "Duration over which health is restored. At 0, health is given instantly.", 0)
+CreateConVar("dzents_healthshot_damage_dealt", 1, FCVAR_ARCHIVE, "Outgoing damage multiplier while under the effects of the Medi-Shot.", 0)
+CreateConVar("dzents_healthshot_damage_taken", 1, FCVAR_ARCHIVE, "Incoming damage multiplier while under the effects of the Medi-Shot.", 0)
+CreateConVar("dzents_healthshot_speed", 1.2, FCVAR_ARCHIVE, "Speed multiplier while under the effects of the Medi-Shot.", 0)
+CreateConVar("dzents_healthshot_duration", 6.5, FCVAR_ARCHIVE, "Duration of damage and speed bonuses from the Medi-Shot.", 0)
+CreateConVar("dzents_healthshot_maxammo", 4, FCVAR_ARCHIVE, "Maximum amount of Medi-Shots you can have on you.", 0)
+CreateConVar("dzents_healthshot_killcount", 3, FCVAR_ARCHIVE, "Kill this many players to get a Medi-Shot. 0 disables.", 0)
