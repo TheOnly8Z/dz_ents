@@ -303,11 +303,6 @@ end
 local bitflags_blockable = DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST
 local bitflags_nohitgroup = DMG_FALL + DMG_BLAST + DMG_RADIATION + DMG_CRUSH + DMG_DROWN + DMG_POISON
 
--- https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/game/shared/shareddefs.h#L369
-local PLAYER_FATAL_FALL_SPEED = 922.5
-local PLAYER_MAX_SAFE_FALL_SPEED = 526.5
-local DAMAGE_FOR_FALL_SPEED = 100 / ( PLAYER_FATAL_FALL_SPEED - PLAYER_MAX_SAFE_FALL_SPEED )
-
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
     if not ply:IsPlayer() then return end
     if dmginfo:IsFallDamage() then
@@ -316,7 +311,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         if not GetConVar("mp_falldamage"):GetBool() and ply:DZ_ENTS_HasHeavyArmor()
                 and GetConVar("dzents_armor_heavy_falldamage"):GetBool() and dmginfo:GetDamage() == 10 then
             -- SDK2013 damage calc. gets pretty close, the difference is probably related to velocity being a tick off or whatever
-            dmginfo:SetDamage(math.max(math.abs(ply:GetVelocity().z) - PLAYER_MAX_SAFE_FALL_SPEED, 0) * DAMAGE_FOR_FALL_SPEED)
+            dmginfo:SetDamage(math.max(math.abs(ply:GetVelocity().z) - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED, 0) * DZ_ENTS.DAMAGE_FOR_FALL_SPEED)
         end
 
         -- goomba stomp

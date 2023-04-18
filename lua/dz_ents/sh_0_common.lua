@@ -347,3 +347,8 @@ DZ_ENTS.AmmoMaxReserve = { -- only used when max ammo is not defined in ammo typ
     ["magnum"] = 12,
     ["sniper"] = 15,
 }
+
+-- https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/game/shared/shareddefs.h#L369
+DZ_ENTS.PLAYER_FATAL_FALL_SPEED = 922.5
+DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED = 526.5
+DZ_ENTS.DAMAGE_FOR_FALL_SPEED = 100 / ( DZ_ENTS.PLAYER_FATAL_FALL_SPEED - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED )

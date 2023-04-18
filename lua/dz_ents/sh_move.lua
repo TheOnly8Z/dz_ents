@@ -51,9 +51,9 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                     ply.DZ_ENTS_ParachuteSound:Play()
                 end
             elseif ply.DZ_ENTS_ParachutePending == nil and ply:GetVelocity().z < 0 then
-                local tr = util.TraceLine({
+                local tr = util.TraceHull({
                     start = ply:GetPos(),
-                    endpos = ply:GetPos() - Vector(0, 0, 128),
+                    endpos = ply:GetPos() - Vector(0, 0, 196),
                     mask = bit.bor(MASK_PLAYERSOLID, MASK_WATER),
                     filter = ply
                 })
@@ -65,7 +65,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         elseif not ply:GetNWBool("DZ_Ents.Para.Auto") and ply:GetMoveType() == MOVETYPE_WALK
                 and not ply:IsOnGround() and ply:GetVelocity().z < -400
                 and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE)
-                and ply:GetInfoNum("cl_dzents_autoparachute", 0) == 1 then
+                and ply:GetInfoNum("cl_dzents_parachute_autodeploy", 0) == 1 then
             ply:SetNWBool("DZ_Ents.Para.Auto", true)
         elseif ply:GetNWBool("DZ_Ents.Para.Open") and mv:KeyPressed(IN_JUMP) and GetConVar("dzents_parachute_detach"):GetBool() then
             ply:SetNWBool("DZ_Ents.Para.Open", false)
@@ -137,14 +137,8 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         mv:SetVelocity(vel)
 
     elseif ply:GetNWBool("DZ_Ents.Para.Auto") then
-        local trlen = math.Clamp(vel.z * 0.5, -2048, -328) * (1 + (ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_gravity"):GetFloat() or 0))
-        local tr = util.TraceLine({
-            start = ply:GetPos(),
-            endpos = ply:GetPos() + Vector(0, 0, trlen),
-            mask = bit.bor(MASK_PLAYERSOLID, MASK_WATER),
-            filter = ply
-        })
-        if tr.Hit and (tr.Fraction * -trlen) > 36 then
+        local v = ply:Health() / DZ_ENTS.DAMAGE_FOR_FALL_SPEED + DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED
+        if vel.z <= -v then
             ply.DZ_ENTS_ParachutePending = CurTime()
             ply:SetNWBool("DZ_Ents.Para.Auto", false)
         end
@@ -154,7 +148,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
     local ha = ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_exojump"):GetFloat() or 1
     local boostdur = 0.5 --GetConVar("dzents_exojump_boostdur"):GetFloat()
-    local boostvel = 700 * GetConVar("dzents_exojump_boost_up"):GetFloat() * ha
+    local boostvel = 700 * (1 + GetConVar("dzents_exojump_boost_up"):GetFloat()) * ha
     local longjumpvel = GetConVar("dzents_exojump_boost_forward"):GetFloat() * ha
     local yawang = Angle(0, ply:GetAngles().y, 0)
 
@@ -240,7 +234,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", false)
         end
 
-        print(math.Round(vel:Length2D()), math.Round(vel.z))
+        -- print(math.Round(vel:Length2D()), math.Round(vel.z))
     end
 
     mv:SetVelocity(vel)

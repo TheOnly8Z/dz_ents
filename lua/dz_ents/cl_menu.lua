@@ -20,11 +20,12 @@ local function menu_client(panel)
     })
     panel:AddControl("checkbox", {
         label = "Automatically deploy parachute",
-        command = "cl_dzents_autoparachute"
+        command = "cl_dzents_parachute_autodeploy"
     })
+    panel:ControlHelp("Parachute will deploy when your falling velocity becomes lethal.")
     panel:AddControl("checkbox", {
         label = "Use parachute viewmodel",
-        command = "cl_dzents_vmparachute"
+        command = "cl_dzents_parachute_vm"
     })
 end
 

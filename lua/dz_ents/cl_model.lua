@@ -110,7 +110,7 @@ hook.Add("PostDrawViewModel", "dzents_model", function(vm, ply, weapon)
 
     local model = DZ_ENTS.CL_PlayerAttachModels[ply].parastrap
     if ply:GetNWBool("DZ_Ents.Para.Open") then
-        if GetConVar("cl_dzents_vmparachute"):GetBool() and not IsValid(DZ_ENTS.CL_PlayerAttachModels[ply].parastrap) then
+        if GetConVar("cl_dzents_parachute_vm"):GetBool() and not IsValid(DZ_ENTS.CL_PlayerAttachModels[ply].parastrap) then
             DZ_ENTS.CL_PlayerAttachModels[ply].parastrap = ClientsideModel("models/weapons/v_parachute.mdl")
             model = DZ_ENTS.CL_PlayerAttachModels[ply].parastrap
             model:DrawShadow(false)
