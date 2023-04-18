@@ -396,7 +396,8 @@ DZ_ENTS.LootTypes = {
             if ent.ArcticTacRP then
                 return ent.SubCatType == "4Assault Rifle" or ent.SubCatType == "6Precision Rifle"
             elseif ent.ARC9 and ent.Class then
-                return string.find(string.lower(ent.Class), "rifle") or string.find(string.lower(ent.Class), "carbine")
+                return (string.find(string.lower(ent.Class), "rifle") or string.find(string.lower(ent.Class), "carbine"))
+                        and not (string.find(string.lower(ent.Class), "sniper") or string.find(string.lower(ent.Class), "marksman"))
             elseif weapons.IsBasedOn(class, "mg_base") then
                 return ent.SubCategory == "Assault Rifles"
             elseif weapons.IsBasedOn(class, "bobs_gun_base") then

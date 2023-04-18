@@ -201,8 +201,11 @@ function DZ_ENTS.HeavyArmorCanPickup(class)
         return false
     end
     if mode == 2 then
-        DZ_ENTS:GetLootType("rifle") -- generate the list just in case
-        if DZ_ENTS.LootTypeListLookup["rifle"][class] then return false end
+        if not DZ_ENTS.LootTypeListLookup["rifle"] or not DZ_ENTS.LootTypeListLookup["sniper"] then
+            DZ_ENTS:GetLootType("rifle") -- generate the list
+            DZ_ENTS:GetLootType("sniper")
+        end
+        if DZ_ENTS.LootTypeListLookup["rifle"][class] or DZ_ENTS.LootTypeListLookup["sniper"][class] then return false end
     end
     return true
 end
@@ -336,6 +339,11 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
                 dmginfo:SetDamage(dmginfo:GetDamage() - math.min(groundent:Health(), dmg * 0.5))
                 groundent:EmitSound("dz_ents/mantreads.wav", 80)
             end
+        end
+
+        -- exojump reduces fall damage
+        if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
+            dmginfo:ScaleDamage(GetConVar("dzents_exojump_falldamage"):GetFloat())
         end
 
         -- armor can't handle fall damage!

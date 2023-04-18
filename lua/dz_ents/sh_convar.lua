@@ -34,7 +34,7 @@ CreateConVar("dzents_armor_heavy_norifle", 2, FCVAR_ARCHIVE + FCVAR_REPLICATED, 
 CreateConVar("dzents_armor_heavy_deployspeed", 0.8, FCVAR_ARCHIVE + FCVAR_REPLICATED, "When using Heavy Assault Suit, multiply deploy speed by this number. Only works for certain weapon bases.", 0.25, 1)
 CreateConVar("dzents_armor_heavy_adminonly", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Heavy Assault Suit is admin only. Requires reload.", 0, 1)
 CreateConVar("dzents_armor_heavy_gravity", 0.3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Additional gravity multiplier when you have the Heavy Assault Suit. Also affects parachute.", 0)
-CreateConVar("dzents_armor_heavy_exojump", 0.75, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity multiplier when using the ExoJump with the Heavy Assault Suit.", 0, 1)
+CreateConVar("dzents_armor_heavy_exojump", 0.8, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity multiplier when using the ExoJump with the Heavy Assault Suit.", 0, 1)
 
 -- Death drop
 CreateConVar("dzents_drop_armor", 1, FCVAR_ARCHIVE, "On death, drop helmet and armor. Does not drop the Heavy Assault Suit.", 0, 1)
@@ -43,13 +43,15 @@ CreateConVar("dzents_drop_cleanup", 60, FCVAR_ARCHIVE, "Timer for removing items
 
 -- Equipment
 CreateConVar("dzents_parachute_onspawn", 0, FCVAR_ARCHIVE, "Give a parachute on spawn.", 0, 1)
+CreateConVar("dzents_parachute_detach", 0, FCVAR_ARCHIVE, "Allow premature detaching of the parachute.", 0, 1)
 CreateConVar("dzents_parachute_consume", 1, FCVAR_ARCHIVE, "After parachute is deployed and released, it is used up.", 0, 1)
 CreateConVar("dzents_parachute_fall", 200, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Target vertical velocity when using parachute. Higher value means faster falling.", 50, 500)
-CreateConVar("dzents_parachute_threshold", 500, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Minimum downwards velocity for parachute deployment. Negative values allow for deploying while rising in the air.")
+CreateConVar("dzents_parachute_threshold", 500, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Minimum downwards velocity for instant parachute deployment. Below this threshold there is a short deployment delay.", 0)
 CreateConVar("dzents_parachute_drag", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when using parachute. Higher value slows players down further.", 0)
 CreateConVar("dzents_exojump_onspawn", 0, FCVAR_ARCHIVE, "Give an ExoJump on spawn.", 0, 1)
-CreateConVar("dzents_exojump_vel_up", 1100, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity when high jumping with the ExoJump.", 0)
-CreateConVar("dzents_exojump_vel_long", 500, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity when long jumping with the ExoJump.", 0)
-CreateConVar("dzents_exojump_boostdur", 0.5, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Duration of the ExoJump boost.", 0)
+CreateConVar("dzents_exojump_boost_up", 0.58, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity boost when high jumping with the ExoJump.", 0)
+CreateConVar("dzents_exojump_boost_forward", 0.4, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity boost when long jumping with the ExoJump.", 0)
+CreateConVar("dzents_exojump_falldamage", 0.4, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Fall damage multiplier when wearing the ExoJump.", 0, 1)
 CreateConVar("dzents_exojump_drag", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when high jumping with the ExoJump. Higher value slows players down further.", 0)
-CreateConVar("dzents_exojump_cooldown", 0.1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "After using the ExoJump and landing, how long until you can use it again.", 0)
+-- CreateConVar("dzents_exojump_cooldown", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED, "After using the ExoJump and landing, how long until you can use it again.", 0)
+-- CreateConVar("dzents_exojump_boostdur", 0.5, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Duration of the ExoJump boost.", 0)

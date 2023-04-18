@@ -243,53 +243,51 @@ local function menu_pickups(panel)
 
     header(panel, "\nExoJump")
     panel:AddControl("slider", {
-        label = "High jump velocity",
-        command = "dzents_exojump_vel_up",
-        type = "int",
-        min = 500,
-        max = 1500,
-    })
-    panel:AddControl("slider", {
-        label = "Long jump velocity",
-        command = "dzents_exojump_vel_long",
-        type = "int",
-        min = 200,
-        max = 1000,
-    })
-    panel:AddControl("slider", {
-        label = "Boost length",
-        command = "dzents_exojump_boostdur",
+        label = "High jump boost",
+        command = "dzents_exojump_boost_up",
         type = "float",
-        min = 0.3,
-        max = 1,
+        min = 0,
+        max = 2,
+    })
+    panel:AddControl("slider", {
+        label = "Long jump boost",
+        command = "dzents_exojump_boost_forward",
+        type = "float",
+        min = 0,
+        max = 2,
     })
     panel:AddControl("slider", {
         label = "High jump drag",
         command = "dzents_exojump_drag",
         type = "float",
         min = 0,
-        max = 5,
+        max = 2,
     })
     panel:AddControl("slider", {
-        label = "Cooldown",
-        command = "dzents_exojump_cooldown",
+        label = "Fall damage",
+        command = "dzents_exojump_falldamage",
         type = "float",
         min = 0,
-        max = 3,
+        max = 1,
     })
 
     header(panel, "\nParachute")
     panel:AddControl("checkbox", {
-        label = "Consume on use",
+        label = "Consume on landing",
         command = "dzents_parachute_consume"
     })
+    panel:AddControl("checkbox", {
+        label = "Allow premature detach",
+        command = "dzents_parachute_detach"
+    })
     panel:AddControl("slider", {
-        label = "Velocity to deploy",
+        label = "Deploy threshold",
         command = "dzents_parachute_threshold",
         type = "float",
         min = 0,
         max = 1000,
     })
+    panel:ControlHelp("If trying to deploy while below this threshold, a short deploy delay will occur.")
     panel:AddControl("slider", {
         label = "Fall velocity",
         command = "dzents_parachute_fall",

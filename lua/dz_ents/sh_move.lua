@@ -12,7 +12,6 @@ sound.Add({
     sound = "dz_ents/dropzone_parachute_success_02.wav",
 })
 
-
 hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
     if ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_nosprint"):GetBool() and ply:GetMoveType() == MOVETYPE_WALK then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
@@ -25,11 +24,13 @@ end)
 
 hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
+    local ft = FrameTime()
+
     local gravity = GetConVar("sv_gravity"):GetFloat()
 
     if ply:DZ_ENTS_HasHeavyArmor() and not ply:IsOnGround() and (ply:GetVelocity().z < (600 - gravity)) then
         local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()
-        mv:SetVelocity(mv:GetVelocity() - Vector(0, 0, gravity * grav * FrameTime()))
+        mv:SetVelocity(mv:GetVelocity() - Vector(0, 0, gravity * grav * ft))
     end
 
     -- local ang = ply:GetAngles()
@@ -37,28 +38,42 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     local vel = mv:GetVelocity()
 
     -- Open the parachute
-    if (ply.DZ_ENTS_ParachutePending or mv:KeyPressed(IN_JUMP)) and ply:GetMoveType() == MOVETYPE_WALK
-            and not ply:IsOnGround() and ply:WaterLevel() == 0 and not ply:GetNWBool("DZ_Ents.Para.Open") and (ply.DZ_ENTS_NextParachute or 0) < CurTime()
-            and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE) and ply:GetVelocity().z < -GetConVar("dzents_parachute_threshold"):GetFloat() then
-        ply:SetNWBool("DZ_Ents.Para.Open", true)
-        ply:SetNWBool("DZ_Ents.Para.Consume", true)
-        ply.DZ_ENTS_ParachutePending = nil
-        if SERVER then
-            ply.DZ_ENTS_ParachuteSound = CreateSound(ply, "DZ_ENTS.ParachuteDeploy")
-            ply.DZ_ENTS_ParachuteSound:Play()
-            ply:EmitSound("DZ_ENTS.ParachuteOpen")
-        end
-    elseif not ply:GetNWBool("DZ_Ents.Para.Auto") and ply:GetMoveType() == MOVETYPE_WALK
-            and not ply:IsOnGround() and ply:GetVelocity().z < -400
-            and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE)
-            and ply:GetInfoNum("cl_dzents_autoparachute", 0) == 1 then
-        ply:SetNWBool("DZ_Ents.Para.Auto", true)
-    elseif ply:GetNWBool("DZ_Ents.Para.Open") and mv:KeyPressed(IN_JUMP) then
-        ply:SetNWBool("DZ_Ents.Para.Open", false)
-        ply.DZ_ENTS_NextParachute = CurTime() + 0.5
-        if ply.DZ_ENTS_ParachuteSound then
-            ply.DZ_ENTS_ParachuteSound:FadeOut(0.25)
-            ply.DZ_ENTS_ParachuteSound = nil
+    if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE) then
+        local pending = ply.DZ_ENTS_ParachutePending ~= nil and ply.DZ_ENTS_ParachutePending < CurTime()
+        if (pending or mv:KeyDown(IN_JUMP)) and ply:GetMoveType() == MOVETYPE_WALK
+                and not ply:IsOnGround() and ply:WaterLevel() == 0 and not ply:GetNWBool("DZ_Ents.Para.Open") and (ply.DZ_ENTS_NextParachute or 0) < CurTime() then
+            if pending or (not ply:GetNWBool("DZ_Ents.Para.Consume") and ply:GetVelocity().z < -GetConVar("dzents_parachute_threshold"):GetFloat()) then
+                ply:SetNWBool("DZ_Ents.Para.Open", true)
+                ply:SetNWBool("DZ_Ents.Para.Consume", true)
+                ply.DZ_ENTS_ParachutePending = nil
+                if SERVER then
+                    ply.DZ_ENTS_ParachuteSound = CreateSound(ply, "DZ_ENTS.ParachuteDeploy")
+                    ply.DZ_ENTS_ParachuteSound:Play()
+                end
+            elseif ply.DZ_ENTS_ParachutePending == nil and ply:GetVelocity().z < 0 then
+                local tr = util.TraceLine({
+                    start = ply:GetPos(),
+                    endpos = ply:GetPos() - Vector(0, 0, 128),
+                    mask = bit.bor(MASK_PLAYERSOLID, MASK_WATER),
+                    filter = ply
+                })
+                if not tr.Hit then
+                    ply:EmitSound("DZ_ENTS.ParachuteOpen")
+                    ply.DZ_ENTS_ParachutePending = CurTime() + 0.45
+                end
+            end
+        elseif not ply:GetNWBool("DZ_Ents.Para.Auto") and ply:GetMoveType() == MOVETYPE_WALK
+                and not ply:IsOnGround() and ply:GetVelocity().z < -400
+                and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE)
+                and ply:GetInfoNum("cl_dzents_autoparachute", 0) == 1 then
+            ply:SetNWBool("DZ_Ents.Para.Auto", true)
+        elseif ply:GetNWBool("DZ_Ents.Para.Open") and mv:KeyPressed(IN_JUMP) and GetConVar("dzents_parachute_detach"):GetBool() then
+            ply:SetNWBool("DZ_Ents.Para.Open", false)
+            ply.DZ_ENTS_NextParachute = CurTime() + 0.25
+            if ply.DZ_ENTS_ParachuteSound then
+                ply.DZ_ENTS_ParachuteSound:FadeOut(0.25)
+                ply.DZ_ENTS_ParachuteSound = nil
+            end
         end
     end
 
@@ -90,12 +105,12 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
         local horiz_max = ply:GetWalkSpeed() + 50 --250
         if vel.z < -slowfall then
-            vel.z = math.Approach(vel.z, -slowfall, FrameTime() * (decel * Lerp(math.abs(vel.z) / 2500, 1, 5)))
+            vel.z = math.Approach(vel.z, -slowfall, ft * (decel * Lerp(math.abs(vel.z) / 2500, 1, 5)))
         else
-            vel.z = math.Approach(vel.z, -slowfall, FrameTime() * decel * 0.5)
+            vel.z = math.Approach(vel.z, -slowfall, ft * decel * 0.5)
         end
 
-        -- vel = vel + eyeangles:Forward() * 100 * FrameTime()
+        -- vel = vel + eyeangles:Forward() * 100 * ft
 
         local desiredmoveforward = cmd:GetForwardMove()
         local desiredmoveleft = cmd:GetSideMove()
@@ -103,15 +118,15 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
         desiredmoveforward = math.Clamp(desiredmoveforward, -25, 75)
         desiredmoveleft = math.Clamp(desiredmoveleft, -25, 25)
 
-        vel = vel + eyeangles:Forward() * desiredmoveforward * FrameTime()
-        vel = vel + eyeangles:Right() * desiredmoveleft * FrameTime()
+        vel = vel + eyeangles:Forward() * desiredmoveforward * ft
+        vel = vel + eyeangles:Right() * desiredmoveleft * ft
 
         -- Dampen horizontal velocity to simulate increased drag
         local drag = GetConVar("dzents_parachute_drag"):GetFloat()
         if drag > 0 then
             local speedSqr = vel.x * vel.x + vel.y * vel.y
             local diff = speedSqr / (horiz_max * horiz_max) - 1
-            local damp = FrameTime() * (50 + Lerp(math.Clamp(diff / 10, 0, 1), 0, 2000)) * drag
+            local damp = ft * (50 + Lerp(math.Clamp(diff / 10, 0, 1), 0, 2000)) * drag
 
             -- apply dampening to each axis relative to their magnitude to preserve direction
             local x_weight = math.abs(vel.x) / (math.abs(vel.x) + math.abs(vel.y))
@@ -130,68 +145,81 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             filter = ply
         })
         if tr.Hit and (tr.Fraction * -trlen) > 36 then
-            ply.DZ_ENTS_ParachutePending = true
+            ply.DZ_ENTS_ParachutePending = CurTime()
             ply:SetNWBool("DZ_Ents.Para.Auto", false)
         end
     end
 
-    local ha = ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_exojump"):GetFloat() or 1
-    local boostdur = GetConVar("dzents_exojump_boostdur"):GetFloat()
-    local boostvel = GetConVar("dzents_exojump_vel_up"):GetFloat() * ha
-    local longjumpvel = GetConVar("dzents_exojump_vel_long"):GetFloat() * ha
-    local forward = Angle(-25, ply:GetAngles().y, 0):Forward()
     vel = mv:GetVelocity()
-    if ply:KeyPressed(IN_JUMP) and ply:IsOnGround() and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetNWFloat("DZ_Ents.ExoJump.NextUse", 0) < CurTime()
-            and ply:GetMoveType() == MOVETYPE_WALK
-            and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) == 0 and not ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
-        ply:SetNWFloat("DZ_Ents.ExoJump.BoostTime", CurTime())
-        ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", true)
-        if ply:KeyDown(IN_DUCK) then
-            ply.DZ_ENTS_ExoSound = true
-            ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", true)
-            ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, ha and 95 or 100, 1)
 
-            -- leave the ground NOW so we don't get caught by friction
-            ply:SetGroundEntity(NULL)
+    local ha = ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_exojump"):GetFloat() or 1
+    local boostdur = 0.5 --GetConVar("dzents_exojump_boostdur"):GetFloat()
+    local boostvel = 700 * GetConVar("dzents_exojump_boost_up"):GetFloat() * ha
+    local longjumpvel = GetConVar("dzents_exojump_boost_forward"):GetFloat() * ha
+    local yawang = Angle(0, ply:GetAngles().y, 0)
 
-            -- impulse force
-            vel = forward * longjumpvel
-        else
-            ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", false)
-            ply.DZ_ENTS_ExoSound = false
-        end
+    if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
 
-        mv:SetMaxSpeed(ply:GetWalkSpeed())
-        mv:SetMaxClientSpeed(ply:GetWalkSpeed())
+        if ply:KeyPressed(IN_JUMP) and ply:IsOnGround() and ply:GetMoveType() == MOVETYPE_WALK
+                and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) == 0 and not ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
 
-    elseif ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetMoveType() == MOVETYPE_WALK
-            and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0 and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur > CurTime() then
-        local vol = math.Clamp(1 - (ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + 0.2 - CurTime()) / 0.2, 0, 1) ^ 2
-        if vol == 1 and not ply.DZ_ENTS_ExoSound then
-            ply.DZ_ENTS_ExoSound = true
-            ply:EmitSound("dz_ents/jump_ability_01.wav", 75, ha and 95 or 100, vol)
-        end
-        if (ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") or ply:KeyDown(IN_JUMP)) and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0 then
+            -- mv:SetMaxSpeed(ply:GetWalkSpeed())
+            -- mv:SetMaxClientSpeed(ply:GetWalkSpeed())
+
+            ply:SetNWFloat("DZ_Ents.ExoJump.BoostTime", CurTime())
+            ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", true)
+
+            if ply:KeyDown(IN_DUCK) then
+                ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", true)
+
+                ply.DZ_ENTS_ExoSound = true
+                ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, ha and 95 or 100, 1)
+
+                local forward = cmd:GetForwardMove() / 10000
+                local side = cmd:GetSideMove() / 10000
+
+                local abs_xy_move = math.abs(forward) + math.abs(side)
+                local vec = Vector()
+                if abs_xy_move == 0 then
+                    vec = Vector(0, 0, 1)
+                else
+                    local div = (forward ^ 2 + side ^ 2) ^ 0.5
+                    vec:Add(yawang:Forward() * forward / div)
+                    vec:Add(yawang:Right() * side / div)
+                end
+
+                -- If we don't do this, we seem to lose a bit of vertical velocity for no reason?
+                vel.z = vel.z + ply:GetJumpPower()
+                ply:SetGroundEntity(NULL)
+
+                vel = vel + vec * math.min(ply:GetVelocity():Length2D(), ply:GetRunSpeed()) * longjumpvel
+            else
+                ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", false)
+                ply.DZ_ENTS_ExoSound = false
+            end
+
+            -- there seems to be a convar for jump impulse boost in csgo.
+            vel.z = vel.z + ply:GetJumpPower() * 0.25
+
+        elseif ply:GetMoveType() == MOVETYPE_WALK and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0
+                and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur > CurTime() then
+
+            if not ply:KeyDown(IN_JUMP) then
+                ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", false)
+            end
+
             local delta = math.Clamp((ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur - CurTime()) / boostdur, 0, 1)
 
-            -- If we're running up some slope or whatever it's possible we're still stuck on ground.
-
-            if ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") then
-                -- vel = LerpVector(delta ^ 2, vel, forward * longjumpvel)
-                vel = vel + forward * longjumpvel * FrameTime() * (delta ^ 2)
-
-                -- additional counteracting of gravity
-                vel = vel + Vector(0, 0, GetConVar("sv_gravity"):GetFloat() * (delta ^ 0.5) * 0.5 * FrameTime())
-            else
-                local tgtvel = delta * (boostvel + (ply:IsOnGround() and 20000 or 0))
-                vel.z = vel.z + tgtvel * FrameTime()
+            if ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
+                local tgtvel = delta * boostvel
+                vel.z = vel.z + tgtvel * ft
 
                 local drag = GetConVar("dzents_exojump_drag"):GetFloat()
                 if drag > 0 then
-                    local horiz_max = ply:GetWalkSpeed()
+                    local horiz_max = ply:GetRunSpeed()
                     local speedSqr = vel.x * vel.x + vel.y * vel.y
                     local diff = math.max(0, speedSqr / (horiz_max * horiz_max) - 1)
-                    local damp = FrameTime() * Lerp(math.Clamp(diff / 2, 0, 1), 0, 1000) * drag
+                    local damp = ft * Lerp(math.Clamp(diff / 2, 0, 1), 0, 2000) * drag
 
                     -- apply dampening to each axis relative to their magnitude to preserve direction
                     local x_weight = math.abs(vel.x) / (math.abs(vel.x) + math.abs(vel.y))
@@ -199,18 +227,22 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                     vel.y = math.Approach(vel.y, 0, damp * (1 - x_weight))
                 end
             end
-        else
+
             if not ply.DZ_ENTS_ExoSound then
-                ply.DZ_ENTS_ExoSound = true
-                ply:EmitSound("dz_ents/jump_ability_01.wav", 60 + vol * 20, 100, vol)
+                local vol = math.Clamp(1 - (ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + 0.1 - CurTime()) / 0.1, 0, 1) ^ 2
+                if vol == 1 or not ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
+                    ply.DZ_ENTS_ExoSound = true
+                    ply:EmitSound("dz_ents/jump_ability_01.wav", 65 + vol * 10, ha and 95 or 100, vol)
+                end
             end
+        elseif ply:IsOnGround() and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur <= CurTime() then
+            ply:SetNWFloat("DZ_Ents.ExoJump.BoostTime", 0)
             ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", false)
         end
-    elseif ply:IsOnGround() and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) > 0 then
-        ply:SetNWFloat("DZ_Ents.ExoJump.BoostTime", 0)
-        ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", false)
-        ply:SetNWFloat("DZ_Ents.ExoJump.NextUse", CurTime() + GetConVar("dzents_exojump_cooldown"):GetFloat())
+
+        print(math.Round(vel:Length2D()), math.Round(vel.z))
     end
+
     mv:SetVelocity(vel)
 end)
 
