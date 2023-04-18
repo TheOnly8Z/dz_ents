@@ -167,7 +167,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     local ha = ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_exojump"):GetFloat() or 1
     local boostdur = 0.5 --GetConVar("dzents_exojump_boostdur"):GetFloat()
     local acceldur = 0.15
-    local boostvel = 700 * (1 + GetConVar("dzents_exojump_boost_up"):GetFloat()) * ha * (ply:DZ_ENTS_HasHeavyArmor() and (1 / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat())) or 1)
+    local boostvel = 700 * (1 + GetConVar("dzents_exojump_boost_up"):GetFloat()) * ha * (ply:DZ_ENTS_HasHeavyArmor() and (1 / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat() * 2)) or 1)
     local longjumpvel = GetConVar("dzents_exojump_boost_forward"):GetFloat() * ha
     local yawang = Angle(0, ply:GetAngles().y, 0)
     local horiz_max = (not GetConVar("dzents_exojump_runboost"):GetBool()) and ply:GetWalkSpeed() or ply:GetRunSpeed()
@@ -195,7 +195,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 vel.z = vel.z + ply:GetJumpPower()
                 ply:SetGroundEntity(NULL)
 
-                local startvel = math.min(vel:Length2D(), horiz_max)
+                local startvel = math.min(vel:Length2D() + horiz_max * 0.25, horiz_max)
                 ply:SetNWFloat("DZ_Ents.ExoJump.Vel", startvel)
 
                 vel = vel + vec * startvel * longjumpvel
