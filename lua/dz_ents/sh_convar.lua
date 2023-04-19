@@ -39,7 +39,7 @@ CreateConVar("dzents_armor_heavy_exojump", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, 
 -- Death drop
 CreateConVar("dzents_drop_armor", 1, FCVAR_ARCHIVE, "On death, drop helmet and armor. Does not drop the Heavy Assault Suit.", 0, 1)
 CreateConVar("dzents_drop_equip", 1, FCVAR_ARCHIVE, "On death, drop the Parachute or ExoJump.", 0, 1)
-CreateConVar("dzents_drop_cleanup", 60, FCVAR_ARCHIVE, "Timer for removing items dropped on death. 0 - never remove.", 0)
+CreateConVar("dzents_drop_cleanup", 0, FCVAR_ARCHIVE, "Timer for removing items dropped on death. 0 - never remove.", 0)
 
 -- Pickups
 CreateConVar("dzents_pickup_instantuse", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Pick up equipment instantly.", 0, 1)

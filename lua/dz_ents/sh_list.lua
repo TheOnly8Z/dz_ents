@@ -17,5 +17,5 @@ local function addlist()
     end
 
 end
-hook.Add("InitPostEntity", "dz_ents_list", addlist)
-addlist()
+hook.Add("Initialize", "dz_ents_list", addlist)
+-- addlist()

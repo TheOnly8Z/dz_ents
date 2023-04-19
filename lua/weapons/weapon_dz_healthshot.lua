@@ -134,7 +134,7 @@ end
 
 function SWEP:Reload()
     local ply = self:GetOwner()
-    if ply:GetAmmoCount(self:GetPrimaryAmmoType()) > 0 then
+    if ply:KeyPressed(IN_RELOAD) and ply:GetAmmoCount(self:GetPrimaryAmmoType()) > 0 then
 
         self:SetNextPrimaryFire(CurTime() + 0.75)
 
@@ -162,6 +162,17 @@ function SWEP:Reload()
             if IsValid(phys) then
                 phys:SetVelocityInstantaneous(ply:GetAimVector() * 400)
                 phys:AddAngleVelocity(VectorRand() * 200)
+            end
+
+            if GetConVar("dzents_drop_cleanup"):GetFloat() > 0 then
+                timer.Simple(GetConVar("dzents_drop_cleanup"):GetFloat(), function()
+                    if IsValid(ent) and not IsValid(ent:GetOwner()) then
+                        ent.DZENTS_Pickup = CurTime() + 2
+                        ent:SetRenderMode(RENDERMODE_TRANSALPHA) -- doesn't seem to work but whatever
+                        ent:SetRenderFX(kRenderFxFadeSlow)
+                        SafeRemoveEntityDelayed(ent, 1)
+                    end
+                end)
             end
         end
 
