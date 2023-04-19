@@ -28,6 +28,10 @@ local function menu_client(panel)
         command = "cl_dzents_parachute_vm"
     })
     panel:AddControl("checkbox", {
+        label = "Parachute letterbox",
+        command = "cl_dzents_parachute_frame"
+    })
+    panel:AddControl("checkbox", {
         label = "Medi-Shot overlay",
         command = "cl_dzents_healthshot_overlay"
     })

@@ -89,7 +89,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             elseif ply.DZ_ENTS_ParachutePending == nil and ply:GetVelocity().z < 50 then
                 local tr = util.TraceHull({
                     start = ply:GetPos(),
-                    endpos = ply:GetPos() - Vector(0, 0, 196),
+                    endpos = ply:GetPos() - Vector(0, 0, 128),
                     mask = bit.bor(MASK_PLAYERSOLID, MASK_WATER),
                     filter = ply
                 })

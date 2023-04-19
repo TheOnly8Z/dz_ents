@@ -123,11 +123,27 @@ end)
 -- CS:GO proper has a texture and some pixel shader that I don't want to bother looking at.
 local overlay_healthshot = Material("dz_ents/overlay_healthshot.png")
 
+local parachute_frame = 0
 hook.Add("HUDPaintBackground", "dz_ents_overlays", function()
 
     if GetConVar("cl_dzents_healthshot_overlay"):GetBool() and ply:GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
         surface.SetMaterial(overlay_healthshot)
-        surface.SetDrawColor(255, 255, 255, 150 * math.Clamp((ply:GetNWFloat("DZ_Ents.Healthshot", 0) - CurTime()) / 0.5, 0, 1))
+        surface.SetDrawColor(255, 255, 255, 100 * math.Clamp((ply:GetNWFloat("DZ_Ents.Healthshot", 0) - CurTime()) / 0.5, 0, 1))
         surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+    end
+
+    if GetConVar("cl_dzents_parachute_frame"):GetBool() then
+        if ply:GetNWBool("DZ_Ents.Para.Open") then
+            parachute_frame = math.Approach(parachute_frame, 1, RealFrameTime() * 2)
+        else
+            parachute_frame = math.Approach(parachute_frame, 0, RealFrameTime() * 2)
+        end
+        if parachute_frame > 0 then
+            local h = math.ceil(parachute_frame * ScrH() * 0.05)
+            surface.SetDrawColor(0, 0, 0, 255)
+            surface.DrawRect(0, 0, ScrW(), h)
+
+            surface.DrawRect(0, ScrH() - h, ScrW(), h)
+        end
     end
 end)

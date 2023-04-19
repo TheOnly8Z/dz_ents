@@ -2,6 +2,7 @@ if CLIENT then
     CreateConVar("cl_dzents_subcat", 1, FCVAR_ARCHIVE, "Show sub-categories in spawn menu.", 0, 1)
     CreateConVar("cl_dzents_parachute_autodeploy", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Automatically deploy parachute while falling.", 0, 1)
     CreateConVar("cl_dzents_parachute_vm", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Draw parachute straps in first person.", 0, 1)
+    CreateConVar("cl_dzents_parachute_frame", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Draw black frames when in parachute.", 0, 1)
     CreateConVar("cl_dzents_healthshot_overlay", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Draw health shot overlay.", 0, 1)
 end
 
@@ -48,7 +49,7 @@ CreateConVar("dzents_parachute_onspawn", 0, FCVAR_ARCHIVE, "Give a parachute on 
 CreateConVar("dzents_parachute_detach", 0, FCVAR_ARCHIVE, "Allow premature detaching of the parachute.", 0, 1)
 CreateConVar("dzents_parachute_consume", 1, FCVAR_ARCHIVE, "After parachute is deployed and released, it is used up.", 0, 1)
 CreateConVar("dzents_parachute_fall", 200, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Target vertical velocity when using parachute. Higher value means faster falling.", 50, 500)
-CreateConVar("dzents_parachute_threshold", 500, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Minimum downwards velocity for instant parachute deployment. Below this threshold there is a short deployment delay.", 0)
+CreateConVar("dzents_parachute_threshold", 400, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Minimum downwards velocity for instant parachute deployment. Below this threshold there is a short deployment delay.", 0)
 CreateConVar("dzents_parachute_drag", 0.5, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when using parachute. Higher value slows players down further.", 0)
 CreateConVar("dzents_parachute_speed", 150, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal speed while using parachute.", 0)
 
