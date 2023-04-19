@@ -1,9 +1,10 @@
 if CLIENT then
     CreateConVar("cl_dzents_subcat", 1, FCVAR_ARCHIVE, "Show sub-categories in spawn menu.", 0, 1)
     CreateConVar("cl_dzents_parachute_autodeploy", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Automatically deploy parachute while falling.", 0, 1)
-    CreateConVar("cl_dzents_parachute_vm", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Draw parachute straps in first person.", 0, 1)
-    CreateConVar("cl_dzents_parachute_frame", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Draw black frames when in parachute.", 0, 1)
-    CreateConVar("cl_dzents_healthshot_overlay", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Draw health shot overlay.", 0, 1)
+    CreateConVar("cl_dzents_parachute_vm", 1, FCVAR_ARCHIVE, "Draw parachute straps in first person.", 0, 1)
+    CreateConVar("cl_dzents_parachute_frame", 1, FCVAR_ARCHIVE, "Draw black frames when in parachute.", 0, 1)
+    CreateConVar("cl_dzents_healthshot_overlay", 1, FCVAR_ARCHIVE, "Draw health shot overlay.", 0, 1)
+    CreateConVar("cl_dzents_heavyarmor_cc", 1, FCVAR_ARCHIVE, "Draw color correction while in heavy armor.", 0, 1)
 end
 
 -- Case
@@ -37,6 +38,7 @@ CreateConVar("dzents_armor_heavy_deployspeed", 0.8, FCVAR_ARCHIVE + FCVAR_REPLIC
 CreateConVar("dzents_armor_heavy_adminonly", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Heavy Assault Suit is admin only. Requires reload.", 0, 1)
 CreateConVar("dzents_armor_heavy_gravity", 0.3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Additional gravity multiplier when you have the Heavy Assault Suit. Also affects parachute.", 0)
 CreateConVar("dzents_armor_heavy_exojump", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity multiplier when using the ExoJump with the Heavy Assault Suit.", 0)
+CreateConVar("dzents_armor_heavy_robert", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "ROBERTOOOOOOOOO", 0, 1)
 
 -- Death drop
 CreateConVar("dzents_drop_armor", 1, FCVAR_ARCHIVE, "On death, drop helmet and armor. Does not drop the Heavy Assault Suit.", 0, 1)

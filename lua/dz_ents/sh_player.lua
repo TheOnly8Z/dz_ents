@@ -153,6 +153,7 @@ end)
 
 hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
     ply.DZ_ENTS_OriginalSpeed = nil
+    ply.DZENTS_Robert = nil
     timer.Simple(0, function()
         local give = GetConVar("dzents_armor_onspawn"):GetInt()
         if give == 3 then
@@ -421,12 +422,14 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             ply.DZENTS_ArmorHit = hitgroup ~= HITGROUP_GENERIC
             ply:SetArmor(0) -- don't let engine do armor calculation
             dmginfo:SetDamage(healthdmg)
-        elseif armored then -- Damage is not blockable, but is hitting an armored part. Still do armor reduction, but don't use AP
+        elseif armored and not dmginfo:IsDamageType(DMG_SHOCK) then -- Damage is not blockable, but is hitting an armored part. Still do armor reduction, but don't use AP
             local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio, heavyarmorbonus)
             ply.PendingArmor = newarmor
             ply:SetArmor(0)
             dmginfo:SetDamage(healthdmg)
-        elseif not GetConVar("dzents_armor_fallback"):GetBool() then -- If fallback is on, use HL2 logic. Otherwise we are unprotected
+        elseif dmginfo:IsDamageType(DMG_SHOCK) or not GetConVar("dzents_armor_fallback"):GetBool() then
+            -- If fallback is on, use HL2 logic. Otherwise we are unprotected
+            -- Also, Zeus ignores armor so do it like this
             ply.PendingArmor = ply:Armor()
             ply:SetArmor(0)
         end
@@ -461,12 +464,12 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
             if GetConVar("dzents_armor_heavy_break"):GetBool() then
                 ply:DZ_ENTS_RemoveHelmet()
                 ply:DZ_ENTS_RemoveArmor()
-                if ply.DZ_ENTS_OriginalSpeed then
-                    ply:SetSlowWalkSpeed(ply.DZ_ENTS_OriginalSpeed[1])
-                    ply:SetWalkSpeed(ply.DZ_ENTS_OriginalSpeed[2])
-                    ply:SetRunSpeed(ply.DZ_ENTS_OriginalSpeed[3])
-                end
-                ply.DZ_ENTS_OriginalSpeed = nil
+                -- if ply.DZ_ENTS_OriginalSpeed then
+                --     ply:SetSlowWalkSpeed(ply.DZ_ENTS_OriginalSpeed[1])
+                --     ply:SetWalkSpeed(ply.DZ_ENTS_OriginalSpeed[2])
+                --     ply:SetRunSpeed(ply.DZ_ENTS_OriginalSpeed[3])
+                -- end
+                -- ply.DZ_ENTS_OriginalSpeed = nil
             end
         else
             if ply:DZ_ENTS_HasArmor() then

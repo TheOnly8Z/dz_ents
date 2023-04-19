@@ -147,3 +147,37 @@ hook.Add("HUDPaintBackground", "dz_ents_overlays", function()
         end
     end
 end)
+
+-- CS:GO uses some sort of .raw file for CC... but you can't even include those in the whitelist!
+-- Here's a ghetto version.
+local tab_ct = {
+    ["$pp_colour_addr"] = 0,
+    ["$pp_colour_addg"] = 0,
+    ["$pp_colour_addb"] = 0.04,
+    ["$pp_colour_brightness"] = -0.01,
+    ["$pp_colour_contrast"] = 1,
+    ["$pp_colour_colour"] = 1,
+    ["$pp_colour_mulr"] = 0,
+    ["$pp_colour_mulg"] = 0,
+    ["$pp_colour_mulb"] = 0.05
+}
+local tab_t = {
+    ["$pp_colour_addr"] = 0.08,
+    ["$pp_colour_addg"] = 0.08,
+    ["$pp_colour_addb"] = 0,
+    ["$pp_colour_brightness"] = -0.02,
+    ["$pp_colour_contrast"] = 1,
+    ["$pp_colour_colour"] = 1,
+    ["$pp_colour_mulr"] = 0.025,
+    ["$pp_colour_mulg"] = 0.05,
+    ["$pp_colour_mulb"] = 0
+}
+hook.Add( "RenderScreenspaceEffects", "dz_ents_overlays", function()
+    if GetConVar("cl_dzents_heavyarmor_cc"):GetBool() then
+        if ply:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_CT then
+            DrawColorModify(tab_ct)
+        elseif ply:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_T then
+            DrawColorModify(tab_t)
+        end
+    end
+end)

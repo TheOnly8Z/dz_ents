@@ -81,6 +81,9 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             if ply:GetVelocity().z < -GetConVar("dzents_parachute_threshold"):GetFloat() then
                 ply:SetNWBool("DZ_Ents.Para.Open", true)
                 ply:SetNWBool("DZ_Ents.Para.Consume", true)
+                if not ply.DZ_ENTS_ParachutePending then
+                    ply:EmitSound("DZ_ENTS.ParachuteOpen")
+                end
                 ply.DZ_ENTS_ParachutePending = nil
                 if SERVER then
                     ply.DZ_ENTS_ParachuteSound = CreateSound(ply, "DZ_ENTS.ParachuteDeploy")
@@ -105,10 +108,35 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             ply:SetNWBool("DZ_Ents.Para.Auto", true)
         elseif ply:GetNWBool("DZ_Ents.Para.Open") and mv:KeyPressed(IN_JUMP) and GetConVar("dzents_parachute_detach"):GetBool() then
             ply:SetNWBool("DZ_Ents.Para.Open", false)
-            ply.DZ_ENTS_NextParachute = CurTime() + 0.25
+            ply.DZ_ENTS_NextParachute = CurTime() + 0.5
             if ply.DZ_ENTS_ParachuteSound then
                 ply.DZ_ENTS_ParachuteSound:FadeOut(0.25)
                 ply.DZ_ENTS_ParachuteSound = nil
+            end
+        end
+
+    elseif GetConVar("dzents_armor_heavy_robert"):GetBool() and ply:DZ_ENTS_HasHeavyArmor() and not ply:GetNWBool("DZ_Ents.Para.Open")
+            and (GetConVar("mp_falldamage"):GetBool() or GetConVar("dzents_armor_heavy_falldamage"):GetBool()) then
+        if not ply.DZENTS_Robert and ply:GetMoveType() == MOVETYPE_WALK and mv:GetVelocity().z <= -600 then
+            local dmg = math.max(-mv:GetVelocity().z - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED) * DZ_ENTS.DAMAGE_FOR_FALL_SPEED
+            if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
+                dmg = dmg * GetConVar("dzents_exojump_falldamage"):GetFloat()
+            end
+            if dmg > math.max(ply:Health(), 50) then
+                ply.DZENTS_Robert = true
+                local tr = util.TraceLine({
+                    start = ply:GetPos(),
+                    endpos = ply:GetPos() - Vector(0, 0, 50000),
+                    mask = bit.bor(MASK_WATER, MASK_PLAYERSOLID),
+                    filter = ply
+                })
+                if bit.band(tr.Contents, CONTENTS_WATER) == 0 then
+                    if ply:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_CT then
+                        ply:EmitSound("dz_ents/robert_en.mp3", 80)
+                    else
+                        ply:EmitSound("dz_ents/robert.mp3", 80)
+                    end
+                end
             end
         end
     end
@@ -231,6 +259,8 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 -- vel = vel / 2
                 -- print(vel:Length2D())
             end
+
+            ply.DZ_ENTS_NextParachute = CurTime() + 1
 
             -- there seems to be a convar for jump impulse boost in csgo.
             vel.z = vel.z + ply:GetJumpPower() * 0.25

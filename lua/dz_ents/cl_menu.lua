@@ -35,6 +35,10 @@ local function menu_client(panel)
         label = "Medi-Shot overlay",
         command = "cl_dzents_healthshot_overlay"
     })
+    panel:AddControl("checkbox", {
+        label = "Heavy Assault Suit color correction",
+        command = "cl_dzents_heavyarmor_cc"
+    })
 end
 
 
@@ -113,6 +117,8 @@ end
 
 
 local function menu_armor(panel)
+
+    header(panel, "Armor + Helmet")
     combobox(panel, "CS:GO behavior", "dzents_armor_enabled", {
         ["0 - Disabled"] = "0",
         ["1 - With armor/helmet"] = "1",
@@ -162,6 +168,10 @@ local function menu_armor(panel)
         command = "dzents_armor_heavy_fallstomp"
     })
     panel:ControlHelp("Stomp damage is 3x fall damage.")
+    panel:AddControl("checkbox", {
+        label = "ROBERRRRRRRRRTTTTTTTTTTTTT",
+        command = "dzents_armor_heavy_robert"
+    })
     combobox(panel, "Restrict using rifles", "dzents_armor_heavy_norifle", {
         ["0 - No restriction"] = "0",
         ["1 - CS:GO rifles"] = "1",
