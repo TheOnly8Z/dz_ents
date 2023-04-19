@@ -74,5 +74,7 @@ CreateConVar("dzents_healthshot_damage_dealt", 1, FCVAR_ARCHIVE, "Outgoing damag
 CreateConVar("dzents_healthshot_damage_taken", 1, FCVAR_ARCHIVE, "Incoming damage multiplier while under the effects of the Medi-Shot.", 0)
 CreateConVar("dzents_healthshot_speed", 1.2, FCVAR_ARCHIVE, "Speed multiplier while under the effects of the Medi-Shot.", 0)
 CreateConVar("dzents_healthshot_duration", 6.5, FCVAR_ARCHIVE, "Duration of damage and speed bonuses from the Medi-Shot.", 0)
-CreateConVar("dzents_healthshot_maxammo", 4, FCVAR_ARCHIVE, "Maximum amount of Medi-Shots you can have on you.", 0)
+CreateConVar("dzents_healthshot_maxammo", 2, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Maximum amount of Medi-Shots you can have on you.", 0)
 CreateConVar("dzents_healthshot_killcount", 3, FCVAR_ARCHIVE, "Kill this many players to get a Medi-Shot. 0 disables.", 0)
+
+CreateConVar("dz_bumpmine_maxammo", 3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Maximum amount of Bump Mines you can have on you.", 0)

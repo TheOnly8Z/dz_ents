@@ -90,12 +90,21 @@ sound.Add({
     chan = CHAN_STATIC,
 })
 
--- used on health shot, actually
+-- used on equipment
 sound.Add({
     name = "DZ_Ents.HEGrenade.Draw",
     volume = 0.3,
     level = 65,
     sound =  ")dz_ents/he_draw.wav",
+    chan = CHAN_STATIC,
+})
+
+sound.Add({
+    name = "DZ_Ents.BumpMine.Throw",
+    volume = 0.8,
+    level = 65,
+    pitch = 120,
+    sound =  "dz_ents/bumpmine_throw.wav",
     chan = CHAN_STATIC,
 })
 

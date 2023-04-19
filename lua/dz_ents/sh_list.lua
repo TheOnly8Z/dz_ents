@@ -1,5 +1,7 @@
+-- Add weapons to the equipment list so they're in one place.
 DZ_ENTS.AddList = {
-    "weapon_dz_healthshot"
+    "weapon_dz_healthshot",
+    "weapon_dz_bumpmine",
 }
 local function addlist()
     for k, v in pairs(DZ_ENTS.AddList) do

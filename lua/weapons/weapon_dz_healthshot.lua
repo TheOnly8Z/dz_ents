@@ -9,7 +9,7 @@ if CLIENT then
 end
 
 SWEP.PrintName = "Medi-Shot"
-SWEP.Slot = 5
+SWEP.Slot = 4
 SWEP.Weight = 150
 
 SWEP.Author = "8Z"
@@ -23,7 +23,7 @@ SWEP.Category = "CS:GO Equipment"
 SWEP.Spawnable = true
 
 SWEP.SubCategory = "Equipment"
-SWEP.SortOrder = 1
+SWEP.SortOrder = 2
 
 SWEP.ViewModel = "models/weapons/dz_ents/c_eq_healthshot.mdl"
 SWEP.WorldModel = "models/weapons/dz_ents/w_eq_healthshot.mdl"
@@ -41,24 +41,13 @@ SWEP.Primary.DefaultClip = 1
 SWEP.HoldType = "normal"
 
 function SWEP:SetupDataTables()
-    if BaseClass.SetupDataTables then
-        BaseClass.SetupDataTables(self)
-    end
-    if not self.GetWeaponIdleTime then
-        self:NetworkVar("Float", 1, "WeaponIdleTime")
-    end
+    BaseClass.SetupDataTables(self)
     self:NetworkVar("Float", 16, "StimTime")
     self:NetworkVar("Bool", 6, "Stimmed")
 end
 
 function SWEP:Initialize()
-    BaseClass.Initialize(self, false)
-
-    -- SWCS hates ammo types apparently
-    self.Primary.Ammo = self.AmmoType
-
-    -- engine deploy blocks weapon from thinking and doing most stuff
-    self.m_WeaponDeploySpeed = 255
+    BaseClass.Initialize(self)
 
     self:SetHoldType(self.HoldType)
     self:SetStimTime(0)
@@ -66,29 +55,17 @@ function SWEP:Initialize()
 end
 
 function SWEP:Deploy()
-    local owner = self:GetOwner()
-    if not owner or not owner:IsPlayer() then return end
+    local dep = BaseClass.Deploy(self)
 
-    self:SetHoldType(self.HoldType)
-    self:SetWeaponAnim(ACT_VM_DEPLOY)
-    -- self:SetNextPrimaryFire(CurTime() + 1)
-    -- self:SetWeaponIdleTime(CurTime() + 1)
     self:SetStimTime(0)
     self:SetStimmed(false)
     self:SetBodygroup(0, 0)
 
-    local vm = owner:GetViewModel(self:ViewModelIndex())
-    if vm:IsValid() then
-        vm:SetPlaybackRate(self:GetDeploySpeed())
-        self:SetWeaponIdleTime(CurTime() + (self:SequenceDuration() * (1 / self:GetDeploySpeed())))
-    end
-    self:SetNextPrimaryFire(CurTime() + self:SequenceDuration() * (1 / self:GetDeploySpeed()) * 0.9)
-
-    return true
+    return dep
 end
 
 function SWEP:Holster(nextWep)
-    if SERVER and IsValid(self:GetOwner()) and self:GetOwner():GetAmmoCount(self:GetPrimaryAmmoType()) <= 0 then
+    if SERVER and IsValid(self:GetOwner()) and self:Ammo1() <= 0 then
         self:Remove()
     end
     self:SetBodygroup(0, 0)
@@ -121,64 +98,6 @@ function SWEP:PrimaryAttack()
 end
 
 function SWEP:SecondaryAttack()
-end
-
-function SWEP:Reload()
-    local ply = self:GetOwner()
-    if ply:KeyPressed(IN_RELOAD) and self:Ammo1() > 0 then
-
-        self:SetNextPrimaryFire(CurTime() + 0.75)
-        ply:DoAnimationEvent(ACT_GMOD_GESTURE_ITEM_DROP)
-
-        -- if SERVER then
-        --     ply:DropWeapon(self)
-        --     self:SetClip1(1)
-
-        --     ply:RemoveAmmo(1, self:GetPrimaryAmmoType())
-        --     if ply:GetAmmoCount(self:GetPrimaryAmmoType()) > 0 then
-        --         local new = ply:Give(self:GetClass(), true)
-        --         ply:SelectWeapon(new)
-        --     end
-        -- end
-
-        if SERVER then
-            ply:RemoveAmmo(1, self:GetPrimaryAmmoType())
-
-            local ent = ents.Create(self:GetClass())
-            ent:SetPos(ply:GetShootPos() - Vector(0, 0, 12))
-            ent:SetAngles(ply:EyeAngles() + AngleRand())
-            ent:Spawn()
-            ent.DZENTS_Pickup = CurTime() + 1
-            local phys = ent:GetPhysicsObject()
-            if IsValid(phys) then
-                phys:SetVelocityInstantaneous(ply:GetAimVector() * 400)
-                phys:AddAngleVelocity(VectorRand() * 200)
-            end
-
-            if GetConVar("dzents_drop_cleanup"):GetFloat() > 0 then
-                timer.Simple(GetConVar("dzents_drop_cleanup"):GetFloat(), function()
-                    if IsValid(ent) and not IsValid(ent:GetOwner()) then
-                        ent.DZENTS_Pickup = CurTime() + 2
-                        ent:SetRenderMode(RENDERMODE_TRANSALPHA) -- doesn't seem to work but whatever
-                        ent:SetRenderFX(kRenderFxFadeSlow)
-                        SafeRemoveEntityDelayed(ent, 1)
-                    end
-                end)
-            end
-        end
-
-        if self:Ammo1() <= 0 then
-            self:SetWeaponAnim(ACT_VM_IDLE)
-            self:RemoveAndSwitch()
-        else
-            self:SetWeaponAnim(ACT_VM_DEPLOY)
-            self:SetWeaponIdleTime(CurTime() + 1)
-            self:SetStimTime(0)
-            self:SetStimmed(false)
-            self:SetHoldType(self.HoldType)
-            self:SetBodygroup(0, 0)
-        end
-    end
 end
 
 function SWEP:Think()
@@ -234,13 +153,7 @@ function SWEP:WeaponIdle()
         if self:Ammo1() <= 0 then
             self:RemoveAndSwitch()
         else
-            self:SetWeaponAnim(ACT_VM_DEPLOY)
-            self:SetNextPrimaryFire(CurTime() + 1)
-            self:SetWeaponIdleTime(CurTime() + 1)
-            self:SetStimTime(0)
-            self:SetStimmed(false)
-            self:SetHoldType(self.HoldType)
-            self:SetBodygroup(0, 0)
+            self:Deploy()
         end
     else
         self:SetWeaponIdleTime(math.huge) -- it's looping anyways
