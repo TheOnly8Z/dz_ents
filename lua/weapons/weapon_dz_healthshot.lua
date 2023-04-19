@@ -27,6 +27,9 @@ DEFINE_BASECLASS(SWEP.Base)
 SWEP.Category = "CS:GO Equipment"
 SWEP.Spawnable = true
 
+SWEP.SubCategory = "Equipment"
+SWEP.SortOrder = 1
+
 SWEP.ViewModel = "models/weapons/dz_ents/c_eq_healthshot.mdl"
 SWEP.WorldModel = "models/weapons/dz_ents/w_eq_healthshot.mdl"
 SWEP.ViewModelFOV = 68
@@ -63,6 +66,9 @@ function SWEP:Initialize()
         self.Primary.Ammo = "dz_healthshot" -- man
     end
 
+    -- engine deploy blocks weapon from thinking and doing most stuff
+    self.m_WeaponDeploySpeed = 255
+
     self:SetHoldType(self.HoldType)
     self:SetStimTime(0)
     self:SetStimmed(false)
@@ -72,7 +78,6 @@ function SWEP:Deploy()
     local owner = self:GetOwner()
     if not owner or not owner:IsPlayer() then return end
 
-    self:SetDeploySpeed(12) -- think fast chucklenuts
     self:SetHoldType(self.HoldType)
     self:SetWeaponAnim(ACT_VM_DEPLOY)
     -- self:SetNextPrimaryFire(CurTime() + 1)
@@ -129,7 +134,7 @@ end
 
 function SWEP:Reload()
     local ply = self:GetOwner()
-    if self:CanPrimaryAttack() then
+    if ply:GetAmmoCount(self:GetPrimaryAmmoType()) > 0 then
 
         self:SetNextPrimaryFire(CurTime() + 0.75)
 
@@ -145,7 +150,6 @@ function SWEP:Reload()
         --     end
         -- end
 
-        -- https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/shared/basecombatweapon_shared.cpp#L671
         if SERVER then
             ply:RemoveAmmo(1, self:GetPrimaryAmmoType())
 
@@ -162,6 +166,7 @@ function SWEP:Reload()
         end
 
         if ply:GetAmmoCount(self:GetPrimaryAmmoType()) <= 0 then
+            self:SetWeaponAnim(ACT_VM_IDLE)
             self:RemoveAndSwitch()
         else
             self:SetWeaponAnim(ACT_VM_DEPLOY)
