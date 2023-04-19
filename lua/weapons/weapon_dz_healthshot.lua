@@ -12,23 +12,27 @@ SWEP.PrintName = "Medi-Shot"
 SWEP.Slot = 5
 SWEP.Weight = 150
 
+SWEP.Author = "8Z"
 SWEP.Purpose = "Restores a portion of your health and provides a brief speed boost."
+SWEP.Instructions = "Primary Attack: Inject\nReload: Drop one"
 
 if GetConVar("dzents_equipment_swcs"):GetBool() and swcs then
     SWEP.Base = "weapon_swcs_base"
-    SWEP.Category = "CS:GO Equipment"
 else
     SWEP.Base = "weapon_base"
 end
 
 DEFINE_BASECLASS(SWEP.Base)
 
-SWEP.Category = "Danger Zone"
+SWEP.Category = "CS:GO Equipment"
 SWEP.Spawnable = true
 
 SWEP.ViewModel = "models/weapons/dz_ents/c_eq_healthshot.mdl"
 SWEP.WorldModel = "models/weapons/dz_ents/w_eq_healthshot.mdl"
+SWEP.ViewModelFOV = 68
 SWEP.UseHands = true
+
+SWEP.WepSelectIcon = Material("dz_ents/select/healthshot.png", "smooth")
 
 SWEP.Primary.Automatic = false
 SWEP.Primary.ClipSize = -1
@@ -68,10 +72,11 @@ function SWEP:Deploy()
     local owner = self:GetOwner()
     if not owner or not owner:IsPlayer() then return end
 
+    self:SetDeploySpeed(12) -- think fast chucklenuts
     self:SetHoldType(self.HoldType)
     self:SetWeaponAnim(ACT_VM_DEPLOY)
-    self:SetNextPrimaryFire(CurTime() + 1)
-    self:SetWeaponIdleTime(CurTime() + 1)
+    -- self:SetNextPrimaryFire(CurTime() + 1)
+    -- self:SetWeaponIdleTime(CurTime() + 1)
     self:SetStimTime(0)
     self:SetStimmed(false)
     self:SetBodygroup(0, 0)
@@ -80,12 +85,8 @@ function SWEP:Deploy()
     if vm:IsValid() then
         vm:SetPlaybackRate(self:GetDeploySpeed())
         self:SetWeaponIdleTime(CurTime() + (self:SequenceDuration() * (1 / self:GetDeploySpeed())))
-
-        local oPrim = self:GetNextPrimaryFire()
-        local oSec = self:GetNextSecondaryFire()
-        self:SetNextPrimaryFire(oPrim < self:GetWeaponIdleTime() and self:GetWeaponIdleTime() or oPrim)
-        self:SetNextSecondaryFire(oSec < self:GetWeaponIdleTime() and self:GetWeaponIdleTime() or oSec)
     end
+    self:SetNextPrimaryFire(CurTime() + self:SequenceDuration() * (1 / self:GetDeploySpeed()) * 0.75)
 
     return true
 end
@@ -126,6 +127,53 @@ end
 function SWEP:SecondaryAttack()
 end
 
+function SWEP:Reload()
+    local ply = self:GetOwner()
+    if self:CanPrimaryAttack() then
+
+        self:SetNextPrimaryFire(CurTime() + 0.75)
+
+
+        -- if SERVER then
+        --     ply:DropWeapon(self)
+        --     self:SetClip1(1)
+
+        --     ply:RemoveAmmo(1, self:GetPrimaryAmmoType())
+        --     if ply:GetAmmoCount(self:GetPrimaryAmmoType()) > 0 then
+        --         local new = ply:Give(self:GetClass(), true)
+        --         ply:SelectWeapon(new)
+        --     end
+        -- end
+
+        -- https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/mp/src/game/shared/basecombatweapon_shared.cpp#L671
+        if SERVER then
+            ply:RemoveAmmo(1, self:GetPrimaryAmmoType())
+
+            local ent = ents.Create(self:GetClass())
+            ent:SetPos(ply:GetShootPos() - Vector(0, 0, 12))
+            ent:SetAngles(ply:EyeAngles() + AngleRand())
+            ent:Spawn()
+            ent.DZENTS_Pickup = CurTime() + 1
+            local phys = ent:GetPhysicsObject()
+            if IsValid(phys) then
+                phys:SetVelocityInstantaneous(ply:GetAimVector() * 400)
+                phys:AddAngleVelocity(VectorRand() * 200)
+            end
+        end
+
+        if ply:GetAmmoCount(self:GetPrimaryAmmoType()) <= 0 then
+            self:RemoveAndSwitch()
+        else
+            self:SetWeaponAnim(ACT_VM_DEPLOY)
+            self:SetWeaponIdleTime(CurTime() + 1)
+            self:SetStimTime(0)
+            self:SetStimmed(false)
+            self:SetHoldType(self.HoldType)
+            self:SetBodygroup(0, 0)
+        end
+    end
+end
+
 function SWEP:Think()
     if self:GetStimTime() > 0 and self:GetStimTime() < CurTime() and IsFirstTimePredicted() then
         self:SetStimTime(0)
@@ -134,7 +182,7 @@ function SWEP:Think()
         self:GetOwner():RemoveAmmo(1, self:GetPrimaryAmmoType())
 
         local ply = self:GetOwner()
-        ply:SetNWFloat("DZ_Ents.Healthshot.Boost", CurTime() + GetConVar("dzents_healthshot_duration"):GetFloat())
+        ply:SetNWFloat("DZ_Ents.Healthshot", CurTime() + GetConVar("dzents_healthshot_duration"):GetFloat())
         ply:DoAnimationEvent(ACT_HL2MP_GESTURE_RANGE_ATTACK_REVOLVER)
 
         if SERVER and ply:GetMaxHealth() > ply:Health() then
@@ -187,13 +235,35 @@ function SWEP:RemoveAndSwitch()
     end
 end
 
+function SWEP:DrawWeaponSelection(x, y, wide, tall, alpha)
+
+    surface.SetDrawColor(255, 255, 255, alpha)
+    surface.SetMaterial(self.WepSelectIcon)
+
+    -- Borders
+    y = y + 10
+    x = x + 40
+    wide = wide - 80
+
+    surface.DrawTexturedRect(x, y, wide, wide * 0.75)
+    self:PrintWeaponInfo(x + wide + 20, y + tall * 0.95, alpha)
+end
+
+function SWEP:Equip(ply)
+    if ply:IsPlayer() and self:Clip1() > 0 then
+        local ammo = self:Clip1()
+        self:SetClip1(-1)
+        ply:GiveAmmo(ammo, self:GetPrimaryAmmoType())
+    end
+end
+
 --------------------------------------- Override/re-implement some SWCS stuff
 
 function SWEP:GetDeploySpeed()
     if GetConVar("dzents_equipment_swcs"):GetBool() and GetConVar("swcs_deploy_override") and GetConVar("swcs_deploy_override"):GetFloat() ~= 0 then
         return GetConVar("swcs_deploy_override"):GetFloat()
     end
-    return engine.ActiveGamemode() == "terrortown" and 1.4 or GetConVar("sv_defaultdeployspeed"):GetFloat()
+    return engine.ActiveGamemode() == "terrortown" and 1.4 or (GetConVar("sv_defaultdeployspeed"):GetFloat() / 2)
 end
 
 function SWEP:SetWeaponAnim(idealAct, flPlaybackRate)
@@ -207,7 +277,7 @@ function SWEP:SetWeaponAnim(idealAct, flPlaybackRate)
     local owner = self:GetOwner()
     if owner:IsValid() then
         local vm = owner:GetViewModel()
-        if vm:IsValid() then
+        if vm:IsValid() and idealSequence then
             vm:SendViewModelMatchingSequence(idealSequence)
             vm:SetPlaybackRate(flPlaybackRate)
         end

@@ -42,6 +42,7 @@ CreateConVar("dzents_drop_equip", 1, FCVAR_ARCHIVE, "On death, drop the Parachut
 CreateConVar("dzents_drop_cleanup", 60, FCVAR_ARCHIVE, "Timer for removing items dropped on death. 0 - never remove.", 0)
 
 -- Pickups
+CreateConVar("dzents_pickup_instantuse", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Pick up equipment instantly.", 0, 1)
 CreateConVar("dzents_parachute_onspawn", 0, FCVAR_ARCHIVE, "Give a parachute on spawn.", 0, 1)
 CreateConVar("dzents_parachute_detach", 0, FCVAR_ARCHIVE, "Allow premature detaching of the parachute.", 0, 1)
 CreateConVar("dzents_parachute_consume", 1, FCVAR_ARCHIVE, "After parachute is deployed and released, it is used up.", 0, 1)

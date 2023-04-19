@@ -60,17 +60,22 @@ if SERVER then
 
         self.NextUse = CurTime() + 0.5
 
-        ply.DZ_ENTS_Interacting = self
-        self:SetUsingPlayer(ply)
-        self:SetUseStart(CurTime())
-        self:SetUseTime(self:GetInteractDuration(ply))
+        if GetConVar("dzents_pickup_instantuse"):GetBool() then
+            local remove = self:InteractFinish(ply)
+            if remove then SafeRemoveEntity(self) end
+        else
+            ply.DZ_ENTS_Interacting = self
+            self:SetUsingPlayer(ply)
+            self:SetUseStart(CurTime())
+            self:SetUseTime(self:GetInteractDuration(ply))
 
-        net.Start("dz_ents_interact")
-            net.WriteEntity(self)
-            net.WriteUInt(start, bits)
-        net.Send(ply)
+            net.Start("dz_ents_interact")
+                net.WriteEntity(self)
+                net.WriteUInt(start, bits)
+            net.Send(ply)
 
-        self:InteractStart(ply)
+            self:InteractStart(ply)
+        end
     end
 
     function ENT:Think()
@@ -126,6 +131,7 @@ else
         ent = net.ReadEntity()
         state = net.ReadUInt(bits)
 
-        print(ent, state)
+        -- TODO: UI
+        -- print(ent, state)
     end)
 end

@@ -208,15 +208,11 @@ end
 
 local function menu_pickups(panel)
 
-    header(panel, "Drop on Death")
-    panel:AddControl("slider", {
-        label = "Drop cleanup",
-        command = "dzents_drop_cleanup",
-        type = "int",
-        min = 0,
-        max = 300,
+    header(panel, "Pickups")
+    panel:AddControl("checkbox", {
+        label = "Instantly use pickups",
+        command = "dzents_pickup_instantuse"
     })
-    panel:ControlHelp("Timer for removing items dropped on death. 0 - never remove.")
     panel:AddControl("checkbox", {
         label = "Drop armor on death",
         command = "dzents_drop_armor"
@@ -225,8 +221,16 @@ local function menu_pickups(panel)
         label = "Drop equipment on death",
         command = "dzents_drop_equip"
     })
+    panel:AddControl("slider", {
+        label = "Drop cleanup delay",
+        command = "dzents_drop_cleanup",
+        type = "int",
+        min = 0,
+        max = 300,
+    })
+    panel:ControlHelp("Timer for removing items dropped on death. 0 - never remove.")
 
-    header(panel, "\nGive on Spawn")
+    -- header(panel, "\nGive on Spawn")
     combobox(panel, "Armor on spawn", "dzents_armor_onspawn", {
         ["0 - Disabled"] = "0",
         ["1 - Armor only"] = "1",
@@ -312,6 +316,72 @@ local function menu_pickups(panel)
     })
 end
 
+local function menu_equip(panel)
+    header(panel, "Equipment")
+    panel:AddControl("checkbox", {
+        label = "Use SWCS base if available",
+        command = "dzents_equipment_swcs"
+    })
+    panel:ControlHelp("Gives equipment crosshair and viewbob from SWCS if installed. Requires reload.")
+
+    header(panel, "\nMedi-Shot")
+    panel:AddControl("checkbox", {
+        label = "Allow using at max health",
+        command = "dzents_healthshot_use_at_full"
+    })
+    panel:AddControl("slider", {
+        label = "Max ammo",
+        command = "dzents_healthshot_maxammo",
+        type = "int",
+        min = 0,
+        max = 10,
+    })
+    panel:ControlHelp("IMPORTANT: This only works if 'gmod_maxammo' is set to 0!")
+    panel:AddControl("slider", {
+        label = "Health given",
+        command = "dzents_healthshot_health",
+        type = "int",
+        min = 0,
+        max = 100,
+    })
+    panel:AddControl("slider", {
+        label = "Health delay",
+        command = "dzents_healthshot_healtime",
+        type = "float",
+        min = 0,
+        max = 1,
+    })
+    panel:ControlHelp("Takes this amount of time to give all the health. Set to 0 for instant.")
+    panel:AddControl("slider", {
+        label = "Boost duration",
+        command = "dzents_healthshot_duration",
+        type = "float",
+        min = 0,
+        max = 10,
+    })
+    panel:AddControl("slider", {
+        label = "Boost damage dealt",
+        command = "dzents_healthshot_damage_dealt",
+        type = "float",
+        min = 0,
+        max = 2,
+    })
+    panel:AddControl("slider", {
+        label = "Boost damage taken",
+        command = "dzents_healthshot_damage_taken",
+        type = "float",
+        min = 0,
+        max = 2,
+    })
+    panel:AddControl("slider", {
+        label = "Boost move speed",
+        command = "dzents_healthshot_speed",
+        type = "float",
+        min = 0,
+        max = 2,
+    })
+end
+
 local menus = {
     {
         text = "Client", func = menu_client
@@ -321,6 +391,9 @@ local menus = {
     },
     {
         text = "Server - Cases", func = menu_cases
+    },
+    {
+        text = "Server - Equipment", func = menu_equip
     },
     {
         text = "Server - Pickups", func = menu_pickups

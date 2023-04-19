@@ -45,9 +45,28 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
     local gravity = GetConVar("sv_gravity"):GetFloat()
 
-    if ply:DZ_ENTS_HasHeavyArmor() and not ply:IsOnGround() and (ply:GetVelocity().z < (600 - gravity)) then
-        local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()
-        mv:SetVelocity(mv:GetVelocity() - Vector(0, 0, gravity * grav * ft))
+    if ply:DZ_ENTS_HasHeavyArmor() then
+        local speed = GetConVar("dzents_armor_heavy_speed"):GetInt() / ply:GetWalkSpeed()
+        mv:SetMaxClientSpeed(mv:GetMaxClientSpeed() * speed)
+        mv:SetMaxSpeed(mv:GetMaxSpeed() * speed)
+
+        if ply:IsOnGround() and (ply:GetVelocity().z < (600 - gravity)) then
+            local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()
+            mv:SetVelocity(mv:GetVelocity() - Vector(0, 0, gravity * grav * ft))
+        end
+    end
+
+    if ply:GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
+        local mul = GetConVar("dzents_healthshot_speed"):GetFloat()
+        mv:SetMaxClientSpeed(mv:GetMaxClientSpeed() * mul)
+        mv:SetMaxSpeed(mv:GetMaxSpeed() * mul)
+
+        -- Seems like the engine likes to clamp our max speed below run speed.
+        -- I'd like to avoid calling SetRunSpeed if possible but there seems to be no way around this.
+        if mv:GetMaxSpeed() > ply:GetMaxSpeed() then
+            ply.DZENTS_PendingMaxSpeed = ply:GetRunSpeed()
+            ply:SetRunSpeed(mv:GetMaxSpeed())
+        end
     end
 
     -- local ang = ply:GetAngles()
@@ -170,15 +189,12 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     local boostvel = 700 * (1 + GetConVar("dzents_exojump_boost_up"):GetFloat()) * ha * (ply:DZ_ENTS_HasHeavyArmor() and (1 / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat() * 2)) or 1)
     local longjumpvel = GetConVar("dzents_exojump_boost_forward"):GetFloat() * ha
     local yawang = Angle(0, ply:GetAngles().y, 0)
-    local horiz_max = (not GetConVar("dzents_exojump_runboost"):GetBool()) and ply:GetWalkSpeed() or ply:GetRunSpeed()
+    local horiz_max = (not GetConVar("dzents_exojump_runboost"):GetBool()) and ply:GetWalkSpeed() or mv:GetMaxSpeed()
 
     if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
 
         if ply:KeyPressed(IN_JUMP) and ply:IsOnGround() and ply:GetMoveType() == MOVETYPE_WALK
                 and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) == 0 and not ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
-
-            -- mv:SetMaxSpeed(ply:GetWalkSpeed())
-            -- mv:SetMaxClientSpeed(ply:GetWalkSpeed())
 
             ply:SetNWFloat("DZ_Ents.ExoJump.BoostTime", CurTime())
             ply:SetNWBool("DZ_Ents.ExoJump.BoostHeld", true)
@@ -192,8 +208,8 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 local vec = movedir(yawang, cmd)
 
                 -- If we don't do this, we seem to lose a bit of vertical velocity for no reason?
-                vel.z = vel.z + ply:GetJumpPower()
-                ply:SetGroundEntity(NULL)
+                -- vel.z = vel.z + ply:GetJumpPower()
+                -- ply:SetGroundEntity(NULL)
 
                 local startvel = math.min(vel:Length2D() + horiz_max * 0.25, horiz_max)
                 ply:SetNWFloat("DZ_Ents.ExoJump.Vel", startvel)
@@ -203,8 +219,10 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", false)
                 ply.DZ_ENTS_ExoSound = false
 
-                -- cancel sandbox sprint jump boost
-                vel = vel / 2
+                ply:SetNWFloat("DZ_Ents.ExoJump.Vel", vel:Length2D())
+
+                -- feels very awful if we can cel the jump boost
+                -- vel = vel / 2
                 -- print(vel:Length2D())
             end
 
@@ -266,9 +284,11 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 end)
 
 hook.Add("Move", "dz_ents_move", function(ply, mv)
-
 end)
 
 hook.Add("FinishMove", "dz_ents_move", function(ply, mv)
-
+    if ply.DZENTS_PendingMaxSpeed then
+        ply:SetRunSpeed(ply.DZENTS_PendingMaxSpeed)
+        ply.DZENTS_PendingMaxSpeed = nil
+    end
 end)

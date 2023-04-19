@@ -148,6 +148,7 @@ hook.Add("DoPlayerDeath", "dz_ents_player", function(ply)
     ply:DZ_ENTS_RemoveHelmet(drop)
     ply:DZ_ENTS_RemoveArmor(drop)
     ply:DZ_ENTS_RemoveEquipment(dropequip)
+    ply:SetNWFloat("DZ_Ents.Healthshot", 0)
 end)
 
 hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
@@ -260,6 +261,8 @@ hook.Add("PlayerCanPickupWeapon", "dz_ents_player", function(ply, wep)
         -- end
         return false
     end
+
+    if (wep.DZENTS_Pickup or 0) > CurTime() then return false end
 end)
 
 
@@ -304,6 +307,14 @@ local bitflags_blockable = DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST
 local bitflags_nohitgroup = DMG_FALL + DMG_BLAST + DMG_RADIATION + DMG_CRUSH + DMG_DROWN + DMG_POISON
 
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
+
+    if ply:GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
+        dmginfo:ScaleDamage(GetConVar("dzents_healthshot_damage_taken"):GetFloat())
+    end
+    if IsValid(dmginfo:GetAttacker()) and dmginfo:GetAttacker():GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
+        dmginfo:ScaleDamage(GetConVar("dzents_healthshot_damage_dealt"):GetFloat())
+    end
+
     if not ply:IsPlayer() then return end
     if dmginfo:IsFallDamage() then
         -- Nasty. Do it late here and with a hard-coded fall damage check in case some other addon is doing their own fall damage thing.

@@ -11,7 +11,10 @@ hook.Add("PopulateEntities", "dz_ents", function(pnlContent, tree, anode)
         -- Build into categories + subcategories
         for k, ent in pairs(SpawnableEntities) do
             local EntTable = scripted_ents.Get(ent.ClassName)
-            if not EntTable or not EntTable.IsDZEnt then continue end
+            if not EntTable then
+                EntTable = weapons.Get(ent.ClassName)
+            end
+            if not EntTable then continue end
 
             -- Get the ent category as a string
             local Category = ent.Category or "Other2"
