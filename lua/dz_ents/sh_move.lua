@@ -223,7 +223,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     local boostvel = 700 * (1 + GetConVar("dzents_exojump_boost_up"):GetFloat()) * ha * (ply:DZ_ENTS_HasHeavyArmor() and (1 / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat() * 2)) or 1)
     local longjumpvel = GetConVar("dzents_exojump_boost_forward"):GetFloat() * ha
     local yawang = Angle(0, ply:GetAngles().y, 0)
-    local horiz_max = (not GetConVar("dzents_exojump_runboost"):GetBool()) and ply:GetWalkSpeed() or mv:GetMaxSpeed()
+    local horiz_max = GetConVar("dzents_exojump_runboost"):GetBool() and 400 or ply:GetWalkSpeed()
 
     if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
 
@@ -255,7 +255,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
                 ply:SetNWFloat("DZ_Ents.ExoJump.Vel", vel:Length2D())
 
-                -- feels very awful if we can cel the jump boost
+                -- feels very awful if we cancel the jump boost
                 -- vel = vel / 2
                 -- print(vel:Length2D())
             end

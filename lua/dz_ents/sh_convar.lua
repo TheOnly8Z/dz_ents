@@ -57,8 +57,8 @@ CreateConVar("dzents_parachute_speed", 150, FCVAR_ARCHIVE + FCVAR_REPLICATED, "H
 
 CreateConVar("dzents_exojump_onspawn", 0, FCVAR_ARCHIVE, "Give an ExoJump on spawn.", 0, 1)
 CreateConVar("dzents_exojump_runboost", 1, FCVAR_ARCHIVE, "Allow using ExoJump at running speeds.", 0, 1)
-CreateConVar("dzents_exojump_boost_up", 0.58, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity boost when high jumping with the ExoJump.", 0)
-CreateConVar("dzents_exojump_boost_forward", 0.4, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity boost when long jumping with the ExoJump.", 0)
+CreateConVar("dzents_exojump_boost_up", 0.6, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity boost when high jumping with the ExoJump.", 0)
+CreateConVar("dzents_exojump_boost_forward", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity boost when long jumping with the ExoJump.", 0)
 CreateConVar("dzents_exojump_falldamage", 0.4, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Fall damage multiplier when wearing the ExoJump.", 0, 1)
 CreateConVar("dzents_exojump_drag", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Horizontal velocity drag multiplier when high jumping with the ExoJump. Higher value slows players down further.", 0)
 -- CreateConVar("dzents_exojump_cooldown", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED, "After using the ExoJump and landing, how long until you can use it again.", 0)
