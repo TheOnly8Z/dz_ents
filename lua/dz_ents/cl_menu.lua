@@ -24,10 +24,16 @@ local function menu_client(panel)
     })
     panel:ControlHelp("Parachute will deploy when your falling velocity becomes lethal.")
     panel:AddControl("checkbox", {
-        label = "Use parachute viewmodel",
+        label = "Parachute viewmodel",
         command = "cl_dzents_parachute_vm"
     })
+    panel:AddControl("checkbox", {
+        label = "Medi-Shot overlay",
+        command = "cl_dzents_healthshot_overlay"
+    })
 end
+
+
 
 local function menu_ammo(panel)
 
@@ -355,7 +361,7 @@ local function menu_equip(panel)
         command = "dzents_healthshot_healtime",
         type = "float",
         min = 0,
-        max = 1,
+        max = 5,
     })
     panel:ControlHelp("Takes this amount of time to give all the health. Set to 0 for instant.")
     panel:AddControl("slider", {

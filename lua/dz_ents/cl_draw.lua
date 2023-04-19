@@ -119,3 +119,15 @@ hook.Add("HUDPaint", "dz_ents_healthbar", function()
         v[2] = math.Approach(v[2], k:GetBoxes(), FrameTime() * (1 / k.PickupDelay) * 0.85)
     end
 end)
+
+-- CS:GO proper has a texture and some pixel shader that I don't want to bother looking at.
+local overlay_healthshot = Material("dz_ents/overlay_healthshot.png")
+
+hook.Add("HUDPaintBackground", "dz_ents_overlays", function()
+
+    if GetConVar("cl_dzents_healthshot_overlay"):GetBool() and ply:GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
+        surface.SetMaterial(overlay_healthshot)
+        surface.SetDrawColor(255, 255, 255, 150 * math.Clamp((ply:GetNWFloat("DZ_Ents.Healthshot", 0) - CurTime()) / 0.5, 0, 1))
+        surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+    end
+end)

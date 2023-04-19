@@ -2,8 +2,9 @@ if CLIENT then
     CreateConVar("cl_dzents_subcat", 1, FCVAR_ARCHIVE, "Show sub-categories in spawn menu.", 0, 1)
     CreateConVar("cl_dzents_parachute_autodeploy", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Automatically deploy parachute while falling.", 0, 1)
     CreateConVar("cl_dzents_parachute_vm", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Draw parachute straps in first person.", 0, 1)
-
+    CreateConVar("cl_dzents_healthshot_overlay", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Draw health shot overlay.", 0, 1)
 end
+
 -- Case
 CreateConVar("dzents_case_reinforced", 1, FCVAR_ARCHIVE, "Reinforced cases cannot be damaged by unarmed attacks.", 0, 1)
 CreateConVar("dzents_case_health", 1, FCVAR_ARCHIVE, "Health multiplier for newly spawned cases.", 0.01)
@@ -65,7 +66,7 @@ CreateConVar("dzents_equipment_swcs", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Use 
 
 CreateConVar("dzents_healthshot_health", 50, FCVAR_ARCHIVE, "How much health is restored by the Medi-Shot.", 0)
 CreateConVar("dzents_healthshot_use_at_full", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Allow using the Medi-Shot at full health.", 0, 1)
-CreateConVar("dzents_healthshot_healtime", 0, FCVAR_ARCHIVE, "Duration over which health is restored. At 0, health is given instantly.", 0)
+CreateConVar("dzents_healthshot_healtime", 2, FCVAR_ARCHIVE, "Duration over which health is restored. At 0, health is given instantly.", 0)
 CreateConVar("dzents_healthshot_damage_dealt", 1, FCVAR_ARCHIVE, "Outgoing damage multiplier while under the effects of the Medi-Shot.", 0)
 CreateConVar("dzents_healthshot_damage_taken", 1, FCVAR_ARCHIVE, "Incoming damage multiplier while under the effects of the Medi-Shot.", 0)
 CreateConVar("dzents_healthshot_speed", 1.2, FCVAR_ARCHIVE, "Speed multiplier while under the effects of the Medi-Shot.", 0)
