@@ -91,7 +91,7 @@ function SWEP:Deploy()
         vm:SetPlaybackRate(self:GetDeploySpeed())
         self:SetWeaponIdleTime(CurTime() + (self:SequenceDuration() * (1 / self:GetDeploySpeed())))
     end
-    self:SetNextPrimaryFire(CurTime() + self:SequenceDuration() * (1 / self:GetDeploySpeed()) * 0.75)
+    self:SetNextPrimaryFire(CurTime() + self:SequenceDuration() * (1 / self:GetDeploySpeed()) * 0.9)
 
     return true
 end
@@ -137,7 +137,7 @@ function SWEP:Reload()
     if ply:KeyPressed(IN_RELOAD) and ply:GetAmmoCount(self:GetPrimaryAmmoType()) > 0 then
 
         self:SetNextPrimaryFire(CurTime() + 0.75)
-
+        ply:DoAnimationEvent(ACT_GMOD_GESTURE_ITEM_DROP)
 
         -- if SERVER then
         --     ply:DropWeapon(self)
