@@ -299,13 +299,19 @@ local function menu_pickups(panel)
         min = 0,
         max = 1000,
     })
-    panel:ControlHelp("If trying to deploy while below this threshold, a short deploy delay will occur.")
     panel:AddControl("slider", {
         label = "Fall velocity",
         command = "dzents_parachute_fall",
         type = "int",
         min = 50,
         max = 500,
+    })
+    panel:AddControl("slider", {
+        label = "Horizontal speed",
+        command = "dzents_parachute_speed",
+        type = "float",
+        min = 0,
+        max = 400,
     })
     panel:AddControl("slider", {
         label = "Horizontal drag",
