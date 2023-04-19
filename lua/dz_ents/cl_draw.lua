@@ -126,14 +126,14 @@ local overlay_healthshot = Material("dz_ents/overlay_healthshot.png")
 local parachute_frame = 0
 hook.Add("HUDPaintBackground", "dz_ents_overlays", function()
 
-    if GetConVar("cl_dzents_healthshot_overlay"):GetBool() and ply:GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
+    if GetConVar("cl_dzents_healthshot_overlay"):GetBool() and LocalPlayer():GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
         surface.SetMaterial(overlay_healthshot)
-        surface.SetDrawColor(255, 255, 255, 100 * math.Clamp((ply:GetNWFloat("DZ_Ents.Healthshot", 0) - CurTime()) / 0.5, 0, 1))
+        surface.SetDrawColor(255, 255, 255, 100 * math.Clamp((LocalPlayer():GetNWFloat("DZ_Ents.Healthshot", 0) - CurTime()) / 0.5, 0, 1))
         surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
     end
 
     if GetConVar("cl_dzents_parachute_frame"):GetBool() then
-        if ply:GetNWBool("DZ_Ents.Para.Open") then
+        if LocalPlayer():GetNWBool("DZ_Ents.Para.Open") then
             parachute_frame = math.Approach(parachute_frame, 1, RealFrameTime() * 2)
         else
             parachute_frame = math.Approach(parachute_frame, 0, RealFrameTime() * 2)
@@ -174,9 +174,9 @@ local tab_t = {
 }
 hook.Add( "RenderScreenspaceEffects", "dz_ents_overlays", function()
     if GetConVar("cl_dzents_heavyarmor_cc"):GetBool() then
-        if ply:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_CT then
+        if LocalPlayer():DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_CT then
             DrawColorModify(tab_ct)
-        elseif ply:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_T then
+        elseif LocalPlayer():DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_T then
             DrawColorModify(tab_t)
         end
     end
