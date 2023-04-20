@@ -2,7 +2,7 @@ DZ_ENTS.PhysicsMonitorList = {}
 
 hook.Add("Think", "dz_ents_phys", function()
     for i, ent in pairs(DZ_ENTS.PhysicsMonitorList) do
-        if not IsValid(ent) or (ent:IsPlayer() and (not ent:Alive() or ent:GetMoveType() ~= MOVETYPE_WALK)) then
+        if not IsValid(ent) or ent:WaterLevel() > 0 or (ent:IsPlayer() and (not ent:Alive() or ent:GetMoveType() ~= MOVETYPE_WALK)) then
             table.remove(DZ_ENTS.PhysicsMonitorList, i)
             continue
         end
@@ -32,25 +32,29 @@ hook.Add("Think", "dz_ents_phys", function()
         -- crash into walls. Only check horizontal velocity so launching into ceilings doesn't kill you
         local v2dlast, v2dcur = last:Length2D(), cur:Length2D()
         if ent.DZENTS_BumpMine_LaunchTime and ent.DZENTS_BumpMine_LaunchTime + 1 > CurTime()
-                and v2dlast > DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED and v2dlast - v2dcur > DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED then
+                and v2dlast > DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED and v2dlast - v2dcur > 100 then
             local mins, maxs = ent:GetCollisionBounds()
+            mins = mins - Vector(0, 0, 8)
             local dir = last:GetNormalized()
             local tr = util.TraceHull({
-                start = ent:GetPos() - dir,
-                endpos = ent:GetPos() + dir * 2,
+                start = ent:GetPos(),
+                endpos = ent:GetPos() + dir * ent:BoundingRadius(),
                 mins = mins,
                 maxs = maxs,
                 filter = ent,
                 mask = ent:IsPlayer() and MASK_PLAYERSOLID or MASK_NPCSOLID
             })
 
+            debugoverlay.Box(tr.StartPos, mins, maxs, 3, Color(255, 255, 255, 0))
+            debugoverlay.Box(tr.HitPos, mins, maxs, 3, Color(255, 0, 0, 0))
+            debugoverlay.Box(tr.StartPos + dir * ent:BoundingRadius(), mins, maxs, 3, Color(0, 0, 255, 0))
+
             if tr.Hit then
-                ent.DZENTS_BumpMine_LaunchTime = nil
 
                 ent:EmitSound(util.GetSurfaceData(tr.SurfaceProps).bulletImpactSound)
                 ent:EmitSound(util.GetSurfaceData(tr.SurfaceProps).impactHardSound)
 
-                local dmg = Lerp((v2dlast - v2dcur - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED) / 5000, 20, 200) * (ent:IsPlayer() and 1 or 3) * GetConVar("dzents_bumpmine_damage_crash"):GetFloat()
+                local dmg = Lerp((v2dlast - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED) / 5000, 20, 200) * (ent:IsPlayer() and 1 or 3) * GetConVar("dzents_bumpmine_damage_crash"):GetFloat()
                 local dmginfo = DamageInfo()
                 dmginfo:SetDamage(dmg)
                 dmginfo:SetDamageForce(last)
@@ -62,6 +66,11 @@ hook.Add("Think", "dz_ents_phys", function()
                 -- Owner can take less crash damage
                 if IsValid(ent.DZENTS_BumpMine_Attacker) and ent.DZENTS_BumpMine_Attacker == ent then
                     dmginfo:ScaleDamage(GetConVar("dzents_bumpmine_damage_selfcrash"):GetFloat())
+                end
+
+                -- slightly less damage if we hit a thing
+                if IsValid(tr.Entity) and (tr.Entity:IsPlayer() or tr.Entity:IsNPC() or tr.Entity:IsNextBot()) then
+                    dmginfo:ScaleDamage(0.75)
                 end
 
                 ent:TakeDamageInfo(dmginfo)
@@ -76,6 +85,16 @@ hook.Add("Think", "dz_ents_phys", function()
                     end
                     dmginfo:SetDamage(dmg * 2)
                     tr.Entity:TakeDamageInfo(dmginfo)
+
+                    if not IsValid(tr.Entity) or (tr.Entity:IsPlayer() and not tr.Entity:Alive()) or (not tr.Entity:IsPlayer() and tr.Entity:Health() < 0) then
+                        -- punch through destroyed props and dead NPCs/players
+                        ent.DZENTS_BumpMine_LaunchTime = CurTime() + 0.5
+                        ent:SetVelocity(last - cur)
+                    else
+                        ent.DZENTS_BumpMine_LaunchTime = nil
+                    end
+                else
+                    ent.DZENTS_BumpMine_LaunchTime = nil
                 end
             end
         end

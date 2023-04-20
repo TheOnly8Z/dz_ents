@@ -229,14 +229,19 @@ if SERVER then
                 dir.z = 0
                 dir:Normalize()
                 parent:SetVelocity(dir * force + Vector(0, 0, upadd + force * 0.5))
+
+                parent.DZENTS_BumpMine_Launched = true
+                if GetConVar("dzents_bumpmine_damage_crash"):GetFloat() > 0 then
+                    parent.DZENTS_BumpMine_LaunchTime = CurTime() -- only used for wall crash detection
+                end
             else
                 local phys = parent:GetPhysicsObject()
                 if IsValid(phys) then
                     phys:ApplyForceCenter(phys:GetMass() ^ 0.9 * self:GetAngles():Up() * (force * -2))
                 end
             end
-
         end
+        parent.DZENTS_BumpMine_Attacker = self.Attacker
 
         SafeRemoveEntityDelayed(self, 0.02)
     end
