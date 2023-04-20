@@ -82,7 +82,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 ply:SetNWBool("DZ_Ents.Para.Open", true)
                 ply:SetNWBool("DZ_Ents.Para.Consume", true)
                 ply:SetNWBool("DZ_Ents.Para.Auto", false)
-                if not ply.DZ_ENTS_ParachutePending then
+                if SERVER and not ply.DZ_ENTS_ParachutePending then
                     ply:EmitSound("DZ_ENTS.ParachuteOpen")
                 end
                 ply.DZ_ENTS_ParachutePending = nil
@@ -98,7 +98,9 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                     filter = ply
                 })
                 if not tr.Hit then
-                    ply:EmitSound("DZ_ENTS.ParachuteOpen")
+                    if SERVER then
+                        ply:EmitSound("DZ_ENTS.ParachuteOpen")
+                    end
                     ply.DZ_ENTS_ParachutePending = true
                 end
             end
@@ -118,7 +120,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
                 dmg = dmg * GetConVar("dzents_exojump_falldamage"):GetFloat()
             end
-            if dmg > math.max(ply:Health(), 50) then
+            if SERVER and dmg > math.max(ply:Health(), 50) then
                 ply.DZENTS_Robert = true
                 local tr = util.TraceLine({
                     start = ply:GetPos(),
@@ -232,7 +234,9 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 ply:SetNWBool("DZ_Ents.ExoJump.BoostForward", true)
 
                 ply.DZ_ENTS_ExoSound = true
-                ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, ha and 95 or 100, 1)
+                if SERVER then
+                    ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, ha and 95 or 100, 1)
+                end
 
                 local vec = movedir(yawang, cmd)
 
@@ -300,7 +304,9 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                 local vol = math.Clamp(1 - (ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + 0.1 - CurTime()) / 0.1, 0, 1) ^ 2
                 if vol == 1 or not ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
                     ply.DZ_ENTS_ExoSound = true
-                    ply:EmitSound("dz_ents/jump_ability_01.wav", 65 + vol * 10, ha and 95 or 100, vol)
+                    if SERVER then
+                        ply:EmitSound("dz_ents/jump_ability_01.wav", 65 + vol * 10, ha and 95 or 100, vol)
+                    end
                 end
             end
         elseif ply:IsOnGround() and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) + boostdur <= CurTime() then
