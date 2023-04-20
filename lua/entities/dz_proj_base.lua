@@ -99,6 +99,8 @@ if SERVER then
                 normal = tr.HitNormal
                 ent = tr.Entity
             end
+        elseif livingthing then
+            normal = v * -1
         end
 
         self:SetOwner(NULL)

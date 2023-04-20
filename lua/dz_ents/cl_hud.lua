@@ -63,7 +63,7 @@ hook.Add("HUDPaint", "dz_ents_hud", function()
     local x_add = sidegap * scale
 
     surface.SetDrawColor(0, 0, 0, 150)
-    fadebox(fade_lr, x, y, w, h, 32)
+    fadebox(fade_lr, x, y, w, h, 32 * scale)
 
     surface.SetDrawColor(255, 255, 255, 255)
 

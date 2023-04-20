@@ -168,9 +168,12 @@ if SERVER then
         end
 
         for k, v in pairs(ents.FindInSphere(self:GetPos(), 156)) do
-            if not IsValid(v) or v == self or v == self:GetParent() then continue end
+            if not IsValid(v) or v == self then continue end --  or v == self:GetParent()
 
             local dir = (v:GetPos() - origin):GetNormalized()
+            if v == self:GetParent() then
+                dir = (v:WorldSpaceCenter() - self:GetPos() - self:GetUp() * 16):GetNormalized()
+            end
 
             if v:GetClass() == self:GetClass() and v:GetArmed() then
                 -- v:Detonate()
@@ -187,11 +190,26 @@ if SERVER then
                     trail:Fire("Start", "", 0)
                     trail:Fire("Kill", "", 8)
 
+                    local fmult = 1
+                    local umult = 1
+                    if v:IsPlayer() then
+                        if v:Crouching() then
+                            fmult = fmult + 0.5
+                            umult = umult + 1
+                        end
+                        if v:DZ_ENTS_HasHeavyArmor() then
+                            fmult = fmult / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat() * 0.5)
+                            umult = umult / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat() * 0.5)
+                        end
+                    else
+                        umult = umult * 2
+                    end
+                    if v == self:GetParent() then umult = umult + 1 end
+
                     v:SetGroundEntity(NULL)
-                    v:SetVelocity((dir * force + Vector(0, 0, upadd * (v:IsPlayer() and (v:Crouching() and 0 or 1) or 2))) * (v:IsPlayer() and v:Crouching() and v:IsOnGround() and 1.5 or 1))
+                    v:SetVelocity(dir * force * fmult + Vector(0, 0, upadd * umult))
 
                     v.DZENTS_BumpMine_Launched = true
-
                     if GetConVar("dzents_bumpmine_damage_crash"):GetFloat() > 0 then
                         timer.Simple(0.05, function()
                             if not IsValid(v) then return end
@@ -203,8 +221,12 @@ if SERVER then
                     -- For NPCs/nextbots, this will also handle fall damage
                     table.insert(DZ_ENTS.PhysicsMonitorList, v)
                 else
-                    v:GetPhysicsObject():ApplyForceCenter((dir * (force + upadd)) * (v:GetPhysicsObject():GetMass() ^ 0.9))
-                    v:GetPhysicsObject():AddAngleVelocity(VectorRand() * Lerp(v:GetPhysicsObject():GetMass() / 500, 360, 5))
+                    if v == self:GetParent() then
+                        v:GetPhysicsObject():ApplyForceCenter(v:GetPhysicsObject():GetMass() ^ 0.9 * self:GetAngles():Up() * (force * -2))
+                    else
+                        v:GetPhysicsObject():ApplyForceCenter((dir * (force + upadd)) * (v:GetPhysicsObject():GetMass() ^ 0.9))
+                        v:GetPhysicsObject():AddAngleVelocity(VectorRand() * Lerp(v:GetPhysicsObject():GetMass() / 500, 360, 5))
+                    end
                     v:SetPhysicsAttacker(self.Attacker or v, 6)
 
                     local dmginfo = DamageInfo()
@@ -232,28 +254,7 @@ if SERVER then
         explo:Fire("Start", "", 0)
         explo:Fire("Kill", "", 8)
 
-        local parent = self:GetParent()
-        if IsValid(parent) then
-            if parent:IsPlayer() or parent:IsNPC() or parent:IsNextBot() then
-                local dir = parent:WorldSpaceCenter() - self:GetPos()
-                dir.z = 0
-                dir:Normalize()
-                parent:SetVelocity(dir * force + Vector(0, 0, upadd + force * 0.5))
-
-                parent.DZENTS_BumpMine_Launched = true
-                if GetConVar("dzents_bumpmine_damage_crash"):GetFloat() > 0 then
-                    parent.DZENTS_BumpMine_LaunchTime = CurTime() -- only used for wall crash detection
-                end
-            else
-                local phys = parent:GetPhysicsObject()
-                if IsValid(phys) then
-                    phys:ApplyForceCenter(phys:GetMass() ^ 0.9 * self:GetAngles():Up() * (force * -2))
-                end
-            end
-        end
-        parent.DZENTS_BumpMine_Attacker = self.Attacker
-
-        SafeRemoveEntityDelayed(self, 0.02)
+        SafeRemoveEntityDelayed(self, 0.05)
     end
 
     function ENT:Touch(v)

@@ -265,7 +265,7 @@ local function menu_armor(panel)
         min = 0,
         max = 1,
     })
-    panel:ControlHelp("Makes you fall faster, and makes parachute and ExoJump less effective.")
+    panel:ControlHelp("Makes you fall faster, and reduces effectiveness of Parachutes, Bump Mines and ExoJumps.")
     panel:AddControl("slider", {
         label = "ExoJump strength",
         command = "dzents_armor_heavy_exojump",
@@ -274,7 +274,6 @@ local function menu_armor(panel)
         max = 2,
     })
     panel:ControlHelp("Velocity multiplier when using the ExoJump with the Heavy Assault Armor.")
-
 end
 
 local function menu_pickups(panel)

@@ -42,7 +42,7 @@ CreateConVar("dzents_armor_heavy_nosprint", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED,
 CreateConVar("dzents_armor_heavy_norifle", 2, FCVAR_ARCHIVE + FCVAR_REPLICATED, "When using Heavy Assault Suit, disallow equipping rifles. 1 - only CS:GO rifles. 2 - attempt to block all rifles.", 0, 2)
 CreateConVar("dzents_armor_heavy_deployspeed", 0.8, FCVAR_ARCHIVE + FCVAR_REPLICATED, "When using Heavy Assault Suit, multiply deploy speed by this number. Only works for certain weapon bases.", 0.25, 1)
 CreateConVar("dzents_armor_heavy_adminonly", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Heavy Assault Suit is admin only. Requires reload.", 0, 1)
-CreateConVar("dzents_armor_heavy_gravity", 0.3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Additional gravity multiplier when you have the Heavy Assault Suit. Also affects parachute.", 0)
+CreateConVar("dzents_armor_heavy_gravity", 0.3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Additional gravity multiplier when you have the Heavy Assault Suit. Also reduces effectiveness of Parachutes, Bump Mines and ExoJumps.", 0)
 CreateConVar("dzents_armor_heavy_exojump", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity multiplier when using the ExoJump with the Heavy Assault Suit.", 0)
 CreateConVar("dzents_armor_heavy_robert", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "ROBERTOOOOOOOOO", 0, 1)
 CreateConVar("dzents_armor_heavy_playermodel", 1, FCVAR_ARCHIVE, "Set playermodel when using the Heavy Assault Suit.", 0, 1)
