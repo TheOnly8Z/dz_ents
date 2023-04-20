@@ -47,11 +47,6 @@ The following addons have integration:
 - [TFA CS:GO](https://steamcommunity.com/workshop/filedetails/?id=2839918331). Original is long gone, so the link is the most popular reupload.
 - [This set of CSGO weapons from 2017](https://steamcommunity.com/sharedfiles/filedetails/?id=1254322322)
 
-## Work in progress & Planned
-- Case whitelisting / filtering
-- Case spawner entities (SBMG support?)
-- Random loot spawning
-
 ## Credits
 - Valve: CS:GO assets
 - [ArachnitCZ](https://steamcommunity.com/id/arachnit): Heavy Assault Suit playermodel and hand port.

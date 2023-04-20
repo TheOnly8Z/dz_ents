@@ -765,3 +765,37 @@ local function makemenu_case_category()
     net.SendToServer()
 end
 concommand.Add("cl_dzents_menu_case_category", makemenu_case_category)
+
+DZ_ENTS.Menu_Case_WhiteList = DZ_ENTS.Menu_Case_WhiteList or nil
+--[[]
+local spawnmenu_border = GetConVar("spawnmenu_border")
+local function makemenu_case_whitelist(list_name)
+    if not LocalPlayer():IsAdmin() then return end
+    if DZ_ENTS.Menu_Case_WhiteList then
+        DZ_ENTS.Menu_Case_WhiteList:Remove()
+    end
+
+    local MarginX = math.Clamp((ScrW() - 1024) * math.max(0.1, spawnmenu_border:GetFloat()), 25, 256)
+    local MarginY = math.Clamp((ScrH() - 768) * math.max(0.1, spawnmenu_border:GetFloat()), 25, 256)
+    if ScrW() < 1024 or ScrH() < 768 then
+        MarginX = 0
+        MarginY = 0
+    end
+
+    DZ_ENTS.Menu_Case_WhiteList = vgui.Create("DFrame")
+    DZ_ENTS.Menu_Case_WhiteList:SetTitle("Danger Zone Case Whitelist")
+    DZ_ENTS.Menu_Case_WhiteList:Dock(FILL)
+    DZ_ENTS.Menu_Case_WhiteList:DockPadding( 0, 0, 0, 0 )
+    DZ_ENTS.Menu_Case_WhiteList:DockMargin( MarginX, MarginY, MarginX, MarginY )
+    -- DZ_ENTS.Menu_Case_WhiteList:SetBackgroundColor(Color(255, 255, 255, 100))
+
+    DZ_ENTS.Menu_Case_WhiteList:Center()
+    DZ_ENTS.Menu_Case_WhiteList:MakePopup()
+
+end
+
+concommand.Add("cl_dzents_menu_case_whitelist", function(ply, cmd, args, argstr)
+    if not LocalPlayer():IsAdmin() then return end
+    makemenu_case_whitelist(args[1] or "")
+end)
+]]
