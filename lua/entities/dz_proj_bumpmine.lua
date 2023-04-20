@@ -179,7 +179,7 @@ if SERVER then
                     v.DZENTS_BumpMine_Launched = true
 
                     if GetConVar("dzents_bumpmine_damage_crash"):GetFloat() > 0 then
-                        timer.Simple(0.1, function()
+                        timer.Simple(0.05, function()
                             if not IsValid(v) then return end
                             v.DZENTS_BumpMine_LaunchTime = CurTime() -- only used for wall crash detection
                         end)
