@@ -267,8 +267,6 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 4 and (ent.HoldType == "grenade" or ent.HoldType == "slam" or ent.HoldType == "normal")
         end,
         default = {
-            ["weapon_dz_healthshot"] = true,
-            ["weapon_dz_bumpmine"] = true,
             ------------------------------- ArcCW
             "arccw_nade_flash",
             "arccw_nade_gas",
@@ -306,6 +304,8 @@ DZ_ENTS.LootTypes = {
             "tfa_csgo_sonarbomb",
         },
         blacklist = {
+            ["weapon_dz_healthshot"] = true,
+            ["weapon_dz_bumpmine"] = true,
         }
     },
     ["pistol_light"] = {
