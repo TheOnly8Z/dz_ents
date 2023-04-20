@@ -1,25 +1,25 @@
 -- Add weapons to the equipment list so they're in one place.
-DZ_ENTS.AddList = {
-    "weapon_dz_healthshot",
-    "weapon_dz_bumpmine",
-}
-local function addlist()
-    for k, v in pairs(DZ_ENTS.AddList) do
-        local wep = weapons.Get(v)
+-- DZ_ENTS.AddList = {
+--     "weapon_dz_healthshot",
+--     "weapon_dz_bumpmine",
+-- }
+-- local function addlist()
+--     for k, v in pairs(DZ_ENTS.AddList) do
+--         local wep = weapons.Get(v)
 
-        list.Set("SpawnableEntities", v, {
-            PrintName = wep.PrintName,
-            ClassName = v,
-            Category = "Danger Zone",
-            NormalOffset = 32,
-            DropToFloor = true,
-            Spawnable = wep.Spawnable,
-            AdminOnly = wep.AdminOnly,
-        })
-    end
+--         list.Set("SpawnableEntities", v, {
+--             PrintName = wep.PrintName,
+--             ClassName = v,
+--             Category = "Danger Zone",
+--             NormalOffset = 32,
+--             DropToFloor = true,
+--             Spawnable = wep.Spawnable,
+--             AdminOnly = wep.AdminOnly,
+--         })
+--     end
 
-end
-hook.Add("Initialize", "dz_ents_list", addlist)
+-- end
+-- hook.Add("Initialize", "dz_ents_list", addlist)
 -- addlist()
 
 -- Heavy playermodels ported by ArachnitCZ: http://steamcommunity.com/profiles/76561198015206549/

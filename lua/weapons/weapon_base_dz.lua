@@ -61,6 +61,8 @@ function SWEP:Initialize()
 
     -- engine deploy blocks weapon from thinking and doing most stuff
     self.m_WeaponDeploySpeed = 255
+
+    self:SetHoldType(self.HoldType)
 end
 
 function SWEP:Deploy()
