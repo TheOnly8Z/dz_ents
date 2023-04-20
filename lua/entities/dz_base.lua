@@ -59,7 +59,8 @@ if SERVER then
         self.Dying = true
         self:SetRenderMode(RENDERMODE_TRANSADD)
         self:SetRenderFX(kRenderFxFadeFast)
-        SafeRemoveEntityDelayed(self, 1)
+        self:DrawShadow(false)
+        SafeRemoveEntityDelayed(self, 2)
     end
 
     function ENT:MarkForRemove(delay)
