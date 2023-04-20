@@ -58,7 +58,7 @@ if SERVER then
         if self.Dying then return end
         self.Dying = true
         self:SetRenderMode(RENDERMODE_TRANSADD)
-        self:SetRenderFX(kRenderFxFadeSlow)
+        self:SetRenderFX(kRenderFxFadeFast)
         SafeRemoveEntityDelayed(self, 1)
     end
 
