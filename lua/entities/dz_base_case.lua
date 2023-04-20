@@ -54,6 +54,8 @@ if SERVER then
                 ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + Vector(0, 0, 64) + VectorRand() * 32)
             end
 
+            ent.DZENTS_Pickup = CurTime() + 1
+
             if GetConVar("dzents_case_cleanup"):GetFloat() > 0 then
                 timer.Simple(GetConVar("dzents_case_cleanup"):GetFloat(), function()
                     if IsValid(ent) and not IsValid(ent:GetOwner()) then

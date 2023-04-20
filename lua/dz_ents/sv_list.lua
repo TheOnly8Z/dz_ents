@@ -5,15 +5,15 @@ function DZ_ENTS.SaveUserDefList(list_name)
     file.Write("dz_ents/" .. list_name .. ".txt", str)
 
     print("[DZ_ENTS] Saved user defined list '" .. list_name .. "' with " .. #DZ_ENTS.UserDefLists[list_name] .. " entries.")
-
 end
 
 function DZ_ENTS.LoadUserDefList(list_name)
     local tbl = util.JSONToTable(file.Read("dz_ents/" .. list_name .. ".txt", "DATA") or "")
 
     DZ_ENTS.UserDefLists[list_name] = tbl or {}
+    DZ_ENTS.UserDefListsDict[list_name] = {}
     for _, v in pairs(DZ_ENTS.UserDefLists[list_name]) do
-        DZ_ENTS.UserDefListsDict[v] = true
+        DZ_ENTS.UserDefListsDict[list_name][v] = true
     end
 
     print("[DZ_ENTS] Loaded user defined list '" .. list_name .. "' with " .. #DZ_ENTS.UserDefLists[list_name] .. " entries.")
