@@ -31,7 +31,6 @@ SWEP.ViewModelFOV = 68
 SWEP.UseHands = true
 
 SWEP.WepSelectIcon = Material("dz_ents/select/healthshot.png", "smooth")
-SWEP.WepSelectIconRatio = 0.75
 
 SWEP.Primary.Ammo = "dz_healthshot"
 SWEP.Primary.DefaultClip = 1
@@ -63,9 +62,6 @@ function SWEP:Deploy()
 end
 
 function SWEP:Holster(nextWep)
-    if SERVER and IsValid(self:GetOwner()) and self:Ammo1() <= 0 then
-        self:Remove()
-    end
     self:SetBodygroup(0, 0)
     self:SetStimTime(0)
     return BaseClass.Holster(self, nextWep)

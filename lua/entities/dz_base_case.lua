@@ -101,6 +101,12 @@ if SERVER then
 
         return dmginfo:GetDamage()
     end
+
+    function ENT:Use(ply)
+        if self:Health() >= self:GetMaxHealth() then
+            DZ_ENTS:Hint(ply, 17, self)
+        end
+    end
 else
     function ENT:Draw()
         self:DrawModel()

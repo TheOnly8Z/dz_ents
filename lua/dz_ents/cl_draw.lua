@@ -76,7 +76,6 @@ hook.Add("HUDPaint", "dz_ents_healthbar", function()
         draw.SimpleTextOutlined(DZ_ENTS.Hints[hint[2]][1], "dz_ents_hint", x, y, Color(c, c, c, 255 * a), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0, 0, 0, 100 * a))
     end
 
-
     for k, v in pairs(damaged) do
         local s = math.Clamp(1 - (k:GetPos():DistToSqr(EyePos()) / 9437184), 0.25, 1)
         local w, h = 192 * s, 12 * s
@@ -152,9 +151,9 @@ end)
 -- Here's a ghetto version.
 local tab_ct = {
     ["$pp_colour_addr"] = 0,
-    ["$pp_colour_addg"] = 0,
-    ["$pp_colour_addb"] = 0.04,
-    ["$pp_colour_brightness"] = -0.01,
+    ["$pp_colour_addg"] = 0.05,
+    ["$pp_colour_addb"] = 0.05,
+    ["$pp_colour_brightness"] = -0.02,
     ["$pp_colour_contrast"] = 1,
     ["$pp_colour_colour"] = 1,
     ["$pp_colour_mulr"] = 0,
@@ -176,8 +175,10 @@ hook.Add( "RenderScreenspaceEffects", "dz_ents_overlays", function()
     if GetConVar("cl_dzents_heavyarmor_cc"):GetBool() then
         if LocalPlayer():DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_CT then
             DrawColorModify(tab_ct)
+            DrawToyTown(3, ScrH() * 0.2)
         elseif LocalPlayer():DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_T then
             DrawColorModify(tab_t)
+            DrawToyTown(3, ScrH() * 0.2)
         end
     end
 end)

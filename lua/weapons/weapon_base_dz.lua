@@ -29,7 +29,6 @@ function SWEP:SetupDataTables()
     end
 end
 
-
 function SWEP:Ammo1()
     if self.Base == "weapon_swcs_base" then
         return self:GetOwner():GetAmmoCount(self:GetPrimaryAmmoType())
@@ -85,6 +84,13 @@ function SWEP:Deploy()
     return true
 end
 
+function SWEP:Holster(nextWep)
+    if SERVER and IsValid(self:GetOwner()) and self:Ammo1() <= 0 then
+        self:Remove()
+    end
+    return BaseClass.Holster(self, nextWep)
+end
+
 function SWEP:Reload()
     local ply = self:GetOwner()
     if ply:KeyPressed(IN_RELOAD) and self:Ammo1() > 0 then
@@ -129,7 +135,7 @@ function SWEP:Reload()
 end
 
 SWEP.WepSelectIcon = Material("dz_ents/select/healthshot.png", "smooth")
-SWEP.WepSelectIconRatio = 0.75
+SWEP.WepSelectIconRatio = 1
 
 function SWEP:DrawWeaponSelection(x, y, wide, tall, alpha)
 

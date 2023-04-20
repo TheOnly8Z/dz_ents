@@ -15,11 +15,13 @@ DZ_ENTS.Hints = {
     [14] = {"Your parachute was used up."},
     [15] = {"Heavy Assault Suit cannot be used with Rifles.", true},
     [16] = {"You can't hold any more ammo for this weapon.", true},
+    [17] = {"Break the case to open it.", true},
 }
 DZ_ENTS.HintBits = 6
 
 if SERVER then
     function DZ_ENTS:Hint(ply, i, ent)
+        if ply:GetInfoNum("cl_dzents_hint", 1) == 0 then return end
         ply.DZ_ENTS_Hinted = ply.DZ_ENTS_Hinted or {}
         if (ply.DZ_ENTS_Hinted[i] or 0) > CurTime() then return end
         net.Start("dz_ents_hint")

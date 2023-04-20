@@ -14,15 +14,50 @@ local function combobox(panel, text, convar, options)
 end
 
 local function menu_client(panel)
-    panel:AddControl("checkbox", {
-        label = "Use spawn menu subcategories",
-        command = "cl_dzents_subcat"
-    })
+    header(panel, "Preference")
     panel:AddControl("checkbox", {
         label = "Automatically deploy parachute",
         command = "cl_dzents_parachute_autodeploy"
     })
     panel:ControlHelp("Parachute will deploy when your falling velocity becomes lethal.")
+    panel:AddControl("checkbox", {
+        label = "Show hints",
+        command = "cl_dzents_hint"
+    })
+
+    header(panel, "\nInterface")
+    panel:AddControl("checkbox", {
+        label = "Use spawn menu subcategories",
+        command = "cl_dzents_subcat"
+    })
+    panel:AddControl("checkbox", {
+        label = "Armor / Equipment HUD",
+        command = "cl_dzents_hud_enabled"
+    })
+    panel:AddControl("slider", {
+        label = "HUD Scale",
+        command = "cl_dzents_hud_scale",
+        type = "float",
+        min = 0.1,
+        max = 3,
+    })
+    panel:AddControl("slider", {
+        label = "HUD X Pos",
+        command = "cl_dzents_hud_x",
+        type = "float",
+        min = -640,
+        max = 640,
+    })
+    panel:AddControl("slider", {
+        label = "HUD Y Pos",
+        command = "cl_dzents_hud_y",
+        type = "float",
+        min = -640,
+        max = 640,
+    })
+    panel:ControlHelp("Neagtive X/Y values align from the right and bottom.")
+
+    header(panel, "\nVisuals")
     panel:AddControl("checkbox", {
         label = "Parachute viewmodel",
         command = "cl_dzents_parachute_vm"

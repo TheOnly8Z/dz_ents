@@ -5,6 +5,12 @@ if CLIENT then
     CreateConVar("cl_dzents_parachute_frame", 1, FCVAR_ARCHIVE, "Draw black frames when in parachute.", 0, 1)
     CreateConVar("cl_dzents_healthshot_overlay", 1, FCVAR_ARCHIVE, "Draw health shot overlay.", 0, 1)
     CreateConVar("cl_dzents_heavyarmor_cc", 1, FCVAR_ARCHIVE, "Draw color correction while in heavy armor.", 0, 1)
+    CreateConVar("cl_dzents_hint", 1, FCVAR_ARCHIVE + FCVAR_USERINFO, "Display hints.", 0, 1)
+
+    CreateConVar("cl_dzents_hud_enabled", 1, FCVAR_ARCHIVE, "Use armor/equipment HUD.", 0, 1)
+    CreateConVar("cl_dzents_hud_scale", 1, FCVAR_ARCHIVE, "HUD scale.", 0)
+    CreateConVar("cl_dzents_hud_x", 200, FCVAR_ARCHIVE, "HUD X position in screen scale units. Negative values start from the right.")
+    CreateConVar("cl_dzents_hud_y", -30, FCVAR_ARCHIVE, "HUD Y position in screen scale units. Negative values start from below.")
 end
 
 -- Case

@@ -31,7 +31,6 @@ SWEP.ViewModelFOV = 68
 SWEP.UseHands = true
 
 SWEP.WepSelectIcon = Material("dz_ents/select/bumpmine.png", "smooth")
-SWEP.WepSelectIconRatio = 1
 
 SWEP.Primary.Ammo = "dz_bumpmine"
 SWEP.Primary.DefaultClip = 3
