@@ -77,4 +77,11 @@ CreateConVar("dzents_healthshot_duration", 6.5, FCVAR_ARCHIVE, "Duration of dama
 CreateConVar("dzents_healthshot_maxammo", 2, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Maximum amount of Medi-Shots you can have on you.", 0)
 CreateConVar("dzents_healthshot_killcount", 3, FCVAR_ARCHIVE, "Kill this many players to get a Medi-Shot. 0 disables.", 0)
 
-CreateConVar("dz_bumpmine_maxammo", 3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Maximum amount of Bump Mines you can have on you.", 0)
+CreateConVar("dzents_bumpmine_maxammo", 3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Maximum amount of Bump Mines you can have on you.", 0)
+CreateConVar("dzents_bumpmine_force", 1000, FCVAR_ARCHIVE, "Bump mine push force.", 0)
+CreateConVar("dzents_bumpmine_upadd", 200, FCVAR_ARCHIVE, "Additional upwards force from the bump mine.", 0)
+CreateConVar("dzents_bumpmine_armdelay", 0.3, FCVAR_ARCHIVE, "Delay after landing before the bump mine can detonate.", 0)
+CreateConVar("dzents_bumpmine_detdelay", 0.2, FCVAR_ARCHIVE, "Delay between triggering the bump mine and detonating.", 0)
+CreateConVar("dzents_bumpmine_damage_fall", 1, FCVAR_ARCHIVE, "Fall damage multiplier when launched by Bump Mines.", 0)
+CreateConVar("dzents_bumpmine_damage_crash", 1, FCVAR_ARCHIVE, "Damage multiplier when crashing into walls from Bump Mines.", 0)
+CreateConVar("dzents_bumpmine_damage_selfcrash", 1, FCVAR_ARCHIVE, "Additional damage multiplier on the user when crashing into walls from Bump Mines.", 0)

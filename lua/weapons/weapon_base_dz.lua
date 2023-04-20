@@ -58,10 +58,11 @@ function SWEP:RemoveAndSwitch()
 end
 
 function SWEP:Initialize()
+    local ourammoforreal = self.Primary.Ammo
     BaseClass.Initialize(self, false)
 
     -- SWCS hates ammo types apparently
-    self.Primary.Ammo = self.AmmoType
+    self.Primary.Ammo = ourammoforreal
 
     -- engine deploy blocks weapon from thinking and doing most stuff
     self.m_WeaponDeploySpeed = 255

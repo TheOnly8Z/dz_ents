@@ -149,6 +149,10 @@ hook.Add("DoPlayerDeath", "dz_ents_player", function(ply)
     ply:DZ_ENTS_RemoveArmor(drop)
     ply:DZ_ENTS_RemoveEquipment(dropequip)
     ply:SetNWFloat("DZ_Ents.Healthshot", 0)
+
+    ply.DZENTS_BumpMine_Launched = nil
+    ply.DZENTS_BumpMine_LaunchTime = nil
+    ply.DZENTS_BumpMine_Attacker = nil
 end)
 
 hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
@@ -312,16 +316,20 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
     if ply:GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
         dmginfo:ScaleDamage(GetConVar("dzents_healthshot_damage_taken"):GetFloat())
     end
+
     if IsValid(dmginfo:GetAttacker()) and dmginfo:GetAttacker():GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
         dmginfo:ScaleDamage(GetConVar("dzents_healthshot_damage_dealt"):GetFloat())
     end
 
     if not ply:IsPlayer() then return end
+
     if dmginfo:IsFallDamage() then
+
         -- Nasty. Do it late here and with a hard-coded fall damage check in case some other addon is doing their own fall damage thing.
         -- Don't want to mess with hook loading orders now, do we?
-        if not GetConVar("mp_falldamage"):GetBool() and ply:DZ_ENTS_HasHeavyArmor()
-                and GetConVar("dzents_armor_heavy_falldamage"):GetBool() and dmginfo:GetDamage() == 10 then
+        if not GetConVar("mp_falldamage"):GetBool() and dmginfo:GetDamage() == 10 and (
+            (ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_falldamage"):GetBool())
+            or (ply.DZENTS_BumpMine_Launched and GetConVar("dzents_bumpmine_damage_fall"):GetFloat() > 0)) then
             -- SDK2013 damage calc. gets pretty close, the difference is probably related to velocity being a tick off or whatever
             dmginfo:SetDamage(math.max(math.abs(ply:GetVelocity().z) - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED, 0) * DZ_ENTS.DAMAGE_FOR_FALL_SPEED)
         end
@@ -351,6 +359,16 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         -- exojump reduces fall damage
         if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
             dmginfo:ScaleDamage(GetConVar("dzents_exojump_falldamage"):GetFloat())
+        end
+
+        -- bump mine launch damage multiplier
+        if (ply.DZENTS_BumpMine_Launched and GetConVar("dzents_bumpmine_damage_fall"):GetFloat() > 0) then
+            dmginfo:ScaleDamage(GetConVar("dzents_bumpmine_damage_fall"):GetFloat())
+        end
+
+        -- attribute this fall damage to whoever launched us with the bump mine
+        if IsValid(ply.DZENTS_BumpMine_Attacker) then
+            dmginfo:SetAttacker(ply.DZENTS_BumpMine_Attacker)
         end
 
         -- armor can't handle fall damage!

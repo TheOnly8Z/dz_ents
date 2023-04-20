@@ -33,8 +33,6 @@ SWEP.UseHands = true
 SWEP.WepSelectIcon = Material("dz_ents/select/healthshot.png", "smooth")
 SWEP.WepSelectIconRatio = 0.75
 
-SWEP.AmmoType = "dz_healthshot"
-
 SWEP.Primary.Ammo = "dz_healthshot"
 SWEP.Primary.DefaultClip = 1
 

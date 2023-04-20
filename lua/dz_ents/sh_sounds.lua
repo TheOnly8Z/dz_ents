@@ -108,6 +108,60 @@ sound.Add({
     chan = CHAN_STATIC,
 })
 
+sound.Add({
+    name = "DZ_Ents.BumpMine.Idle",
+    volume = 0.65,
+    level = 70,
+    pitch = 90,
+    sound =  "dz_ents/power_transformer_loop_1.wav",
+    chan = CHAN_STATIC,
+})
+
+sound.Add({
+    name = "DZ_Ents.BumpMine.SetArmed",
+    volume = 1,
+    level = 85,
+    pitch = 100,
+    sound =  "dz_ents/bumpmine_land_01.wav",
+    chan = CHAN_STATIC,
+    -- ignore_occlusion?
+})
+
+sound.Add({
+    name = "DZ_Ents.BumpMine.Warning",
+    volume = 0.5,
+    level = 75,
+    pitch = 100,
+    sound = "dz_ents/breach_warning_beep_01.wav", -- ~
+    chan = CHAN_STATIC,
+})
+
+sound.Add({
+    name = "DZ_Ents.BumpMine.Detonate",
+    volume = 0.8,
+    level = 75,
+    pitch = 100,
+    sound = ")dz_ents/bumpmine_launch_01.wav", -- ~
+    chan = CHAN_STATIC,
+})
+
+sound.Add({
+    name = "DZ_Ents.BumpMine.PreDetonate",
+    volume = 1,
+    level = 75,
+    pitch = 100,
+    sound = "dz_ents/breach_activate_01.wav",
+    chan = CHAN_STATIC,
+})
+
+sound.Add({
+    name = "DZ_Ents.BumpMine.Pickup",
+    volume = 1,
+    level = 75,
+    pitch = 100,
+    sound = "dz_ents/bumpmine_pickup.wav",
+    chan = CHAN_STATIC,
+})
 
 hook.Add("PlayerFootstep", "dz_ents_sound", function(ply, pos, foot, snd, volume, rf)
     if ply:DZ_ENTS_HasHeavyArmor() then

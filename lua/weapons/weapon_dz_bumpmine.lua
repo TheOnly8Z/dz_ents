@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 game.AddAmmoType({
     name = "dz_bumpmine",
-    maxcarry = "dz_bumpmine_maxammo", -- woah, cool feature! doesn't fucking work because nobody sets gmod_maxammo!
+    maxcarry = "dzents_bumpmine_maxammo", -- woah, cool feature! doesn't fucking work because nobody sets gmod_maxammo!
 })
 if CLIENT then
     language.Add("dz_bumpmine_ammo", "Bump Mines")
@@ -32,8 +32,6 @@ SWEP.UseHands = true
 
 SWEP.WepSelectIcon = Material("dz_ents/select/bumpmine.png", "smooth")
 SWEP.WepSelectIconRatio = 1
-
-SWEP.AmmoType = "dz_bumpmine"
 
 SWEP.Primary.Ammo = "dz_bumpmine"
 SWEP.Primary.DefaultClip = 3
@@ -77,9 +75,10 @@ function SWEP:PrimaryAttack()
         self:EmitSound("DZ_Ents.BumpMine.Throw")
 
         if SERVER then
-            local ent = ents.Create("arc9_gsr_thrownbumpmine") -- TODO: replace!
+            local ent = ents.Create("dz_proj_bumpmine")
             ent:SetPos(self:GetOwner():GetShootPos() - Vector(0, 0, 12))
             ent:SetAngles(self:GetOwner():EyeAngles() + AngleRand())
+            ent:SetOwner(self:GetOwner())
             ent:Spawn()
             local phys = ent:GetPhysicsObject()
             if IsValid(phys) then

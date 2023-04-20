@@ -327,4 +327,10 @@ hook.Add("FinishMove", "dz_ents_move", function(ply, mv)
         ply:SetRunSpeed(ply.DZENTS_PendingMaxSpeed)
         ply.DZENTS_PendingMaxSpeed = nil
     end
+
+    if ply:IsOnGround() or ply:GetMoveType() ~= MOVETYPE_WALK then
+        ply.DZENTS_BumpMine_Launched = nil
+        ply.DZENTS_BumpMine_LaunchTime = nil
+        ply.DZENTS_BumpMine_Attacker = nil
+    end
 end)
