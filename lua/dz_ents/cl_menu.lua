@@ -55,7 +55,7 @@ local function menu_client(panel)
         min = -640,
         max = 640,
     })
-    panel:ControlHelp("Neagtive X/Y values align from the right and bottom.")
+    panel:ControlHelp("Negative X/Y values align from the right and bottom.")
 
     header(panel, "\nVisuals")
     panel:AddControl("checkbox", {
@@ -74,6 +74,14 @@ local function menu_client(panel)
         label = "Heavy Assault Suit color correction",
         command = "cl_dzents_heavyarmor_cc"
     })
+
+    header(panel, "\nCredits")
+    panel:Help("Valve: CS:GO assets")
+    panel:Help("ArachnitCZ: Heavy Assault Suit playermodel and hand port.")
+    panel:Help("Twilight Sparkle: Medi-Shot and Bump Mine port.")
+    panel:Help("Matsilagi: Bump Mine effects.")
+    panel:ControlHelp("\n\tAn addon by 8Z")
+
 end
 
 
@@ -178,7 +186,15 @@ local function menu_armor(panel)
         command = "dzents_drop_armor"
     })
 
-    header(panel, "\nHeavy Assault Armor")
+    header(panel, "\nHeavy Assault Suit")
+    panel:AddControl("checkbox", {
+        label = "Set player model",
+        command = "dzents_armor_heavy_playermodel"
+    })
+    panel:AddControl("checkbox", {
+        label = "Randomize player skins",
+        command = "dzents_armor_heavy_playermodel_skin"
+    })
     panel:AddControl("checkbox", {
         label = "Restrict to admins only",
         command = "dzents_armor_heavy_adminonly"

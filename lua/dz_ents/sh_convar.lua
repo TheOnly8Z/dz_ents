@@ -45,6 +45,9 @@ CreateConVar("dzents_armor_heavy_adminonly", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED
 CreateConVar("dzents_armor_heavy_gravity", 0.3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Additional gravity multiplier when you have the Heavy Assault Suit. Also affects parachute.", 0)
 CreateConVar("dzents_armor_heavy_exojump", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Velocity multiplier when using the ExoJump with the Heavy Assault Suit.", 0)
 CreateConVar("dzents_armor_heavy_robert", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "ROBERTOOOOOOOOO", 0, 1)
+CreateConVar("dzents_armor_heavy_playermodel", 1, FCVAR_ARCHIVE, "Set playermodel when using the Heavy Assault Suit.", 0, 1)
+CreateConVar("dzents_armor_heavy_playermodel_skin", 1, FCVAR_ARCHIVE, "Randomize skins when using the Heavy Assault Suit.", 0, 1)
+
 
 -- Death drop
 CreateConVar("dzents_drop_armor", 1, FCVAR_ARCHIVE, "On death, drop helmet and armor. Does not drop the Heavy Assault Suit.", 0, 1)

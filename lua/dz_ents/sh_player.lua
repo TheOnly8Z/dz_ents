@@ -141,6 +141,26 @@ function PLAYER:DZ_ENTS_IsArmoredHitGroup(hitgroup)
             or (armorregions[hitgroup] and (uselogic == 2 or self:DZ_ENTS_HasArmor())) -- otherwise check armored regions
 end
 
+function PLAYER:DZ_ENTS_ApplyHeavyArmorModel(armor)
+    if not GetConVar("dzents_armor_heavy_playermodel"):GetBool() or (armor ~= DZ_ENTS_ARMOR_HEAVY_CT and armor ~= DZ_ENTS_ARMOR_HEAVY_T) then return end
+
+    self.DZ_ENTS_OldPlayerModel = {self:GetModel(), self:GetSkin(), {}}
+    for k, v in pairs(self:GetBodyGroups()) do
+        self.DZ_ENTS_OldPlayerModel[3][v.id] = self:GetBodygroup(v.id)
+    end
+    if armor == DZ_ENTS_ARMOR_HEAVY_CT then
+        self:SetModel("models/arachnit/csgo/ctm_heavy/ctm_heavy_player.mdl")
+        local hands = self:GetHands()
+        hands:SetModel("models/arachnit/csgo/weapons/c_arms_ctm_heavy.mdl")
+    elseif armor == DZ_ENTS_ARMOR_HEAVY_T then
+        self:SetModel("models/arachnit/csgoheavyphoenix/tm_phoenix_heavyplayer.mdl")
+        local hands = self:GetHands()
+        hands:SetModel("models/arachnit/csgoheavyphoenix/c_arms/c_arms_tm_heavy.mdl")
+    end
+    self:SetSkin(GetConVar("dzents_armor_heavy_playermodel_skin"):GetBool() and math.random(1, self:SkinCount()) or 0)
+    self:SetBodyGroups("00000000")
+end
+
 -- DoPlayerDeath happens _before_ PostEntityTakeDamage, so Armor is 0 for purposes of damage calc.
 hook.Add("DoPlayerDeath", "dz_ents_player", function(ply)
     local drop = GetConVar("dzents_drop_armor"):GetBool() and (ply:Armor() > 0 or (ply.PendingArmor or 0) > 0) and not ply:DZ_ENTS_HasHeavyArmor()
@@ -157,22 +177,24 @@ end)
 
 hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
     ply.DZ_ENTS_OriginalSpeed = nil
+    ply.DZ_ENTS_OldPlayerModel = nil
     ply.DZENTS_Robert = nil
     timer.Simple(0, function()
         local give = GetConVar("dzents_armor_onspawn"):GetInt()
         if give == 3 then
+            local armor = math.random() <= 0.5 and DZ_ENTS_ARMOR_HEAVY_CT or DZ_ENTS_ARMOR_HEAVY_T
             ply:DZ_ENTS_GiveHelmet() -- here for formality even though heavy armor protects all hitgroups (SWCS hit effects)
-            ply:DZ_ENTS_SetArmor(math.random() <= 0.5 and DZ_ENTS_ARMOR_HEAVY_CT or DZ_ENTS_ARMOR_HEAVY_T)
+            ply:DZ_ENTS_SetArmor(armor)
             ply:SetArmor(200)
             ply:SetMaxArmor(200)
-
-            local speed = GetConVar("dzents_armor_heavy_speed"):GetInt()
-            if speed > 0 then
-                ply.DZ_ENTS_OriginalSpeed = {ply:GetSlowWalkSpeed(), ply:GetWalkSpeed(), ply:GetRunSpeed()}
-                ply:SetSlowWalkSpeed(math.min(ply:GetSlowWalkSpeed(), speed))
-                ply:SetWalkSpeed(speed)
-                ply:SetRunSpeed(speed * 2)
-            end
+            ply:DZ_ENTS_ApplyHeavyArmorModel(armor)
+            -- local speed = GetConVar("dzents_armor_heavy_speed"):GetInt()
+            -- if speed > 0 then
+            --     ply.DZ_ENTS_OriginalSpeed = {ply:GetSlowWalkSpeed(), ply:GetWalkSpeed(), ply:GetRunSpeed()}
+            --     ply:SetSlowWalkSpeed(math.min(ply:GetSlowWalkSpeed(), speed))
+            --     ply:SetWalkSpeed(speed)
+            --     ply:SetRunSpeed(speed * 2)
+            -- end
         else
             if give >= 1 then
                 ply:DZ_ENTS_SetArmor(DZ_ENTS_ARMOR_KEVLAR)
@@ -482,6 +504,19 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
             if GetConVar("dzents_armor_heavy_break"):GetBool() then
                 ply:DZ_ENTS_RemoveHelmet()
                 ply:DZ_ENTS_RemoveArmor()
+
+                if ply.DZ_ENTS_OldPlayerModel then
+                    ply:SetModel(ply.DZ_ENTS_OldPlayerModel[1])
+                    ply:SetSkin(ply.DZ_ENTS_OldPlayerModel[2])
+                    for k, v in pairs(ply.DZ_ENTS_OldPlayerModel[3]) do
+                        ply:SetBodygroup(k, v)
+                    end
+                    ply.DZ_ENTS_OldPlayerModel = nil
+                end
+                ply:SetupHands()
+
+                ply:EmitSound("physics/metal/metal_box_break2.wav", 80, 100, 0.5)
+
                 -- if ply.DZ_ENTS_OriginalSpeed then
                 --     ply:SetSlowWalkSpeed(ply.DZ_ENTS_OriginalSpeed[1])
                 --     ply:SetWalkSpeed(ply.DZ_ENTS_OriginalSpeed[2])

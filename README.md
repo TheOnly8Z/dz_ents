@@ -54,5 +54,6 @@ The following addons have integration:
 
 ## Credits
 - Valve: CS:GO assets
-- [Twilight Sparkle](https://steamcommunity.com/id/twil_spark): Medi-Shot and Bump Mine model port.
+- [ArachnitCZ](https://steamcommunity.com/id/arachnit): Heavy Assault Suit playermodel and hand port.
+- [Twilight Sparkle](https://steamcommunity.com/id/twil_spark): Medi-Shot and Bump Mine port.
 - [Matsilagi](https://steamcommunity.com/id/matsilagi2): Bump Mine effects.
