@@ -84,4 +84,5 @@ CreateConVar("dzents_bumpmine_armdelay", 0.3, FCVAR_ARCHIVE, "Delay after landin
 CreateConVar("dzents_bumpmine_detdelay", 0.2, FCVAR_ARCHIVE, "Delay between triggering the bump mine and detonating.", 0)
 CreateConVar("dzents_bumpmine_damage_fall", 1, FCVAR_ARCHIVE, "Fall damage multiplier when launched by Bump Mines.", 0)
 CreateConVar("dzents_bumpmine_damage_crash", 1, FCVAR_ARCHIVE, "Damage multiplier when crashing into walls from Bump Mines.", 0)
-CreateConVar("dzents_bumpmine_damage_selfcrash", 1, FCVAR_ARCHIVE, "Additional damage multiplier on the user when crashing into walls from Bump Mines.", 0)
+CreateConVar("dzents_bumpmine_damage_selfcrash", 0.5, FCVAR_ARCHIVE, "Additional damage multiplier on the user when crashing into walls from Bump Mines.", 0)
+CreateConVar("dzents_bumpmine_damage_crashchain", 1, FCVAR_ARCHIVE, "Crashing NPCs and players can deal damage to things they land on.", 0, 1)

@@ -181,7 +181,7 @@ if SERVER then
                     trail:Fire("Kill", "", 8)
 
                     v:SetGroundEntity(NULL)
-                    v:SetVelocity((dir * force + Vector(0, 0, upadd * (v:IsPlayer() and 1 or 2))) * (v:IsPlayer() and v:Crouching() and v:IsOnGround() and 1.5 or 1))
+                    v:SetVelocity((dir * force + Vector(0, 0, upadd * (v:IsPlayer() and (v:Crouching() and 0 or 1) or 2))) * (v:IsPlayer() and v:Crouching() and v:IsOnGround() and 1.5 or 1))
 
                     v.DZENTS_BumpMine_Launched = true
 

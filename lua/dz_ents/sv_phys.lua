@@ -10,17 +10,23 @@ hook.Add("Think", "dz_ents_phys", function()
         local last, cur = (ent.DZENTS_LastVel or ent:GetVelocity()), ent:GetVelocity()
 
         -- NPCs don't typically take fall damage so let's introduce them to the world of pain
-        if ent.DZENTS_BumpMine_Launched and not ent:IsPlayer() and ent:IsOnGround() and last.z < -DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED / 2 then
+        if ent.DZENTS_BumpMine_Launched and not ent:IsPlayer() and ent:IsOnGround() then
 
-            local dmginfo = DamageInfo()
-            dmginfo:SetDamage(math.max(math.abs(last.z) - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED / 2, 0) * DZ_ENTS.DAMAGE_FOR_FALL_SPEED * 2 * GetConVar("dzents_bumpmine_damage_fall"):GetFloat())
-            dmginfo:SetDamageForce(Vector(0, 0, dmginfo:GetDamage() * -100))
-            dmginfo:SetDamagePosition(ent:GetPos())
-            dmginfo:SetDamageType(DMG_CRUSH + DMG_NEVERGIB + DMG_FALL)
-            dmginfo:SetAttacker(IsValid(ent.DZENTS_BumpMine_Attacker) and ent.DZENTS_BumpMine_Attacker or ent)
-            dmginfo:SetInflictor(game.GetWorld())
+            if GetConVar("dzents_bumpmine_damage_fall"):GetFloat() > 0 and last.z < -DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED / 2 then
+                local dmginfo = DamageInfo()
+                dmginfo:SetDamage(math.max(math.abs(last.z) - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED / 2, 0) * DZ_ENTS.DAMAGE_FOR_FALL_SPEED * 2 * GetConVar("dzents_bumpmine_damage_fall"):GetFloat())
+                dmginfo:SetDamageForce(Vector(0, 0, dmginfo:GetDamage() * -100))
+                dmginfo:SetDamagePosition(ent:GetPos())
+                dmginfo:SetDamageType(DMG_CRUSH + DMG_NEVERGIB + DMG_FALL)
+                dmginfo:SetAttacker(IsValid(ent.DZENTS_BumpMine_Attacker) and ent.DZENTS_BumpMine_Attacker or ent)
+                dmginfo:SetInflictor(game.GetWorld())
+                ent:TakeDamageInfo(dmginfo)
+            end
 
-            ent:TakeDamageInfo(dmginfo)
+            ent.DZENTS_BumpMine_Launched = nil
+            ent.DZENTS_BumpMine_LaunchTime = nil
+            table.remove(DZ_ENTS.PhysicsMonitorList, i)
+            continue
         end
 
         -- crash into walls. Only check horizontal velocity so launching into ceilings doesn't kill you
@@ -44,8 +50,9 @@ hook.Add("Think", "dz_ents_phys", function()
                 ent:EmitSound(util.GetSurfaceData(tr.SurfaceProps).bulletImpactSound)
                 ent:EmitSound(util.GetSurfaceData(tr.SurfaceProps).impactHardSound)
 
+                local dmg = Lerp((v2dlast - v2dcur - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED) / 5000, 20, 200) * (ent:IsPlayer() and 1 or 3) * GetConVar("dzents_bumpmine_damage_crash"):GetFloat()
                 local dmginfo = DamageInfo()
-                dmginfo:SetDamage(Lerp((v2dlast - v2dcur - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED) / 5000, 20, 200) * (ent:IsPlayer() and 1 or 3) * GetConVar("dzents_bumpmine_damage_crash"):GetFloat())
+                dmginfo:SetDamage(dmg)
                 dmginfo:SetDamageForce(last)
                 dmginfo:SetDamagePosition(ent:GetPos())
                 dmginfo:SetDamageType(DMG_CRUSH + DMG_NEVERGIB + DMG_FALL)
@@ -61,18 +68,20 @@ hook.Add("Think", "dz_ents_phys", function()
 
                 -- If we land into some unfortunate bloke, they take a hit too
                 if IsValid(tr.Entity) and not tr.Entity.DZENTS_BumpMine_LaunchTime then
-                    dmginfo:ScaleDamage(2)
+                    tr.Entity:TakeDamageInfo(dmginfo)
+                    if tr.Entity:IsPlayer() or tr.Entity:IsNPC() or tr.Entity:IsNextBot() then
+                        tr.Entity:SetVelocity(last)
+                    elseif IsValid(tr.Entity:GetPhysicsObject()) then
+                        tr.Entity:GetPhysicsObject():ApplyForceCenter(last)
+                    end
+                    dmginfo:SetDamage(dmg * 2)
                     tr.Entity:TakeDamageInfo(dmginfo)
                 end
             end
         end
 
         ent.DZENTS_LastVel = ent:GetVelocity()
-        if ent:IsOnGround() then
-            if not ent:IsPlayer() then -- players do this in FinishMove
-                ent.DZENTS_BumpMine_Launched = nil
-                ent.DZENTS_BumpMine_LaunchTime = nil
-            end
+        if ent:IsOnGround() and ent:IsPlayer() then
             table.remove(DZ_ENTS.PhysicsMonitorList, i)
             continue
         end

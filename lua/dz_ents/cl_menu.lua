@@ -406,6 +406,75 @@ local function menu_equip(panel)
         min = 0,
         max = 2,
     })
+
+    header(panel, "\nBump Mine")
+    panel:AddControl("checkbox", {
+        label = "Crash chaining",
+        command = "dzents_bumpmine_damage_crashchain"
+    })
+    panel:ControlHelp("Players and NPCs that crash into another entity will damage and launch that entity.")
+
+    panel:AddControl("slider", {
+        label = "Max ammo",
+        command = "dzents_bumpmine_maxammo",
+        type = "int",
+        min = 0,
+        max = 10,
+    })
+    panel:ControlHelp("IMPORTANT: This only works if 'gmod_maxammo' is set to 0!")
+
+    panel:AddControl("slider", {
+        label = "Launch force",
+        command = "dzents_bumpmine_force",
+        type = "int",
+        min = 300,
+        max = 3000,
+    })
+    panel:AddControl("slider", {
+        label = "Bonus up force",
+        command = "dzents_bumpmine_upadd",
+        type = "int",
+        min = 0,
+        max = 1500,
+    })
+    panel:ControlHelp("Bonus force is angled upwards regardless of player's relative position to the mine. If crouching, it is not applied.")
+    panel:AddControl("slider", {
+        label = "Fall damage",
+        command = "dzents_bumpmine_damage_fall",
+        type = "float",
+        min = 0,
+        max = 1,
+    })
+    panel:ControlHelp("If set, players/NPCs will take velocity-based fall damage. Set to 0 to not modify damage for players and apply no damage to NPCs.")
+    panel:AddControl("slider", {
+        label = "Wall crash damage",
+        command = "dzents_bumpmine_damage_crash",
+        type = "float",
+        min = 0,
+        max = 1,
+    })
+    panel:AddControl("slider", {
+        label = "Self crash damage",
+        command = "dzents_bumpmine_damage_selfcrash",
+        type = "float",
+        min = 0,
+        max = 1,
+    })
+    panel:ControlHelp("Self crash multiplier is applied on top of wall crash damage for the attacker of the mine.")
+    panel:AddControl("slider", {
+        label = "Arm delay",
+        command = "dzents_bumpmine_armdelay",
+        type = "float",
+        min = 0,
+        max = 1,
+    })
+    panel:AddControl("slider", {
+        label = "Detonation delay",
+        command = "dzents_bumpmine_detdelay",
+        type = "float",
+        min = 0,
+        max = 1,
+    })
 end
 
 local menus = {
