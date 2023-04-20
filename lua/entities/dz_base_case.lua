@@ -53,6 +53,14 @@ if SERVER then
             if IsValid(ent:GetPhysicsObject()) then
                 ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + Vector(0, 0, 64) + VectorRand() * 32)
             end
+
+            if GetConVar("dzents_case_cleanup"):GetFloat() > 0 then
+                timer.Simple(GetConVar("dzents_case_cleanup"):GetFloat(), function()
+                    if IsValid(ent) and not IsValid(ent:GetOwner()) then
+                        SafeRemoveEntity(ent)
+                    end
+                end)
+            end
         end
 
         self:EmitSound("dz_ents/container_death_0" .. math.random(1, 3) .. ".wav", 80, math.Rand(97, 103), 1)

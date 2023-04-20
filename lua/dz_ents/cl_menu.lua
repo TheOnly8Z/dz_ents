@@ -148,12 +148,23 @@ local function menu_cases(panel)
         min = 0,
         max = 5,
     })
+    panel:AddControl("slider", {
+        label = "Case loot cleanup",
+        command = "dzents_case_cleanup",
+        type = "int",
+        min = 0,
+        max = 600,
+    })
+    panel:ControlHelp("Case drops are removed after this much time. 0 - never remove.")
+
     combobox(panel, "Case gibs", "dzents_case_gib", {
         ["0 - No gibs"] = "0",
         ["1 - Clientside gibs"] = "1",
         ["2 - Serverside gibs"] = "2",
     })
     panel:ControlHelp("Serverside gibs may be more performance intensive.")
+
+
 
     local btn = vgui.Create("DButton")
     btn:Dock(TOP)
