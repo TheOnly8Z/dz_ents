@@ -1,5 +1,4 @@
--- this is actually exactly arc9_gsr_nadefx but we rename it to avoid collisions
-game.AddParticles("particles/dzents_nadefx.pcf")
+game.AddParticles("particles/dz_ents_bumpmine.pcf")
 
 PrecacheParticleSystem("bumpmine_active")
 PrecacheParticleSystem("bumpmine_active_glow")

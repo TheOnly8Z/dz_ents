@@ -42,13 +42,14 @@ function ENT:Initialize()
         self:PhysicsInitBox(self.MinS, self.MaxS)
         self:DrawShadow(true)
         self:SetArmTime(-1)
+        self:SetUseType(SIMPLE_USE)
 
         local phys = self:GetPhysicsObject()
 
         if phys:IsValid() then
             phys:Wake()
             phys:SetMass(5)
-            phys:SetBuoyancyRatio(0)
+            phys:SetBuoyancyRatio(0.1)
         end
 
         self:SetHealth(10)
@@ -178,7 +179,7 @@ if SERVER then
     end
 
     function ENT:Use(act, call, calltype, integer)
-        if not self.BOOM and self.WeaponClass and IsValid(act) and act:IsPlayer() then
+        if not self.BOOM and self.WeaponClass and IsValid(act) and act:IsPlayer() and self:GetArmed() and act:EyePos():DistToSqr(self:GetPos()) <= 100 * 100 then
             act:GiveAmmo(1, weapons.Get(self.WeaponClass).Primary.Ammo, true)
             act:Give(self.WeaponClass, true)
 
