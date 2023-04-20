@@ -84,8 +84,6 @@ local function menu_client(panel)
 
 end
 
-
-
 local function menu_ammo(panel)
 
     header(panel, "Ammo Boxes")
@@ -156,8 +154,22 @@ local function menu_cases(panel)
         ["2 - Serverside gibs"] = "2",
     })
     panel:ControlHelp("Serverside gibs may be more performance intensive.")
-end
 
+    local btn = vgui.Create("DButton")
+    btn:Dock(TOP)
+    btn:SetText("Case Category Whitelist")
+    function btn.DoClick(self)
+        if LocalPlayer():IsAdmin() then
+            RunConsoleCommand("cl_dzents_menu_case_category")
+        else
+            notification.AddLegacy("This is admin only!", NOTIFY_ERROR, 3)
+            surface.PlaySound("buttons/button10.wav")
+        end
+    end
+    panel:AddPanel(btn)
+    panel:ControlHelp("Use the menu to select categories and toggle the whitelist.\nWhen enabled, cases will only spawn weapons from the whitelisted categories.")
+
+end
 
 local function menu_armor(panel)
 
@@ -562,6 +574,180 @@ local menus = {
 }
 hook.Add("PopulateToolMenu", "dz_ents_menu", function()
     for smenu, data in pairs(menus) do
-        spawnmenu.AddToolMenuOption("Options", "Danger Zone", "DZ_Ents_" .. tostring(smenu), data.text, "", "", data.func)
+        spawnmenu.AddToolMenuOption("Utilities", "Danger Zone", "DZ_Ents_" .. tostring(smenu), data.text, "", "", data.func)
     end
 end)
+
+surface.CreateFont("dz_ents_menu", {
+    font = "Arial",
+    size = 16,
+    weight = 500,
+    extended = true
+})
+
+surface.CreateFont("dz_ents_menu_bold", {
+    font = "Arial",
+    size = 16,
+    weight = 1500,
+    extended = true
+})
+
+local last_mouse_held_val
+
+DZ_ENTS.Menu_Case_Category = DZ_ENTS.Menu_Case_Category or nil
+
+local function makemenu_case_category()
+    if not LocalPlayer():IsAdmin() then return end
+    if DZ_ENTS.Menu_Case_Category then
+        DZ_ENTS.Menu_Case_Category:Remove()
+    end
+
+    local list_name = "case_category"
+
+    DZ_ENTS.Menu_Case_Category = vgui.Create("DFrame")
+    DZ_ENTS.Menu_Case_Category:SetTitle("Danger Zone Case Category")
+    DZ_ENTS.Menu_Case_Category:SetSize(300, 600)
+    DZ_ENTS.Menu_Case_Category:Center()
+    DZ_ENTS.Menu_Case_Category:MakePopup()
+
+    local cb = vgui.Create("DCheckBoxLabel", DZ_ENTS.Menu_Case_Category)
+    cb:Dock(TOP)
+    cb:DockMargin(8, 4, 8, 4)
+    cb:SetText("Use Category Whitelist for Cases")
+    cb:SetFont("dz_ents_menu_bold")
+    cb:SetValue(GetConVar("dzents_case_userdef"):GetBool())
+    function cb.OnChange(self, val)
+        net.Start("dz_ents_cvarrequest")
+            net.WriteString("dzents_case_userdef")
+            net.WriteString(val and "1" or "0") -- lol
+        net.SendToServer()
+    end
+
+    local label1 = vgui.Create("DLabel", DZ_ENTS.Menu_Case_Category)
+    label1:Dock(TOP)
+    label1:DockMargin(4, 4, 4, 0)
+    label1:SetText("Selected categories will show up in cases.")
+    label1:SetFont("dz_ents_menu")
+    label1:SetContentAlignment(5)
+    local label2 = vgui.Create("DLabel", DZ_ENTS.Menu_Case_Category)
+    label2:Dock(TOP)
+    label2:DockMargin(4, 0, 4, 4)
+    label2:SetText("They will still be filtered by auto-detection.")
+    label2:SetFont("dz_ents_menu")
+    label2:SetContentAlignment(5)
+
+    local apply = vgui.Create("DButton", DZ_ENTS.Menu_Case_Category)
+    apply:Dock(BOTTOM)
+    apply:DockMargin(16, 4, 16, 4)
+    apply:SetText("Apply Changes")
+    apply:SetFont("dz_ents_menu_bold")
+    apply:SetContentAlignment(5)
+
+    local scroll = vgui.Create("DScrollPanel", DZ_ENTS.Menu_Case_Category)
+    scroll:Dock(FILL)
+    scroll:DockMargin(8, 8, 8, 8)
+
+    local layout = vgui.Create("DIconLayout", scroll)
+    layout:Dock(FILL)
+    layout:SetLayoutDir(TOP)
+    layout:SetSpaceY(0)
+
+    local categories = {}
+    for k, ent in pairs(list.Get("Weapon")) do
+        local wep = weapons.Get(ent.ClassName)
+        if not wep or not wep.Spawnable or wep.AdminOnly then continue end
+
+        -- Get the ent category as a string
+        local cat = wep.Category or "Other"
+        if not isstring(cat) or cat == "" then
+            -- cat = tostring(cat)
+            continue
+        end
+
+        if not categories[cat] then
+            categories[cat] = true
+        end
+    end
+
+    local category_boxes = {}
+    for cat, v in SortedPairs(categories) do
+        local panel = layout:Add("DPanel")
+        panel:Dock(TOP)
+        panel:SetTall(24)
+        function panel.Paint(self, w, h)
+            if categories[cat] then
+                surface.SetDrawColor(255, 255, 255, 25)
+                surface.DrawRect(0, 0, w, h)
+            end
+        end
+
+        local cbox = vgui.Create("DCheckBox", panel)
+        cbox:Dock(LEFT)
+        cbox:DockMargin(4, 4, 4, 4)
+        cbox:SetSize(15, 15)
+        cbox:SetValue(v)
+        function cbox.OnChange(self, val)
+            categories[cat] = val
+            if val then
+                DZ_ENTS.AddToUserDefList(list_name, cat)
+            else
+                DZ_ENTS.RemoveFromUserDefList(list_name, cat)
+            end
+        end
+        function cbox.DoClick(self, val)
+            if last_mouse_held_val == nil then
+                self:Toggle()
+            end
+        end
+
+        function panel.Think(self)
+            if input.IsMouseDown(MOUSE_LEFT) and (self:IsHovered() or cbox:IsHovered()) then
+                if last_mouse_held_val == nil then
+                    last_mouse_held_val = not cbox:GetChecked()
+                end
+                cbox:SetValue(last_mouse_held_val)
+            elseif not input.IsMouseDown(MOUSE_LEFT) and last_mouse_held_val ~= nil then
+                last_mouse_held_val = nil
+            end
+        end
+
+        local label = vgui.Create("DLabel", panel)
+        label:Dock(LEFT)
+        label:SetText(cat)
+        label:SetFont("dz_ents_menu")
+        label:SizeToContents()
+
+        category_boxes[cat] = cbox
+    end
+
+    function apply.DoClick(self, val)
+        DZ_ENTS.WriteUserDefList(list_name)
+        DZ_ENTS.Menu_Case_Category:Close()
+    end
+
+    DZ_ENTS.ClearUserDefList(list_name)
+    scroll:Hide()
+    local labelwait = vgui.Create("DLabel", DZ_ENTS.Menu_Case_Category)
+    labelwait:SetPos(150, 300)
+    labelwait:DockMargin(4, 0, 4, 4)
+    labelwait:SetText("Waiting for server...")
+    labelwait:SetFont("dz_ents_menu_bold")
+    labelwait:SizeToContents()
+    labelwait:SetContentAlignment(5)
+    labelwait:Center()
+
+    function DZ_ENTS.Menu_Case_Category.Think(self)
+        if not scroll:IsVisible() and DZ_ENTS.UserDefListsDict[list_name] ~= nil then
+            for k, v in pairs(category_boxes) do
+                v:SetValue(DZ_ENTS.UserDefListsDict[list_name][k])
+            end
+            scroll:SetVisible(true)
+            labelwait:Hide()
+        end
+    end
+
+    net.Start("dz_ents_listrequest")
+        net.WriteString(list_name)
+    net.SendToServer()
+end
+concommand.Add("cl_dzents_menu_case_category", makemenu_case_category)

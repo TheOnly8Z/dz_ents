@@ -121,7 +121,7 @@ if SERVER then
             if canonclass then
                 if DZ_ENTS.CanonicalWeapons[canonclass].Category == "Pistol" or DZ_ENTS.CanonicalWeapons[canonclass].Category == "SMG" then
                     shelltype = "ShellEject"
-                elseif DZ_ENTS.CanonicalWeapons[canonclass].Type == "Shotgun" then
+                elseif DZ_ENTS.CanonicalWeapons[canonclass].ShellType == "Shotgun" then
                     shelltype = "ShotgunShellEject"
                 end
             elseif ammocat == "shotgun" then

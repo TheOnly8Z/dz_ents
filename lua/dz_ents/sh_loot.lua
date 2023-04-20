@@ -112,7 +112,7 @@ DZ_ENTS.LootTypes = {
         },
     },
     ["healing"] = {
-        default = {
+        whitelist = {
             "weapon_dz_healthshot",
             -- "item_healthkit",
             -- "item_healthvial",
@@ -122,17 +122,17 @@ DZ_ENTS.LootTypes = {
         },
     },
     ["armor"] = {
-        default = {
+        whitelist = {
             "dz_armor_kevlar_helmet",
         },
     },
     ["ammo"] = {
-        default = {
+        whitelist = {
             "dz_ammobox",
         }
     },
     ["mobility"] = {
-        default = {
+        whitelist = {
             "weapon_dz_bumpmine",
             "dz_pickup_exojump",
             "dz_pickup_parachute",
@@ -492,11 +492,12 @@ DZ_ENTS.CrateContents = {
         ["sniper"] = 1,
     },
     ["dz_case_respawn"] = {
-        ["pistol_light"] = 6,
-        ["pistol_heavy"] = 4,
-        ["smg"] = 3,
-        ["shotgun"] = 3,
-        ["rifle"] = 1,
+        -- ["pistol_light"] = 6,
+        -- ["pistol_heavy"] = 4,
+        ["smg"] = 6,
+        ["shotgun"] = 5,
+        ["rifle"] = 3,
+        ["sniper"] = 1,
     },
 }
 DZ_ENTS.CrateContentWeight = {}
@@ -519,9 +520,19 @@ function DZ_ENTS:GetLootType(loot_type)
         DZ_ENTS.LootTypeList[loot_type] = {}
         DZ_ENTS.LootTypeListLookup[loot_type] = {}
 
+        -- Whitelisted entries are guaranteed to exist and always will be added, ignoring userdef whitelist.
+        for _, class in ipairs(lt.whitelist or {}) do
+            table.insert(DZ_ENTS.LootTypeList[loot_type], class)
+            DZ_ENTS.LootTypeListLookup[loot_type][class] = true
+        end
+
         -- Add default entities if they exist
         for _, class in ipairs(lt.default or {}) do
-            if list.HasEntry("SpawnableEntities", class) or list.HasEntry("Weapon", class) then
+            local tbl = weapons.Get(class)
+            if not tbl then
+                tbl = scripted_ents.Get(class)
+            end
+            if tbl and (not GetConVar("dzents_case_userdef"):GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category])) then
                 table.insert(DZ_ENTS.LootTypeList[loot_type], class)
                 DZ_ENTS.LootTypeListLookup[loot_type][class] = true
             end
@@ -535,6 +546,7 @@ function DZ_ENTS:GetLootType(loot_type)
                 local tbl = weapons.Get(v.ClassName) -- this includes inherited values
                 local ammocat = tbl and DZ_ENTS:GetWeaponAmmoCategory((tbl.Primary.Ammo ~= "") and tbl.Primary.Ammo or tbl.Ammo or "")
                 if tbl and not DZ_ENTS.LootTypeListLookup[loot_type][v.ClassName]
+                        and (not GetConVar("dzents_case_userdef"):GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category]))
                         and not blacklist[v.ClassName]
                         and tbl.Spawnable and not tbl.AdminOnly
                         and ((istable(tbl.DZ_LootTypes) and tbl.DZ_LootTypes[loot_type])

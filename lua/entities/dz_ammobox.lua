@@ -13,7 +13,7 @@ ENT.Model = "models/props_survival/crates/crate_ammobox.mdl"
 ENT.Center = nil
 
 ENT.MaxBoxCount = 4
-ENT.PickupDelay = 0.6
+ENT.PickupDelay = 0.5
 ENT.BoxCost = 1
 
 if SERVER then

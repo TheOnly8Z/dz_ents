@@ -12,7 +12,7 @@ ENT.SortOrder = 2
 ENT.Model = "models/props_survival/crates/crate_ammobox_belt.mdl"
 
 ENT.MaxBoxCount = 16
-ENT.PickupDelay = 0.45
+ENT.PickupDelay = 0.35
 ENT.BoxCost = 3.2
 
 if SERVER then

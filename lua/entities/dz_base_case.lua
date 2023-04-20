@@ -38,6 +38,12 @@ if SERVER then
     function ENT:BreakAndDrop(force)
 
         local class = DZ_ENTS:GetCrateDrop(self:GetClass())
+        if not class then
+            PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] Failed to create crate drop for " .. self.PrintName .. "!")
+            PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] The whitelist may have been configured incorrectly!")
+            SafeRemoveEntity(self)
+            return
+        end
         local ent = ents.Create(class)
         if IsValid(ent) then
             ent:SetPos(self.Center and self:LocalToWorld(self.Center) or self:WorldSpaceCenter())

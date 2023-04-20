@@ -194,8 +194,7 @@ if SERVER then
                     local umult = 1
                     if v:IsPlayer() then
                         if v:Crouching() then
-                            fmult = fmult + 0.5
-                            umult = umult + 1
+                            umult = 0
                         end
                         if v:DZ_ENTS_HasHeavyArmor() then
                             fmult = fmult / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat() * 0.5)
