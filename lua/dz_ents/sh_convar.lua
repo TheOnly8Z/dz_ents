@@ -78,6 +78,7 @@ CreateConVar("dzents_healthshot_maxammo", 2, FCVAR_ARCHIVE + FCVAR_REPLICATED, "
 CreateConVar("dzents_healthshot_killcount", 3, FCVAR_ARCHIVE, "Kill this many players to get a Medi-Shot. 0 disables.", 0)
 
 CreateConVar("dzents_bumpmine_maxammo", 3, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Maximum amount of Bump Mines you can have on you.", 0)
+CreateConVar("dzents_bumpmine_lifetime", 600, FCVAR_ARCHIVE, "How long do placed Bump Mines last before being removed. 0 - never remove", 0)
 CreateConVar("dzents_bumpmine_force", 1000, FCVAR_ARCHIVE, "Bump mine push force.", 0)
 CreateConVar("dzents_bumpmine_upadd", 200, FCVAR_ARCHIVE, "Additional upwards force from the bump mine.", 0)
 CreateConVar("dzents_bumpmine_armdelay", 0.3, FCVAR_ARCHIVE, "Delay after landing before the bump mine can detonate.", 0)

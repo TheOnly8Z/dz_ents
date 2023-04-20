@@ -443,15 +443,15 @@ local function menu_equip(panel)
         command = "dzents_bumpmine_damage_fall",
         type = "float",
         min = 0,
-        max = 1,
+        max = 3,
     })
-    panel:ControlHelp("If set, players/NPCs will take velocity-based fall damage. Set to 0 to not modify damage for players and apply no damage to NPCs.")
+    panel:ControlHelp("Players/NPCs will take velocity-based fall damage multiplied by this much.\nSet to 0 to not modify damage for players and apply no damage to NPCs.")
     panel:AddControl("slider", {
         label = "Wall crash damage",
         command = "dzents_bumpmine_damage_crash",
         type = "float",
         min = 0,
-        max = 1,
+        max = 3,
     })
     panel:AddControl("slider", {
         label = "Self crash damage",
@@ -475,6 +475,14 @@ local function menu_equip(panel)
         min = 0,
         max = 1,
     })
+    panel:AddControl("slider", {
+        label = "Life time",
+        command = "dzents_bumpmine_lifetime",
+        type = "int",
+        min = 0,
+        max = 1200,
+    })
+    panel:ControlHelp("Clean up placed Bump Mines after this much time. 0 - never remove.")
 end
 
 local menus = {

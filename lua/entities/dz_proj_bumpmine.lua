@@ -96,6 +96,15 @@ if SERVER then
 
         self.ArmDelay = GetConVar("dzents_bumpmine_armdelay"):GetFloat()
         self.DetonateDelay = GetConVar("dzents_bumpmine_detdelay"):GetFloat()
+
+        local t = GetConVar("dzents_bumpmine_lifetime"):GetFloat()
+        if t > 0 then
+            timer.Simple(t, function()
+                if IsValid(self) then
+                    SafeRemoveEntity(self)
+                end
+            end)
+        end
     end
 
     function ENT:OnPlant()
