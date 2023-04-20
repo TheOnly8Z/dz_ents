@@ -1,0 +1,12 @@
+"patch"
+{
+	"include" "materials/models/dz_ents/ct_swat_shared.vmt"
+	"insert"
+	{	
+		"$baseTexture" "models/dz_ents/ct_swat_helmet"
+		"$bumpMap" "models/dz_ents/ct_swat_helmet_normal"
+
+		"$phongexponenttexture" "models/dz_ents/ct_swat_helmet_exponent"
+		
+	}	
+}
