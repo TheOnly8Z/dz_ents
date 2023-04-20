@@ -92,6 +92,10 @@ if SERVER then
             return 0
         end
 
+        if dmginfo:IsExplosionDamage() then
+            dmginfo:ScaleDamage(2)
+        end
+
         local health = self:Health()
         self:SetHealth(health - dmginfo:GetDamage())
         self.LastHit = CurTime()
