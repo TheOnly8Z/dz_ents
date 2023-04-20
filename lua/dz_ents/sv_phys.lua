@@ -76,7 +76,7 @@ hook.Add("Think", "dz_ents_phys", function()
                 ent:TakeDamageInfo(dmginfo)
 
                 -- If we land into some unfortunate bloke, they take a hit too
-                if IsValid(tr.Entity) then --  and not tr.Entity.DZENTS_BumpMine_LaunchTime
+                if IsValid(tr.Entity) and GetConVar("dzents_bumpmine_damage_crashchain"):GetBool() then --  and not tr.Entity.DZENTS_BumpMine_LaunchTime
                     tr.Entity:TakeDamageInfo(dmginfo)
                     if tr.Entity:IsPlayer() or tr.Entity:IsNPC() or tr.Entity:IsNextBot() then
                         tr.Entity:SetVelocity(last)
