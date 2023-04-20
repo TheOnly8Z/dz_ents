@@ -145,15 +145,29 @@ if SERVER then
         -- eff:SetScale(128)
         -- util.Effect("ThumperDust", eff)
 
-        local entsph2 = ents.FindInSphere(self:GetPos(), 156)
-
+        local radius = 150
         local force = GetConVar("dzents_bumpmine_force"):GetFloat()
         local upadd = GetConVar("dzents_bumpmine_upadd"):GetFloat()
 
         -- bias it downwards so the force trends upwards
         local origin = self:GetPos() - Vector(0, 0, 24)
 
-        for k, v in pairs(entsph2) do
+        if GetConVar("dzents_bumpmine_stack"):GetBool() then
+            local mult = 1
+            local count = 1
+            for k, v in pairs(ents.FindByClass(self:GetClass())) do
+                if v ~= self and (v:GetArmed() or v:GetArmTime() == -1) and v:GetPos():DistToSqr(self:GetPos()) <= 96 * 96 then
+                    SafeRemoveEntity(v)
+                    count = count + 1
+                    mult = mult + (1 / count)
+                end
+            end
+            force = force * mult
+            upadd = upadd * mult
+            radius = radius + (mult - 1) * 50
+        end
+
+        for k, v in pairs(ents.FindInSphere(self:GetPos(), 156)) do
             if not IsValid(v) or v == self or v == self:GetParent() then continue end
 
             local dir = (v:GetPos() - origin):GetNormalized()

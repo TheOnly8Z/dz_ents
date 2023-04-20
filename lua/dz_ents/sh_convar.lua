@@ -96,3 +96,4 @@ CreateConVar("dzents_bumpmine_damage_fall", 1, FCVAR_ARCHIVE, "Fall damage multi
 CreateConVar("dzents_bumpmine_damage_crash", 1, FCVAR_ARCHIVE, "Damage multiplier when crashing into walls from Bump Mines.", 0)
 CreateConVar("dzents_bumpmine_damage_selfcrash", 0.5, FCVAR_ARCHIVE, "Additional damage multiplier on the user when crashing into walls from Bump Mines.", 0)
 CreateConVar("dzents_bumpmine_damage_crashchain", 1, FCVAR_ARCHIVE, "Crashing NPCs and players can deal damage to things they land on.", 0, 1)
+CreateConVar("dzents_bumpmine_stack", 1, FCVAR_ARCHIVE, "Multiple Bump Mines in close proximity will cause a bigger, stronger explosion.", 0, 1)
