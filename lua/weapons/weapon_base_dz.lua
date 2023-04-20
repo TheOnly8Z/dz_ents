@@ -30,11 +30,7 @@ function SWEP:SetupDataTables()
 end
 
 function SWEP:Ammo1()
-    if self.Base == "weapon_swcs_base" then
-        return self:GetOwner():GetAmmoCount(self:GetPrimaryAmmoType())
-    else
-        return BaseClass.Ammo1(self)
-    end
+    return self:GetOwner():GetAmmoCount(self.Primary.Ammo)
 end
 
 function SWEP:TakePrimaryAmmo(amt)
@@ -85,8 +81,11 @@ function SWEP:Deploy()
 end
 
 function SWEP:Holster(nextWep)
-    if SERVER and IsValid(self:GetOwner()) and self:Ammo1() <= 0 then
-        self:Remove()
+    if IsValid(self:GetOwner()) and self:Ammo1() <= 0 then
+        if SERVER then
+            self:Remove()
+        end
+        return true
     end
     return BaseClass.Holster(self, nextWep)
 end

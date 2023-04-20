@@ -48,6 +48,11 @@ function SWEP:Deploy()
     return dep
 end
 
+function SWEP:Holster(nextWep)
+    self:SetThrown(false)
+    return BaseClass.Holster(self, nextWep)
+end
+
 function SWEP:CanPrimaryAttack()
     local ply = self:GetOwner()
     if not ply:IsPlayer() then return false end
