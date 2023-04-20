@@ -113,11 +113,12 @@ DZ_ENTS.LootTypes = {
     },
     ["healing"] = {
         default = {
-            "item_healthkit",
-            "item_healthvial",
-            "tacrp_medkit",
-            "weapon_medkit",
-            "tfa_csgo_medishot",
+            "weapon_dz_healthshot",
+            -- "item_healthkit",
+            -- "item_healthvial",
+            -- "tacrp_medkit",
+            -- "weapon_medkit",
+            -- "tfa_csgo_medishot",
         },
     },
     ["armor"] = {
@@ -128,6 +129,13 @@ DZ_ENTS.LootTypes = {
     ["ammo"] = {
         default = {
             "dz_ammobox",
+        }
+    },
+    ["mobility"] = {
+        default = {
+            "weapon_dz_bumpmine",
+            "dz_pickup_exojump",
+            "dz_pickup_parachute",
         }
     },
 
@@ -192,6 +200,8 @@ DZ_ENTS.LootTypes = {
             "tfa_csgo_frag",
         },
         blacklist = {
+            ["weapon_dz_healthshot"] = true,
+            ["weapon_dz_bumpmine"] = true,
             ------------------------------- ArcCW
             ["arccw_nade_flash"] = true,
             ["arccw_nade_gas"] = true,
@@ -257,6 +267,8 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 4 and (ent.HoldType == "grenade" or ent.HoldType == "slam" or ent.HoldType == "normal")
         end,
         default = {
+            ["weapon_dz_healthshot"] = true,
+            ["weapon_dz_bumpmine"] = true,
             ------------------------------- ArcCW
             "arccw_nade_flash",
             "arccw_nade_gas",
@@ -465,10 +477,10 @@ DZ_ENTS.CrateContents = {
     },
     ["dz_case_tool_heavy"] = {
         ["ammo"] = 5,
-        ["healing"] = 2,
-        ["armor"] = 3,
-        ["utility"] = 5,
-        ["explosive"] = 4,
+        ["mobility"] = 5,
+        ["healing"] = 3,
+        ["explosive"] = 3,
+        ["armor"] = 2,
     },
     ["dz_case_explosive"] = "explosive",
     ["dz_case_pistol"] = "pistol_light",
