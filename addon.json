@@ -1,0 +1,22 @@
+{
+  "title": "CS:GO Danger Zone Entities",
+  "type": "entity",
+  "tags": [
+    "realism",
+    "fun"
+  ],
+	"ignore":
+	[
+		"*.cmd",
+		"*.ini",
+		"*.lnk",
+		"*.url",
+		"*.psd",
+		"_workfolder/*",
+		".gitattributes",
+		".gitignore",
+		"README.md",
+		".git/*",
+		"dz_ents.gif"
+	]
+}
