@@ -81,6 +81,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             if ply:GetVelocity().z < -GetConVar("dzents_parachute_threshold"):GetFloat() then
                 ply:SetNWBool("DZ_Ents.Para.Open", true)
                 ply:SetNWBool("DZ_Ents.Para.Consume", true)
+                ply:SetNWBool("DZ_Ents.Para.Auto", false)
                 if not ply.DZ_ENTS_ParachutePending then
                     ply:EmitSound("DZ_ENTS.ParachuteOpen")
                 end
@@ -101,11 +102,6 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
                     ply.DZ_ENTS_ParachutePending = true
                 end
             end
-        elseif not ply:GetNWBool("DZ_Ents.Para.Auto") and ply:GetMoveType() == MOVETYPE_WALK
-                and not ply:IsOnGround() and ply:GetVelocity().z < 0
-                and ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_PARACHUTE)
-                and ply:GetInfoNum("cl_dzents_parachute_autodeploy", 0) == 1 then
-            ply:SetNWBool("DZ_Ents.Para.Auto", true)
         elseif ply:GetNWBool("DZ_Ents.Para.Open") and mv:KeyPressed(IN_JUMP) and GetConVar("dzents_parachute_detach"):GetBool() then
             ply:SetNWBool("DZ_Ents.Para.Open", false)
             ply.DZ_ENTS_NextParachute = CurTime() + 0.5
@@ -155,7 +151,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
             ply:SetNWBool("DZ_Ents.Para.Open", false)
             ply:SetNWBool("DZ_Ents.Para.Consume", false)
         end
-        ply:SetNWBool("DZ_Ents.Para.Auto", false)
+        ply:SetNWBool("DZ_Ents.Para.Auto", true)
         ply.DZ_ENTS_ParachutePending = nil
     elseif ply:GetNWBool("DZ_Ents.Para.Open") then
 
@@ -207,11 +203,10 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
 
         mv:SetVelocity(vel)
 
-    elseif ply:GetNWBool("DZ_Ents.Para.Auto") then
+    elseif ply:GetNWBool("DZ_Ents.Para.Auto") and ply:GetInfoNum("cl_dzents_parachute_autodeploy", 0) == 1 then
         local v = ply:Health() / DZ_ENTS.DAMAGE_FOR_FALL_SPEED + DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED
         if vel.z <= -v then
             ply.DZ_ENTS_ParachutePending = true
-            ply:SetNWBool("DZ_Ents.Para.Auto", false)
         end
     end
 

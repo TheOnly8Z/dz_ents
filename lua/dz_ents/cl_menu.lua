@@ -464,6 +464,11 @@ local function menu_equip(panel)
         command = "dzents_bumpmine_damage_crashchain"
     })
     panel:ControlHelp("Players and NPCs that crash into another entity will damage and launch that entity.")
+    panel:AddControl("checkbox", {
+        label = "Bump mine stacking",
+        command = "dzents_bumpmine_stack"
+    })
+    panel:ControlHelp("Multiple mines in close proximity will create a bigger and more powerful explosion.")
 
     panel:AddControl("slider", {
         label = "Max ammo",
