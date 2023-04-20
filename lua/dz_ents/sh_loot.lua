@@ -465,7 +465,36 @@ DZ_ENTS.LootTypes = {
             "weapon_swcs_g3sg1",
             "weapon_swcs_awp",
         },
-    }
+    },
+    ["machinegun"] = {
+        filter = function(class, ent, ammocat)
+
+            if ent.ArcticTacRP then
+                return ent.SubCatType == "4Machine Gun"
+            elseif ent.ARC9 and ent.Class then
+                return string.find(string.lower(ent.Class), "machine gun") and not string.find(string.lower(ent.Class), "sub")
+            elseif weapons.IsBasedOn(class, "mg_base") then
+                return ent.SubCategory == "Lightmachine Guns" or ent.SubCategory == "Machine Guns"
+            elseif weapons.IsBasedOn(class, "bobs_gun_base") then
+                return string.find(ent.Category or "", "Machine Guns")
+            elseif ent.IsTFAWeapon then
+                return ent.Type == "Machine Gun" or (ent.Slot == 3 and ammocat == "rifle")
+            elseif ent.CW20Weapon then
+                -- CW2 modders love putting assault rifles in slot 4
+                return ent.Slot == 3 and ammocat == "rifle"
+            elseif ent.IsSWCSWeapon then
+                return false
+            end
+
+            return ent.Slot == 3 and (ammocat == "smg" or ammocat == "rifle")
+        end,
+        default = {
+            "weapon_ar2",
+            ------------------------------- SWCS
+            "weapon_swcs_negev",
+            "weapon_swcs_m249",
+        },
+    },
 }
 
 DZ_ENTS.CrateContents = {
@@ -492,11 +521,8 @@ DZ_ENTS.CrateContents = {
         ["sniper"] = 1,
     },
     ["dz_case_respawn"] = {
-        -- ["pistol_light"] = 6,
-        -- ["pistol_heavy"] = 4,
-        ["smg"] = 6,
-        ["shotgun"] = 5,
         ["rifle"] = 3,
+        ["machinegun"] = 2,
         ["sniper"] = 1,
     },
 }
@@ -586,10 +612,10 @@ if SERVER then
             DZ_ENTS:GetLootType(loot_type)
         end
     end)
-    DZ_ENTS.LootTypeList = {}
-    DZ_ENTS.LootTypeListLookup = {}
     concommand.Add("dzents_debug_loadall", function(ply)
         if IsValid(ply) and not ply:IsSuperAdmin() then return end
+        DZ_ENTS.LootTypeList = {}
+        DZ_ENTS.LootTypeListLookup = {}
         for loot_type, _ in pairs(DZ_ENTS.LootTypes) do
             DZ_ENTS:GetLootType(loot_type)
         end

@@ -219,8 +219,9 @@ hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
     end)
 end)
 
-function DZ_ENTS.HeavyArmorCanPickup(class)
-    local mode = GetConVar("dzents_armor_heavy_norifle"):GetInt()
+DZ_ENTS.HeavyArmorWeaponCache = {}
+function DZ_ENTS.HeavyArmorCanPickup(class, mode)
+    mode = mode or GetConVar("dzents_armor_heavy_norifle"):GetInt()
     if mode == 0 then
         return true
     end
@@ -228,14 +229,41 @@ function DZ_ENTS.HeavyArmorCanPickup(class)
     if canontbl and canontbl.Category == "Rifle" then
         return false
     end
-    if mode == 2 then
-        if not DZ_ENTS.LootTypeListLookup["rifle"] or not DZ_ENTS.LootTypeListLookup["sniper"] then
-            DZ_ENTS:GetLootType("rifle") -- generate the list
-            DZ_ENTS:GetLootType("sniper")
+    if not canontbl and mode == 2 then
+        if DZ_ENTS.HeavyArmorWeaponCache[class] == nil then
+            local tbl = weapons.Get(class)
+            local ammocat = tbl and DZ_ENTS:GetWeaponAmmoCategory((tbl.Primary.Ammo ~= "") and tbl.Primary.Ammo or tbl.Ammo or "")
+            if not tbl then
+                DZ_ENTS.HeavyArmorWeaponCache[class] = tobool(class == "weapon_ar2" or class == "weapon_crossbow")
+            elseif tbl.ArcticTacRP then
+                DZ_ENTS.HeavyArmorWeaponCache[class] = tobool(string.find(string.lower(tbl.SubCatType or ""), "rifle"))
+            elseif tbl.ARC9 and tbl.Class then
+                DZ_ENTS.HeavyArmorWeaponCache[class] = tobool(string.find(string.lower(tbl.Class), "rifle") or string.find(string.lower(tbl.Class), "carbine"))
+            elseif weapons.IsBasedOn(class, "mg_base") then
+                DZ_ENTS.HeavyArmorWeaponCache[class] = tobool(string.find(string.lower(tbl.SubCategory), "rifle"))
+            elseif weapons.IsBasedOn(class, "bobs_gun_base") then
+                DZ_ENTS.HeavyArmorWeaponCache[class] = tobool(string.find(string.lower(tbl.Category or ""), "rifle"))
+            elseif tbl.IsTFAWeapon then
+                DZ_ENTS.HeavyArmorWeaponCache[class] = tobool(tbl.Type == "Rifle" or (tbl.Slot == 2 and ammocat == "rifle"))
+            elseif tbl.CW20Weapon then
+                -- CW2 modders love putting assault rifles in slot 4
+                DZ_ENTS.HeavyArmorWeaponCache[class] = tobool((tbl.Slot == 2 or tbl.Slot == 3) and ammocat == "rifle")
+            else
+                DZ_ENTS.HeavyArmorWeaponCache[class] = tobool(tbl.Slot == 2 and (ammocat == "smg" or ammocat == "rifle"))
+            end
         end
-        if DZ_ENTS.LootTypeListLookup["rifle"][class] or DZ_ENTS.LootTypeListLookup["sniper"][class] then return false end
+        if DZ_ENTS.HeavyArmorWeaponCache[class] == true then return false end
     end
     return true
+end
+if SERVER then
+    concommand.Add("dzents_debug_riflecheck", function(ply)
+        if IsValid(ply) and not ply:IsSuperAdmin() then return end
+        for _, tbl in pairs(weapons.GetList()) do
+            local rifle = not DZ_ENTS.HeavyArmorCanPickup(tbl.ClassName, 2)
+            if rifle then print(tbl.ClassName) end
+        end
+    end)
 end
 
 hook.Add("PlayerSwitchWeapon", "dz_ents_player", function(ply, oldwep, wep)
