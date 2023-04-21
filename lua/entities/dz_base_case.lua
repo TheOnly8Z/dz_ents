@@ -56,7 +56,7 @@ if SERVER then
 
             ent.DZENTS_Pickup = CurTime() + 1
 
-            if GetConVar("dzents_case_cleanup"):GetFloat() > 0 then
+            if GetConVar("dzents_case_cleanup"):GetFloat() > 1 then
                 timer.Simple(GetConVar("dzents_case_cleanup"):GetFloat(), function()
                     if IsValid(ent) and not IsValid(ent:GetOwner()) then
                         SafeRemoveEntity(ent)
