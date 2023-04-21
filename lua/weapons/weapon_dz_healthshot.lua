@@ -98,7 +98,9 @@ function SWEP:Think()
     if self:GetStimTime() > 0 and self:GetStimTime() < CurTime() and IsFirstTimePredicted() then
         self:SetStimTime(0)
         self:SetStimmed(true)
-        self:EmitSound("DZ_Ents.Healthshot.Success")
+        if SERVER then
+            self:EmitSound("DZ_Ents.Healthshot.Success")
+        end
         self:GetOwner():RemoveAmmo(1, self:GetPrimaryAmmoType())
 
         local ply = self:GetOwner()
