@@ -101,14 +101,14 @@ DZ_ENTS.LootTypes = {
                 or string.find(class, "punch")
                 or string.find(class, "zombie"))
         end,
-        default = {
-            "weapon_crowbar",
-            "weapon_stunstick",
-        },
         blacklist = {
             ["apexswep"] = true,
             ["remotecontroller"] = true,
             ["laserpointer"] = true,
+        },
+        fallback = {
+            "weapon_crowbar",
+            "weapon_stunstick",
         },
     },
     ["healing"] = {
@@ -173,8 +173,6 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 4 and (ent.HoldType == "grenade" or ent.HoldType == "slam" or ent.HoldType == "normal")
         end,
         default = {
-            "weapon_frag",
-            "weapon_slam",
             ------------------------------- M9K
             "m9k_m61_frag",
             "m9k_ied_detonator",
@@ -231,7 +229,11 @@ DZ_ENTS.LootTypes = {
             ------------------------------- TFA CSGO
             ["tfa_csgo_molly"] = true,
             ["tfa_csgo_incen"] = true,
-        }
+        },
+        fallback = {
+            "weapon_frag",
+            "weapon_slam",
+        },
     },
     ["utility"] = { -- every throwable/placeable thing that isn't explosive. technically in csgo you can only get firebomb/diversion device, but whatever man.
         filter = function(class, ent, ammocat)
@@ -306,7 +308,10 @@ DZ_ENTS.LootTypes = {
         blacklist = {
             ["weapon_dz_healthshot"] = true,
             ["weapon_dz_bumpmine"] = true,
-        }
+        },
+        fallback = {
+            "weapon_physcannon",
+        },
     },
     ["pistol_light"] = {
         filter = function(class, ent, ammocat)
@@ -322,7 +327,6 @@ DZ_ENTS.LootTypes = {
             ["weapon_swcs_revolver"] = true,
         },
         default = {
-            "weapon_pistol",
             ------------------------------- SWCS
             "weapon_swcs_cz75",
             "weapon_swcs_elite",
@@ -333,6 +337,9 @@ DZ_ENTS.LootTypes = {
             "weapon_swcs_usp_silencer",
             "weapon_swcs_p250",
         },
+        fallback = {
+            "weapon_pistol",
+        },
     },
     ["pistol_heavy"] = {
         filter = function(class, ent, ammocat)
@@ -342,10 +349,12 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 1 and ammocat == "magnum"
         end,
         default = {
-            "weapon_357",
             ------------------------------- CS:GO Weapons
             "weapon_swcs_deagle",
             "weapon_swcs_revolver",
+        },
+        fallback = {
+            "weapon_357",
         },
     },
     ["shotgun"] = {
@@ -363,12 +372,14 @@ DZ_ENTS.LootTypes = {
             return (ent.Slot == 2 or ent.Slot == 3) and ammocat == "shotgun"
         end,
         default = {
-            "weapon_shotgun",
             ------------------------------- CS:GO Weapons
             "weapon_swcs_sawedoff",
             "weapon_swcs_mag7",
             "weapon_swcs_nova",
             "weapon_swcs_xm1014",
+        },
+        fallback = {
+            "weapon_shotgun",
         },
     },
     ["smg"] = {
@@ -391,7 +402,6 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 2 and (ammocat == "pistol" or ammocat == "smg")
         end,
         default = {
-            "weapon_smg1",
             ------------------------------- CS:GO Weapons
             "weapon_swcs_mac10",
             "weapon_swcs_mp9",
@@ -400,6 +410,9 @@ DZ_ENTS.LootTypes = {
             "weapon_swcs_ump45",
             "weapon_swcs_bizon",
             "weapon_swcs_p90",
+        },
+        fallback = {
+            "weapon_smg1",
         },
     },
     ["rifle"] = {
@@ -426,7 +439,6 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 2 and (ammocat == "smg" or ammocat == "rifle")
         end,
         default = {
-            "weapon_ar2",
             ------------------------------- SWCS
             "weapon_swcs_ak47",
             "weapon_swcs_aug",
@@ -437,6 +449,9 @@ DZ_ENTS.LootTypes = {
             "weapon_swcs_ssg08",
             "weapon_swcs_famas",
             "weapon_swcs_galilar",
+        },
+        fallback = {
+            "weapon_ar2",
         },
     },
     ["sniper"] = {
@@ -459,11 +474,13 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 3 and (ammocat == "rifle" or ammocat == "sniper")
         end,
         default = {
-            "weapon_crossbow",
             ------------------------------- SWCS
             "weapon_swcs_scar20",
             "weapon_swcs_g3sg1",
             "weapon_swcs_awp",
+        },
+        fallback = {
+            "weapon_crossbow",
         },
     },
     ["machinegun"] = {
@@ -489,10 +506,12 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 3 and (ammocat == "smg" or ammocat == "rifle")
         end,
         default = {
-            "weapon_ar2",
             ------------------------------- SWCS
             "weapon_swcs_negev",
             "weapon_swcs_m249",
+        },
+        fallback = {
+            "weapon_rpg", -- well...
         },
     },
 }
@@ -564,6 +583,15 @@ function DZ_ENTS:GetLootType(loot_type)
             end
         end
 
+        -- Try to put fallback entities in as long as they match user whitelist
+        for _, class in ipairs(lt.fallback or {}) do
+            local tbl = weapons.Get(class)
+            if tbl and (not GetConVar("dzents_case_userdef"):GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category])) then
+                table.insert(DZ_ENTS.LootTypeList[loot_type], class)
+                DZ_ENTS.LootTypeListLookup[loot_type][class] = true
+            end
+        end
+
         -- Attempt to dynamically include guns and entities
         local blacklist = lt.blacklist or {}
 
@@ -593,6 +621,14 @@ function DZ_ENTS:GetLootType(loot_type)
                     table.insert(DZ_ENTS.LootTypeList[loot_type], v.ClassName)
                     DZ_ENTS.LootTypeListLookup[loot_type][v.ClassName] = true
                 end
+            end
+        end
+
+        if table.Count(DZ_ENTS.LootTypeList[loot_type]) == 0 then
+            PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] Your whitelist is too restrictive and no weapons of type '" .. loot_type .. "' exist. Using default values.")
+            for _, class in ipairs(lt.fallback or {}) do
+                table.insert(DZ_ENTS.LootTypeList[loot_type], class)
+                DZ_ENTS.LootTypeListLookup[loot_type][class] = true
             end
         end
 
