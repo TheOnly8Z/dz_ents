@@ -562,6 +562,12 @@ function DZ_ENTS:GetLootType(loot_type)
     local lt = DZ_ENTS.LootTypes[loot_type]
     if not lt then return {} end
     if not DZ_ENTS.LootTypeList[loot_type] then
+
+        if SERVER and GetConVar("dzents_case_userdef"):GetBool() and (not DZ_ENTS.UserDefLists["case_category"] or #DZ_ENTS.UserDefLists["case_category"] == 0) then
+            PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] Empty whitelist detected. Turning off whitelist to ensure normal spawning.")
+            GetConVar("dzents_case_userdef"):SetBool(false)
+        end
+
         DZ_ENTS.LootTypeList[loot_type] = {}
         DZ_ENTS.LootTypeListLookup[loot_type] = {}
 
@@ -624,8 +630,10 @@ function DZ_ENTS:GetLootType(loot_type)
             end
         end
 
+        -- Should not run into this ever again...
         if table.Count(DZ_ENTS.LootTypeList[loot_type]) == 0 then
-            PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] Your whitelist is too restrictive and no weapons of type '" .. loot_type .. "' exist. Using default values.")
+            PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] Could not find a weapon of type '" .. loot_type .. "' matching the current whitelist.")
+            PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] Go to Utilities -> Danger Zone -> Server - Cases and add more categories to your whitelist!")
             for _, class in ipairs(lt.fallback or {}) do
                 table.insert(DZ_ENTS.LootTypeList[loot_type], class)
                 DZ_ENTS.LootTypeListLookup[loot_type][class] = true

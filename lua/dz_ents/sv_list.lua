@@ -38,3 +38,14 @@ concommand.Add("dzents_debug_userdef_read", function(ply)
         DZ_ENTS.LoadUserDefList(string.sub(v, 0, -5))
     end
 end)
+
+concommand.Add("dzents_debug_userdef_clear", function(ply, cmd, args)
+    if IsValid(ply) and not ply:IsSuperAdmin() then return end
+    if not args[1] then
+        DZ_ENTS.UserDefLists = {}
+        DZ_ENTS.UserDefListsDict = {}
+    else
+        DZ_ENTS.UserDefLists[tostring(args[1])] = {}
+        DZ_ENTS.UserDefListsDict[tostring(args[1])] = {}
+    end
+end)

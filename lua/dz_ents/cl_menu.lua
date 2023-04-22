@@ -608,7 +608,10 @@ local last_mouse_held_val
 DZ_ENTS.Menu_Case_Category = DZ_ENTS.Menu_Case_Category or nil
 
 local function makemenu_case_category()
-    if not LocalPlayer():IsAdmin() then return end
+    if not LocalPlayer():IsAdmin() then
+        chat.AddText("[DZ_ENTS] Only admins can use this menu!")
+        return
+    end
     if DZ_ENTS.Menu_Case_Category then
         DZ_ENTS.Menu_Case_Category:Remove()
     end
@@ -653,6 +656,15 @@ local function makemenu_case_category()
     apply:SetText("Apply Changes")
     apply:SetFont("dz_ents_menu_bold")
     apply:SetContentAlignment(5)
+
+    local c = DZ_ENTS.UserDefLists[list_name] and #DZ_ENTS.UserDefLists[list_name] or 0
+    if c == 0 and apply:IsEnabled() then
+        apply:SetEnabled(false)
+        apply:SetText("Select at least one!")
+    elseif c > 0 and not apply:IsEnabled() then
+        apply:SetEnabled(true)
+        apply:SetText("Apply Changes")
+    end
 
     local scroll = vgui.Create("DScrollPanel", DZ_ENTS.Menu_Case_Category)
     scroll:Dock(FILL)
@@ -703,6 +715,14 @@ local function makemenu_case_category()
                 DZ_ENTS.AddToUserDefList(list_name, cat)
             else
                 DZ_ENTS.RemoveFromUserDefList(list_name, cat)
+            end
+            local c2 = DZ_ENTS.UserDefLists[list_name] and #DZ_ENTS.UserDefLists[list_name] or 0
+            if c2 == 0 and apply:IsEnabled() then
+                apply:SetEnabled(false)
+                apply:SetText("Select at least one!")
+            elseif c2 > 0 and not apply:IsEnabled() then
+                apply:SetEnabled(true)
+                apply:SetText("Apply Changes")
             end
         end
         function cbox.DoClick(self, val)

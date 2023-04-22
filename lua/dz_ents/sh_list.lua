@@ -87,7 +87,6 @@ if SERVER then
         if not ply:IsAdmin() then return end
         local list_name = net.ReadString()
         DZ_ENTS.ReadUserDefList(list_name)
-
         DZ_ENTS.SaveUserDefList(list_name)
 
         if list_name == "case_category" then

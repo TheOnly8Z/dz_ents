@@ -103,6 +103,9 @@ CreateConVar("dzents_bumpmine_damage_crashchain", 1, FCVAR_ARCHIVE, "Crashing NP
 CreateConVar("dzents_bumpmine_stack", 1, FCVAR_ARCHIVE, "Multiple Bump Mines in close proximity will cause a bigger, stronger explosion.", 0, 1)
 
 cvars.AddChangeCallback("dzents_case_userdef", function(cvar, old, new)
+    if SERVER and tonumber(new) == 1 and (not DZ_ENTS.UserDefLists["case_category"] or #DZ_ENTS.UserDefLists["case_category"] == 0) then
+        PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] Remember to also add some categories to the whitelist!")
+    end
     DZ_ENTS.LootTypeList = {}
     DZ_ENTS.LootTypeListLookup = {}
 end)
