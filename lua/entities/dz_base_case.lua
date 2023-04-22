@@ -37,6 +37,10 @@ if SERVER then
 
     function ENT:BreakAndDrop(force)
 
+        -- prevent duplicate spawning
+        if self.Dying then return end
+        self.Dying = true
+
         local class = DZ_ENTS:GetCrateDrop(self:GetClass())
         if not class then
             PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] Failed to create crate drop for " .. self.PrintName .. "!")
