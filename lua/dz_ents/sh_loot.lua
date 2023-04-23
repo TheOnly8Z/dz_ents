@@ -101,6 +101,9 @@ DZ_ENTS.LootTypes = {
                 or string.find(class, "punch")
                 or string.find(class, "zombie"))
         end,
+        default = {
+            "weapon_crowbar_hl1",
+        },
         blacklist = {
             ["apexswep"] = true,
             ["remotecontroller"] = true,
@@ -173,6 +176,10 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 4 and (ent.HoldType == "grenade" or ent.HoldType == "slam" or ent.HoldType == "normal")
         end,
         default = {
+            ------------------------------- HL:S
+            "weapon_handgrenade",
+            "weapon_satchel",
+            "weapon_tripmine",
             ------------------------------- M9K
             "m9k_m61_frag",
             "m9k_ied_detonator",
@@ -269,6 +276,8 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 4 and (ent.HoldType == "grenade" or ent.HoldType == "slam" or ent.HoldType == "normal")
         end,
         default = {
+            ------------------------------- HL:S
+            "weapon_snark",
             ------------------------------- ArcCW
             "arccw_nade_flash",
             "arccw_nade_gas",
@@ -327,6 +336,8 @@ DZ_ENTS.LootTypes = {
             ["weapon_swcs_revolver"] = true,
         },
         default = {
+            ------------------------------- HL:S
+            "weapon_glock_hl1",
             ------------------------------- SWCS
             "weapon_swcs_cz75",
             "weapon_swcs_elite",
@@ -349,6 +360,8 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 1 and ammocat == "magnum"
         end,
         default = {
+            ------------------------------- HL:S
+            "weapon_357_hl1",
             ------------------------------- CS:GO Weapons
             "weapon_swcs_deagle",
             "weapon_swcs_revolver",
@@ -372,6 +385,8 @@ DZ_ENTS.LootTypes = {
             return (ent.Slot == 2 or ent.Slot == 3) and ammocat == "shotgun"
         end,
         default = {
+            ------------------------------- HL:S
+            "weapon_shotgun_hl1",
             ------------------------------- CS:GO Weapons
             "weapon_swcs_sawedoff",
             "weapon_swcs_mag7",
@@ -402,7 +417,9 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 2 and (ammocat == "pistol" or ammocat == "smg")
         end,
         default = {
-            ------------------------------- CS:GO Weapons
+            ------------------------------- HL:S
+            "weapon_mp5_hl1",
+            ------------------------------- SWCS
             "weapon_swcs_mac10",
             "weapon_swcs_mp9",
             "weapon_swcs_mp7",
@@ -439,6 +456,9 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 2 and (ammocat == "smg" or ammocat == "rifle")
         end,
         default = {
+            ------------------------------- HL:S
+            "weapon_hornetgun",
+            "weapon_gauss",
             ------------------------------- SWCS
             "weapon_swcs_ak47",
             "weapon_swcs_aug",
@@ -474,6 +494,8 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 3 and (ammocat == "rifle" or ammocat == "sniper")
         end,
         default = {
+            ------------------------------- HL:S
+            "weapon_crossbow_hl1",
             ------------------------------- SWCS
             "weapon_swcs_scar20",
             "weapon_swcs_g3sg1",
@@ -506,6 +528,9 @@ DZ_ENTS.LootTypes = {
             return ent.Slot == 3 and (ammocat == "smg" or ammocat == "rifle")
         end,
         default = {
+            ------------------------------- HL:S
+            "weapon_egon",
+            "weapon_rpg_hl1", -- uhh
             ------------------------------- SWCS
             "weapon_swcs_negev",
             "weapon_swcs_m249",
