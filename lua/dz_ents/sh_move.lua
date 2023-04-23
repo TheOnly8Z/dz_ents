@@ -46,9 +46,12 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     local gravity = GetConVar("sv_gravity"):GetFloat()
 
     if ply:DZ_ENTS_HasHeavyArmor() then
-        local speed = GetConVar("dzents_armor_heavy_speed"):GetInt() / ply:GetWalkSpeed()
-        mv:SetMaxClientSpeed(mv:GetMaxClientSpeed() * speed)
-        mv:SetMaxSpeed(mv:GetMaxSpeed() * speed)
+        local tgt = GetConVar("dzents_armor_heavy_speed"):GetInt()
+        if tgt > 0 then
+            local speed = tgt / ply:GetWalkSpeed()
+            mv:SetMaxClientSpeed(mv:GetMaxClientSpeed() * speed)
+            mv:SetMaxSpeed(mv:GetMaxSpeed() * speed)
+        end
 
         if ply:IsOnGround() and (ply:GetVelocity().z < (600 - gravity)) then
             local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()

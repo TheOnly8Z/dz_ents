@@ -435,6 +435,8 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
     if ply:DZ_ENTS_HasHeavyArmor() then
         dmginfo:ScaleDamage(GetConVar("dzents_armor_heavy_damage"):GetFloat())
+    elseif ply:DZ_ENTS_HasArmor() then
+        dmginfo:ScaleDamage(GetConVar("dzents_armor_damage"):GetFloat())
     end
 
     if uselogic > 0 and (ply:DZ_ENTS_HasArmor() or ply:DZ_ENTS_HasHelmet()) then
@@ -463,6 +465,8 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             if hitgroup == HITGROUP_HEAD then
                 dmginfo:ScaleDamage(0.5) -- csgo does it, so do we
             end
+        elseif ply:DZ_ENTS_HasArmor() then
+            armorbonus = armorbonus * GetConVar("dzents_armor_durability"):GetFloat()
         end
 
         -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ")")

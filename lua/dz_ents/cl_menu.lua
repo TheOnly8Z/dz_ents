@@ -191,13 +191,26 @@ local function menu_armor(panel)
         ["2 - Always"] = "2",
     })
     panel:ControlHelp("Modifies damage and armor logic to closely match CS:GO.")
-
     panel:AddControl("checkbox", {
         label = "Protect against all damage",
         command = "dzents_armor_fallback"
     })
     panel:ControlHelp("Damage not protected by CS:GO armor will be handled like HL2 logic. If disabled, armor will be ignored.")
-
+    panel:AddControl("slider", {
+        label = "Damage taken",
+        command = "dzents_armor_damage",
+        type = "float",
+        min = 0,
+        max = 2,
+    })
+    panel:AddControl("slider", {
+        label = "Durability loss",
+        command = "dzents_armor_durability",
+        type = "float",
+        min = 0,
+        max = 2,
+    })
+    panel:ControlHelp("Multipliers do not stack with Heavy Assault Suit.")
     combobox(panel, "Armor on spawn", "dzents_armor_onspawn", {
         ["0 - Disabled"] = "0",
         ["1 - Armor only"] = "1",
@@ -270,9 +283,10 @@ local function menu_armor(panel)
         label = "Walk speed",
         command = "dzents_armor_heavy_speed",
         type = "int",
-        min = 50,
+        min = 0,
         max = 200,
     })
+    panel:ControlHelp("Set to 0 to not affect speed at all.")
     panel:AddControl("slider", {
         label = "Deploy speed",
         command = "dzents_armor_heavy_deployspeed",
