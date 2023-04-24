@@ -49,3 +49,8 @@ hook.Add("dz_ents_armorpenetration", "dz_ents_integration", function(ply, dmginf
         return wep:GetValue("ArmorPenetration") or 0.5
     end
 end)
+hook.Add("dz_ents_armorbonus", "dz_ents_integration", function(ply, dmginfo, wep)
+    if IsValid(wep) and wep.ArcticTacRP then
+        return wep:GetValue("ArmorBonus") or 1
+    end
+end)

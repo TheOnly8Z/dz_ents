@@ -474,6 +474,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
         if armored and blockable then -- Blockable damage is hitting a protected part. Do our job!
             local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo, wep) -- penetration value. 1 means fully penetrate, 0 means no penetration
+            local ab = hook.Run("dz_ents_armorbonus", ply, dmginfo, wep) or 1
             if ap then
                 ap = math.Clamp(ap, 0, 1)
             elseif DZ_ENTS:GetCanonicalClass(class) then
@@ -492,7 +493,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             -- print(armorratio, armorbonus, heavyarmorbonus)
             -- print(tostring(wep) .. ": " .. ap .. " armor pen")
 
-            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus, armorratio * ap * 2, heavyarmorbonus)
+            local healthdmg, newarmor = calcarmor(dmginfo, ply:Armor(), armorbonus * ab, armorratio * ap * 2, heavyarmorbonus)
             -- print("WANT", ply:Health() - healthdmg, newarmor, "(" .. healthdmg .. " dmg, " .. (ply:Armor() - newarmor) .. " armor)")
             ply.PendingArmor = newarmor
             ply.DZENTS_ArmorHit = hitgroup ~= HITGROUP_GENERIC
