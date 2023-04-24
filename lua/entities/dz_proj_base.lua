@@ -181,9 +181,11 @@ if SERVER then
     end
 
     function ENT:Use(act, call, calltype, integer)
-        if not self.BOOM and self.WeaponClass and IsValid(act) and act:IsPlayer() and self:GetArmed() and act:EyePos():DistToSqr(self:GetPos()) <= 100 * 100 then
-            act:GiveAmmo(1, weapons.Get(self.WeaponClass).Primary.Ammo, true)
-            act:Give(self.WeaponClass, true)
+        if not self.BOOM and IsValid(act) and act:IsPlayer() and self:GetArmed() and act:EyePos():DistToSqr(self:GetPos()) <= 100 * 100 then
+            if self.WeaponClass then
+                act:GiveAmmo(1, weapons.Get(self.WeaponClass).Primary.Ammo, true)
+                act:Give(self.WeaponClass, true)
+            end
 
             self:EmitSound("DZ_Ents.BumpMine.Pickup")
             self:Remove()
