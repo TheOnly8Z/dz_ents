@@ -179,6 +179,9 @@ hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
     ply.DZ_ENTS_OriginalSpeed = nil
     ply.DZ_ENTS_OldPlayerModel = nil
     ply.DZENTS_Robert = nil
+    ply:DZ_ENTS_RemoveHelmet()
+    ply:DZ_ENTS_RemoveArmor()
+    ply:DZ_ENTS_RemoveEquipment()
     timer.Simple(0, function()
         local give = GetConVar("dzents_armor_onspawn"):GetInt()
         if give == 3 then
