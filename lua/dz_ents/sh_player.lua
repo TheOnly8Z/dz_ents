@@ -473,8 +473,10 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         -- print("Armored: " .. tostring(armored) .. "; Blockable: " .. tostring(blockable))
 
         if armored and blockable then -- Blockable damage is hitting a protected part. Do our job!
-            local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo) or 1 -- penetration value. 1 means fully penetrate, 0 means no penetration
-            if DZ_ENTS:GetCanonicalClass(class) then
+            local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo, wep) -- penetration value. 1 means fully penetrate, 0 means no penetration
+            if ap then
+                ap = math.Clamp(ap, 0, 1)
+            elseif DZ_ENTS:GetCanonicalClass(class) then
                 ap = DZ_ENTS.CanonicalWeapons[DZ_ENTS:GetCanonicalClass(class)].ArmorPenetration
             else
                 -- Fallback AP value based on ammo category if possible
@@ -482,6 +484,8 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
                 if ammocat then
                     ap = DZ_ENTS.AmmoTypeAP[ammocat]
+                else
+                    ap = 0.5
                 end
             end
 
@@ -508,10 +512,12 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
     end
 end)
 
-hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
+hook.Add("PostEntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo, took)
     if not ply:IsPlayer() then return end
     if ply.PendingArmor then
-        ply:SetArmor(ply.PendingArmor)
+        local amt = ply.PendingArmor
+        ply:SetArmor(amt)
+        -- timer.Simple(0, function() ply:SetArmor(amt) end) -- ?
     end
     if ply.DZENTS_ArmorHit then
         if ply:LastHitGroup() == HITGROUP_HEAD then
@@ -520,7 +526,7 @@ hook.Add("PostEntityTakeDamage", "dz_ents_damage", function(ply, dmginfo, took)
             ply:EmitSound("dz_ents/kevlar" .. math.random(1, 5) .. ".wav")
         end
     end
-    ply.PendingArmor = nil
+    -- ply.PendingArmor = nil
     ply.DZENTS_ArmorHit = nil
     -- print("POST", ply:Health(), ply:Armor(), took)
 

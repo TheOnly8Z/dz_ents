@@ -29,7 +29,6 @@ hook.Add("TFA_GetStat", "dz_ents_integration", function(wep, stat, value)
 end)
 
 hook.Add("InitPostEntity", "dz_ents_integration", function()
-
     -- dirty, but should be fine
     local swcs_base = weapons.GetStored("weapon_swcs_base")
     if swcs_base then
@@ -42,5 +41,11 @@ hook.Add("InitPostEntity", "dz_ents_integration", function()
             end
             return rate
         end
+    end
+end)
+
+hook.Add("dz_ents_armorpenetration", "dz_ents_integration", function(ply, dmginfo, wep)
+    if IsValid(wep) and wep.ArcticTacRP then
+        return wep:GetValue("ArmorPenetration") or 0.5
     end
 end)
