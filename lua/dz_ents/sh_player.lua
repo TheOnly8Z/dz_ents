@@ -492,7 +492,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             local ap = hook.Run("dz_ents_armorpenetration", ply, dmginfo, wep) -- penetration value. 1 means fully penetrate, 0 means no penetration
             local ab = hook.Run("dz_ents_armorbonus", ply, dmginfo, wep) or 1
             if ap then
-                ap = math.Clamp(ap, 0, 1)
+                ap = math.max(ap, 0)
             elseif DZ_ENTS:GetCanonicalClass(class) then
                 ap = DZ_ENTS.CanonicalWeapons[DZ_ENTS:GetCanonicalClass(class)].ArmorPenetration
             else
