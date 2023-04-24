@@ -40,7 +40,8 @@ CreateConVar("dzents_armor_fallback", 1, FCVAR_ARCHIVE, "If CS:GO armor does not
 CreateConVar("dzents_armor_onspawn", 0, FCVAR_ARCHIVE, "Whether to give armor on spawn. 1+ gives armor. 2+ gives helmet. 3 gives Heavy Assault Suit.", 0, 3)
 CreateConVar("dzents_armor_damage", 1, FCVAR_ARCHIVE, "When using standard armor, scale all incoming damage by this much.", 0)
 CreateConVar("dzents_armor_durability", 1, FCVAR_ARCHIVE, "Multiplier for durability loss when using standard armor.", 0)
-CreateConVar("dzents_armor_hs_spark", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Show a spark effect on a blocked headshot.", 0, 1)
+CreateConVar("dzents_armor_eff_head", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Show a spark effect on a blocked headshot.", 0, 1)
+CreateConVar("dzents_armor_eff_heavy", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Show a spark effect on hitting heavy armor.", 0, 1)
 
 CreateConVar("dzents_armor_heavy_damage", 0.85, FCVAR_ARCHIVE, "When using Heavy Assault Suit, scale all incoming damage by this much in addition to its defense boost.", 0, 1)
 CreateConVar("dzents_armor_heavy_durability", 1, FCVAR_ARCHIVE, "Multiplier for durability loss when using Heavy Assault Suit.", 0)

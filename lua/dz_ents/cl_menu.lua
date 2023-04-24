@@ -206,7 +206,7 @@ local function menu_armor(panel)
     panel:ControlHelp("Damage not protected by CS:GO armor will be handled like HL2 logic. If disabled, armor will be ignored.")
     panel:AddControl("checkbox", {
         label = "Helmet spark effect on hit",
-        command = "dzents_armor_hs_spark"
+        command = "dzents_armor_eff_head"
     })
     panel:AddControl("slider", {
         label = "Damage taken",
@@ -248,6 +248,10 @@ local function menu_armor(panel)
         command = "dzents_armor_heavy_adminonly"
     })
     panel:ControlHelp("Requires a map reload to take effect.")
+    panel:AddControl("checkbox", {
+        label = "Spark effect on hit",
+        command = "dzents_armor_eff_heavy"
+    })
     panel:AddControl("checkbox", {
         label = "Heavy Armor can break",
         command = "dzents_armor_heavy_break"

@@ -361,18 +361,20 @@ end
 local bitflags_blockable = DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST
 local bitflags_nohitgroup = DMG_FALL + DMG_BLAST + DMG_RADIATION + DMG_CRUSH + DMG_DROWN + DMG_POISON
 
-
+--[[]
 hook.Add("ScalePlayerDamage", "dz_ents_player", function(ply, hitgroup, dmginfo)
     local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
 
-    -- Block the blood effects on a headshot, since we will show sparks instead
-    if CLIENT and GetConVar("dzents_armor_hs_spark"):GetBool()
-            and ply:Armor() > 0 and (uselogic >= 2 or uselogic == 1 and ply:DZ_ENTS_HasArmor())
+    -- Block the blood effects on a headshot
+    if CLIENT and ply:Armor() > 0 and (uselogic >= 2 or uselogic == 1 and ply:DZ_ENTS_HasArmor())
             and bit.band(dmginfo:GetDamageType(), bitflags_nohitgroup) == 0
-            and bit.band(dmginfo:GetDamageType(), bitflags_blockable) ~= 0 and hitgroup == HITGROUP_HEAD then
+            and bit.band(dmginfo:GetDamageType(), bitflags_blockable) ~= 0
+            and ((GetConVar("dzents_armor_eff_head"):GetBool() and hitgroup == HITGROUP_HEAD)
+            or (GetConVar("dzents_armor_eff_body"):GetBool() and armorregions[hitgroup])) then
         return true
     end
 end)
+]]
 
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
@@ -440,8 +442,9 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
     -- Check the hitgroup of the damage. Certain damage types should not have hitgroups so strip hitgroup if that's the case.
     local hitgroup = ply:LastHitGroup()
-    if bit.band(dmginfo:GetDamageType(), bitflags_nohitgroup) ~= 0 then
+    if bit.band(dmginfo:GetDamageType(), bitflags_nohitgroup) ~= 0 or (dmginfo:GetDamageType() == DMG_CLUB and dmginfo:GetDamageCustom() == 67) then
         hitgroup = HITGROUP_GENERIC
+        ply:SetLastHitGroup(hitgroup)
     end
 
     local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
@@ -535,23 +538,29 @@ hook.Add("PostEntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo, 
     end
 
     local shooter = dmginfo:GetAttacker()
-
+    local hitgroup = ply:LastHitGroup()
     local snd = nil
     if ply.DZENTS_ArmorHit then
-        if ply:LastHitGroup() == HITGROUP_HEAD then
+        if hitgroup == HITGROUP_HEAD then
             --ply:EmitSound("dz_ents/bhit_helmet-1.wav")
             snd = "dz_ents/bhit_helmet-1.wav"
-            if GetConVar("dzents_armor_hs_spark"):GetBool() then
+            if GetConVar("dzents_armor_eff_head"):GetBool() then
                 local eff = EffectData()
                 eff:SetOrigin(dmginfo:GetDamagePosition())
                 eff:SetNormal((dmginfo:GetDamageForce() * -1):GetNormalized())
                 util.Effect("MetalSpark", eff)
             end
-        elseif armorregions[ply:LastHitGroup()] then
+        elseif armorregions[hitgroup] or ply:DZ_ENTS_HasHeavyArmor() then
             -- ply:EmitSound("dz_ents/kevlar" .. math.random(1, 5) .. ".wav")
             snd = "dz_ents/kevlar" .. math.random(1, 5) .. ".wav"
+            if GetConVar("dzents_armor_eff_heavy"):GetBool() and ply:DZ_ENTS_HasHeavyArmor() then
+                local eff = EffectData()
+                eff:SetOrigin(dmginfo:GetDamagePosition())
+                eff:SetNormal((dmginfo:GetDamageForce() * -1):GetNormalized())
+                util.Effect("StunstickImpact", eff)
+            end
         end
-    elseif ply:LastHitGroup() == HITGROUP_HEAD then
+    elseif hitgroup == HITGROUP_HEAD then
         -- ply:EmitSound("dz_ents/headshot" .. math.random(1, 2) .. ".wav")
         snd = "dz_ents/headshot" .. math.random(1, 2) .. ".wav"
     end
