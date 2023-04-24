@@ -48,7 +48,9 @@ function SWEP:RemoveAndSwitch()
                 if IsValid(v) and v ~= self then switch = v break end
             end
         end
-        input.SelectWeapon(switch)
+        if IsValid(switch) then
+            input.SelectWeapon(switch)
+        end
     end
 end
 
