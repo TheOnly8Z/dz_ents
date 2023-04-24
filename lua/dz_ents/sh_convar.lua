@@ -11,6 +11,8 @@ if CLIENT then
     CreateConVar("cl_dzents_hud_scale", 1, FCVAR_ARCHIVE, "HUD scale.", 0)
     CreateConVar("cl_dzents_hud_x", 200, FCVAR_ARCHIVE, "HUD X position in screen scale units. Negative values start from the right.")
     CreateConVar("cl_dzents_hud_y", -30, FCVAR_ARCHIVE, "HUD Y position in screen scale units. Negative values start from below.")
+
+    CreateConVar("cl_dzents_volume_hit", 0.75, FCVAR_ARCHIVE + FCVAR_USERINFO, "Hit sound volume (headshot/armor) when hitting other players.", 0, 1)
 end
 
 -- Case
@@ -38,6 +40,8 @@ CreateConVar("dzents_armor_fallback", 1, FCVAR_ARCHIVE, "If CS:GO armor does not
 CreateConVar("dzents_armor_onspawn", 0, FCVAR_ARCHIVE, "Whether to give armor on spawn. 1+ gives armor. 2+ gives helmet. 3 gives Heavy Assault Suit.", 0, 3)
 CreateConVar("dzents_armor_damage", 1, FCVAR_ARCHIVE, "When using standard armor, scale all incoming damage by this much.", 0)
 CreateConVar("dzents_armor_durability", 1, FCVAR_ARCHIVE, "Multiplier for durability loss when using standard armor.", 0)
+CreateConVar("dzents_armor_hs_spark", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Show a spark effect on a blocked headshot.", 0, 1)
+
 CreateConVar("dzents_armor_heavy_damage", 0.85, FCVAR_ARCHIVE, "When using Heavy Assault Suit, scale all incoming damage by this much in addition to its defense boost.", 0, 1)
 CreateConVar("dzents_armor_heavy_durability", 1, FCVAR_ARCHIVE, "Multiplier for durability loss when using Heavy Assault Suit.", 0)
 CreateConVar("dzents_armor_heavy_falldamage", 1, FCVAR_ARCHIVE, "Take velocity-based fall damage when using the Heavy Assault Suit even with mp_falldamage off.", 0, 1)

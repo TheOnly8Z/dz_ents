@@ -361,6 +361,19 @@ end
 local bitflags_blockable = DMG_BULLET + DMG_BUCKSHOT + DMG_BLAST
 local bitflags_nohitgroup = DMG_FALL + DMG_BLAST + DMG_RADIATION + DMG_CRUSH + DMG_DROWN + DMG_POISON
 
+
+hook.Add("ScalePlayerDamage", "dz_ents_player", function(ply, hitgroup, dmginfo)
+    local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
+
+    -- Block the blood effects on a headshot, since we will show sparks instead
+    if CLIENT and GetConVar("dzents_armor_hs_spark"):GetBool()
+            and ply:Armor() > 0 and (uselogic >= 2 or uselogic == 1 and ply:DZ_ENTS_HasArmor())
+            and bit.band(dmginfo:GetDamageType(), bitflags_nohitgroup) == 0
+            and bit.band(dmginfo:GetDamageType(), bitflags_blockable) ~= 0 and hitgroup == HITGROUP_HEAD then
+        return true
+    end
+end)
+
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
     if ply:GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
@@ -514,21 +527,58 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 end)
 
 hook.Add("PostEntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo, took)
-    if not ply:IsPlayer() then return end
+    if not ply:IsPlayer() or GetConVar("dzents_armor_enabled"):GetInt() == 0 then return end
     if ply.PendingArmor then
         local amt = ply.PendingArmor
         ply:SetArmor(amt)
         -- timer.Simple(0, function() ply:SetArmor(amt) end) -- ?
     end
+
+    local shooter = dmginfo:GetAttacker()
+
+    local snd = nil
     if ply.DZENTS_ArmorHit then
         if ply:LastHitGroup() == HITGROUP_HEAD then
-            ply:EmitSound("dz_ents/headshot" .. math.random(1, 2) .. ".wav")
+            --ply:EmitSound("dz_ents/bhit_helmet-1.wav")
+            snd = "dz_ents/bhit_helmet-1.wav"
+            if GetConVar("dzents_armor_hs_spark"):GetBool() then
+                local eff = EffectData()
+                eff:SetOrigin(dmginfo:GetDamagePosition())
+                eff:SetNormal((dmginfo:GetDamageForce() * -1):GetNormalized())
+                util.Effect("MetalSpark", eff)
+            end
         elseif armorregions[ply:LastHitGroup()] then
-            ply:EmitSound("dz_ents/kevlar" .. math.random(1, 5) .. ".wav")
+            -- ply:EmitSound("dz_ents/kevlar" .. math.random(1, 5) .. ".wav")
+            snd = "dz_ents/kevlar" .. math.random(1, 5) .. ".wav"
+        end
+    elseif ply:LastHitGroup() == HITGROUP_HEAD then
+        -- ply:EmitSound("dz_ents/headshot" .. math.random(1, 2) .. ".wav")
+        snd = "dz_ents/headshot" .. math.random(1, 2) .. ".wav"
+    end
+
+    if snd then
+        if shooter:IsPlayer() then
+            local filter = RecipientFilter()
+            filter:AddPAS(ply:GetPos())
+            filter:RemovePlayer(shooter)
+            local snd1 = CreateSound(ply, snd, filter)
+            snd1:SetSoundLevel(75)
+            snd1:PlayEx(0.75, 100)
+
+            if shooter:IsPlayer() then
+                local filter2 = RecipientFilter()
+                filter2:AddPlayer(shooter)
+                local snd2 = CreateSound(shooter, snd, filter2)
+                snd2:PlayEx(shooter:GetInfoNum("cl_dzents_volume_hit", 0.75), 100)
+            end
+        else
+            ply:EmitSound(snd, 75, 100, 0.75)
         end
     end
-    -- ply.PendingArmor = nil
+
+    ply.PendingArmor = nil
     ply.DZENTS_ArmorHit = nil
+
     -- print("POST", ply:Health(), ply:Armor(), took)
 
     -- Let's make fall damage hurt heavy armor... for funsies.

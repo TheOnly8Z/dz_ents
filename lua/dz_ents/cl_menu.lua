@@ -75,6 +75,16 @@ local function menu_client(panel)
         command = "cl_dzents_heavyarmor_cc"
     })
 
+    header(panel, "\nAudio")
+    panel:AddControl("slider", {
+        label = "Armor hit volume",
+        command = "cl_dzents_volume_hit",
+        type = "float",
+        min = 0,
+        max = 1,
+    })
+    panel:ControlHelp("Controls the sound you hear when you damage others' armor, regardless of distance.")
+
     header(panel, "\nCredits")
     panel:Help("Valve: CS:GO assets")
     panel:Help("ArachnitCZ: Heavy Assault Suit playermodel and hand port.")
@@ -164,8 +174,6 @@ local function menu_cases(panel)
     })
     panel:ControlHelp("Serverside gibs may be more performance intensive.")
 
-
-
     local btn = vgui.Create("DButton")
     btn:Dock(TOP)
     btn:SetText("Case Category Whitelist")
@@ -196,6 +204,10 @@ local function menu_armor(panel)
         command = "dzents_armor_fallback"
     })
     panel:ControlHelp("Damage not protected by CS:GO armor will be handled like HL2 logic. If disabled, armor will be ignored.")
+    panel:AddControl("checkbox", {
+        label = "Helmet spark effect on hit",
+        command = "dzents_armor_hs_spark"
+    })
     panel:AddControl("slider", {
         label = "Damage taken",
         command = "dzents_armor_damage",
