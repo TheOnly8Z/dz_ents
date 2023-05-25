@@ -12,7 +12,7 @@ sound.Add({
     sound = "dz_ents/dropzone_parachute_success_02.wav",
 })
 
-hook.Add("StartCommand", "dz_ents_move", function(ply, cmd)
+hook.Add("StartCommand", "zzz_dz_ents_move", function(ply, cmd)
     if ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_nosprint"):GetBool() and ply:GetMoveType() == MOVETYPE_WALK then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     end
@@ -39,7 +39,7 @@ local function movedir(ang, cmd)
     return vec
 end
 
-hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
+hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
 
     local ft = FrameTime()
 
@@ -48,7 +48,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     if ply:DZ_ENTS_HasHeavyArmor() then
         local tgt = GetConVar("dzents_armor_heavy_speed"):GetInt()
         if tgt > 0 then
-            local speed = tgt / ply:GetWalkSpeed()
+            local speed = tgt / math.max(mv:GetMaxSpeed(), ply:GetWalkSpeed())
             mv:SetMaxClientSpeed(mv:GetMaxClientSpeed() * speed)
             mv:SetMaxSpeed(mv:GetMaxSpeed() * speed)
         end
@@ -323,10 +323,7 @@ hook.Add("SetupMove", "dz_ents_move", function(ply, mv, cmd)
     mv:SetVelocity(vel)
 end)
 
-hook.Add("Move", "dz_ents_move", function(ply, mv)
-end)
-
-hook.Add("FinishMove", "dz_ents_move", function(ply, mv)
+hook.Add("FinishMove", "zzz_dz_ents_move", function(ply, mv)
     if ply.DZENTS_PendingMaxSpeed then
         ply:SetRunSpeed(ply.DZENTS_PendingMaxSpeed)
         ply.DZENTS_PendingMaxSpeed = nil

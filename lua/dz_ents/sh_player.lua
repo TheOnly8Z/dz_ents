@@ -635,3 +635,8 @@ hook.Add("PostEntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo, 
         end
     end
 end)
+
+hook.Add("InitPostEntity", "dz_ents_precache", function()
+    util.PrecacheModel("models/arachnit/csgo/ctm_heavy/ctm_heavy_player.mdl")
+    util.PrecacheModel("models/arachnit/csgoheavyphoenix/tm_phoenix_heavyplayer.mdl")
+end)
