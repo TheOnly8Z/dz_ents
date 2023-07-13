@@ -49,7 +49,8 @@ function PLAYER:DZ_ENTS_HasArmor()
 end
 
 function PLAYER:DZ_ENTS_HasHeavyArmor()
-    return self:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_CT or self:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_HEAVY_T
+    local a = self:GetNWInt("DZ_Ents.Armor", DZ_ENTS_ARMOR_NONE)
+    return a == DZ_ENTS_ARMOR_HEAVY_CT or a == DZ_ENTS_ARMOR_HEAVY_T
 end
 
 function PLAYER:DZ_ENTS_SetArmor(armor)

@@ -78,6 +78,7 @@ DZ_ENTS.SortingAmmoTypes = {
     }
 }
 function DZ_ENTS:GetWeaponAmmoCategory(ammo_name)
+    if not ammo_name then return end
     ammo_name = string.lower(ammo_name)
     for k, v in pairs(DZ_ENTS.SortingAmmoTypes) do
         if v[ammo_name] then return k end
