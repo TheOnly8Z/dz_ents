@@ -42,10 +42,8 @@ function SWEP:SetupDataTables()
     self:NetworkVar("Bool", 6, "Thrown")
 end
 
-function SWEP:Deploy()
-    local dep = BaseClass.Deploy(self)
+function SWEP:OnDeploy()
     self:SetThrown(false)
-    return dep
 end
 
 function SWEP:Holster(nextWep)

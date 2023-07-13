@@ -43,22 +43,10 @@ function SWEP:SetupDataTables()
     self:NetworkVar("Bool", 6, "Stimmed")
 end
 
-function SWEP:Initialize()
-    BaseClass.Initialize(self)
-
-    self:SetHoldType(self.HoldType)
-    self:SetStimTime(0)
-    self:SetStimmed(false)
-end
-
-function SWEP:Deploy()
-    local dep = BaseClass.Deploy(self)
-
+function SWEP:OnDeploy()
     self:SetStimTime(0)
     self:SetStimmed(false)
     self:SetBodygroup(0, 0)
-
-    return dep
 end
 
 function SWEP:Holster(nextWep)

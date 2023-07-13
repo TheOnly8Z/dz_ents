@@ -1,10 +1,12 @@
 AddCSLuaFile()
 
-if DZ_ENTS.ConVars["equipment_swcs"]:GetBool() and swcs then
-    SWEP.Base = "weapon_swcs_base"
-else
-    SWEP.Base = "weapon_base"
-end
+-- if DZ_ENTS.ConVars["equipment_swcs"]:GetBool() and swcs then
+--     SWEP.Base = "weapon_swcs_base"
+-- else
+--     SWEP.Base = "weapon_base"
+-- end
+
+SWEP.Base = "weapon_base"
 DEFINE_BASECLASS(SWEP.Base)
 
 SWEP.AmmoType = ""
@@ -67,19 +69,21 @@ function SWEP:Initialize()
     self:SetHoldType(self.HoldType)
 end
 
+function SWEP:OnDeploy()
+end
+
 function SWEP:Deploy()
     local owner = self:GetOwner()
     if not owner or not owner:IsPlayer() then return end
 
     self:SetHoldType(self.HoldType)
-    self:SetWeaponAnim(ACT_VM_DEPLOY)
+    self:SetWeaponAnim(ACT_VM_DEPLOY, self:GetCustomDeploySpeed())
 
-    local vm = owner:GetViewModel(self:ViewModelIndex())
-    if vm:IsValid() then
-        vm:SetPlaybackRate(self:GetDeploySpeed())
-        self:SetWeaponIdleTime(CurTime() + (self:SequenceDuration() * (1 / self:GetDeploySpeed())))
-    end
-    self:SetNextPrimaryFire(CurTime() + self:SequenceDuration() * (1 / self:GetDeploySpeed()) * 0.9)
+    local add_t = self:SequenceDuration() * (1 / self:GetCustomDeploySpeed())
+    self:SetWeaponIdleTime(CurTime() + add_t)
+    self:SetNextPrimaryFire(CurTime() + add_t * 0.9)
+
+    self:OnDeploy()
 
     return true
 end
@@ -159,7 +163,7 @@ end
 
 --------------------------------------- Override/re-implement some SWCS stuff
 
-function SWEP:GetDeploySpeed()
+function SWEP:GetCustomDeploySpeed()
     if DZ_ENTS.ConVars["equipment_swcs"]:GetBool() and GetConVar("swcs_deploy_override") and GetConVar("swcs_deploy_override"):GetFloat() ~= 0 then
         return GetConVar("swcs_deploy_override"):GetFloat()
     end
