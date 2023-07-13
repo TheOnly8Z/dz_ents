@@ -134,7 +134,7 @@ local armorregions = {
 }
 -- Does not check for armor value... do that in the hook
 function PLAYER:DZ_ENTS_IsArmoredHitGroup(hitgroup)
-    local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
+    local uselogic = DZ_ENTS.ConVars["armor_enabled"]:GetInt()
     if uselogic == 0 then return false end
 
     return self:DZ_ENTS_HasHeavyArmor() -- heavy armor covers all regions
@@ -143,7 +143,7 @@ function PLAYER:DZ_ENTS_IsArmoredHitGroup(hitgroup)
 end
 
 function PLAYER:DZ_ENTS_ApplyHeavyArmorModel(armor)
-    if not GetConVar("dzents_armor_heavy_playermodel"):GetBool() or (armor ~= DZ_ENTS_ARMOR_HEAVY_CT and armor ~= DZ_ENTS_ARMOR_HEAVY_T) then return end
+    if not DZ_ENTS.ConVars["armor_heavy_playermodel"]:GetBool() or (armor ~= DZ_ENTS_ARMOR_HEAVY_CT and armor ~= DZ_ENTS_ARMOR_HEAVY_T) then return end
 
     self.DZ_ENTS_OldPlayerModel = {self:GetModel(), self:GetSkin(), {}}
     for k, v in pairs(self:GetBodyGroups()) do
@@ -158,14 +158,14 @@ function PLAYER:DZ_ENTS_ApplyHeavyArmorModel(armor)
         local hands = self:GetHands()
         hands:SetModel("models/arachnit/csgoheavyphoenix/c_arms/c_arms_tm_heavy.mdl")
     end
-    self:SetSkin(GetConVar("dzents_armor_heavy_playermodel_skin"):GetBool() and math.random(1, self:SkinCount()) or 0)
+    self:SetSkin(DZ_ENTS.ConVars["armor_heavy_playermodel_skin"]:GetBool() and math.random(1, self:SkinCount()) or 0)
     self:SetBodyGroups("00000000")
 end
 
 -- DoPlayerDeath happens _before_ PostEntityTakeDamage, so Armor is 0 for purposes of damage calc.
 hook.Add("DoPlayerDeath", "dz_ents_player", function(ply)
-    local drop = GetConVar("dzents_drop_armor"):GetBool() and (ply:Armor() > 0 or (ply.PendingArmor or 0) > 0) and not ply:DZ_ENTS_HasHeavyArmor()
-    local dropequip = GetConVar("dzents_drop_equip"):GetBool()
+    local drop = DZ_ENTS.ConVars["drop_armor"]:GetBool() and (ply:Armor() > 0 or (ply.PendingArmor or 0) > 0) and not ply:DZ_ENTS_HasHeavyArmor()
+    local dropequip = DZ_ENTS.ConVars["drop_equip"]:GetBool()
     ply:DZ_ENTS_RemoveHelmet(drop)
     ply:DZ_ENTS_RemoveArmor(drop)
     ply:DZ_ENTS_RemoveEquipment(dropequip)
@@ -184,7 +184,7 @@ hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
     ply:DZ_ENTS_RemoveArmor()
     ply:DZ_ENTS_RemoveEquipment()
     timer.Simple(0, function()
-        local give = GetConVar("dzents_armor_onspawn"):GetInt()
+        local give = DZ_ENTS.ConVars["armor_onspawn"]:GetInt()
         if give == 3 then
             local armor = math.random() <= 0.5 and DZ_ENTS_ARMOR_HEAVY_CT or DZ_ENTS_ARMOR_HEAVY_T
             ply:DZ_ENTS_GiveHelmet() -- here for formality even though heavy armor protects all hitgroups (SWCS hit effects)
@@ -192,7 +192,7 @@ hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
             ply:SetArmor(200)
             ply:SetMaxArmor(200)
             ply:DZ_ENTS_ApplyHeavyArmorModel(armor)
-            -- local speed = GetConVar("dzents_armor_heavy_speed"):GetInt()
+            -- local speed = DZ_ENTS.ConVars["armor_heavy_speed"]:GetInt()
             -- if speed > 0 then
             --     ply.DZ_ENTS_OriginalSpeed = {ply:GetSlowWalkSpeed(), ply:GetWalkSpeed(), ply:GetRunSpeed()}
             --     ply:SetSlowWalkSpeed(math.min(ply:GetSlowWalkSpeed(), speed))
@@ -211,10 +211,10 @@ hook.Add("PlayerLoadout", "dz_ents_player", function(ply)
         end
 
         local giveequip = 0
-        if GetConVar("dzents_parachute_onspawn"):GetBool() then
+        if DZ_ENTS.ConVars["parachute_onspawn"]:GetBool() then
             giveequip = giveequip + DZ_ENTS_EQUIP_PARACHUTE
         end
-        if GetConVar("dzents_exojump_onspawn"):GetBool() then
+        if DZ_ENTS.ConVars["exojump_onspawn"]:GetBool() then
             giveequip = giveequip + DZ_ENTS_EQUIP_EXOJUMP
         end
         if giveequip > 0 then
@@ -225,7 +225,7 @@ end)
 
 DZ_ENTS.HeavyArmorWeaponCache = {}
 function DZ_ENTS.HeavyArmorCanPickup(class, mode)
-    mode = mode or GetConVar("dzents_armor_heavy_norifle"):GetInt()
+    mode = mode or DZ_ENTS.ConVars["armor_heavy_norifle"]:GetInt()
     if mode == 0 then
         return true
     end
@@ -279,8 +279,8 @@ hook.Add("PlayerSwitchWeapon", "dz_ents_player", function(ply, oldwep, wep)
                 ply:DropWeapon(wep)
             end
             return true
-        elseif GetConVar("dzents_armor_heavy_deployspeed"):GetFloat() < 1 then
-            local speed = GetConVar("dzents_armor_heavy_deployspeed"):GetFloat()
+        elseif DZ_ENTS.ConVars["armor_heavy_deployspeed"]:GetFloat() < 1 then
+            local speed = DZ_ENTS.ConVars["armor_heavy_deployspeed"]:GetFloat()
             if weapons.IsBasedOn(class, "mg_base") then
                 -- EWWWWWWWWWWWWWWWWWW
                 -- mw base doesn't have cool live stats like arccw so we'll have to do this the ugly way
@@ -367,14 +367,14 @@ local bitflags_nohitgroup = DMG_FALL + DMG_BLAST + DMG_RADIATION + DMG_CRUSH + D
 
 --[[]
 hook.Add("ScalePlayerDamage", "dz_ents_player", function(ply, hitgroup, dmginfo)
-    local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
+    local uselogic = DZ_ENTS.ConVars["armor_enabled"]:GetInt()
 
     -- Block the blood effects on a headshot
     if CLIENT and ply:Armor() > 0 and (uselogic >= 2 or uselogic == 1 and ply:DZ_ENTS_HasArmor())
             and bit.band(dmginfo:GetDamageType(), bitflags_nohitgroup) == 0
             and bit.band(dmginfo:GetDamageType(), bitflags_blockable) ~= 0
-            and ((GetConVar("dzents_armor_eff_head"):GetBool() and hitgroup == HITGROUP_HEAD)
-            or (GetConVar("dzents_armor_eff_body"):GetBool() and armorregions[hitgroup])) then
+            and ((DZ_ENTS.ConVars["armor_eff_head"]:GetBool() and hitgroup == HITGROUP_HEAD)
+            or (DZ_ENTS.ConVars["armor_eff_body"]:GetBool() and armorregions[hitgroup])) then
         return true
     end
 end)
@@ -383,11 +383,11 @@ end)
 hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
     if ply:GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
-        dmginfo:ScaleDamage(GetConVar("dzents_healthshot_damage_taken"):GetFloat())
+        dmginfo:ScaleDamage(DZ_ENTS.ConVars["healthshot_damage_taken"]:GetFloat())
     end
 
     if IsValid(dmginfo:GetAttacker()) and dmginfo:GetAttacker():GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
-        dmginfo:ScaleDamage(GetConVar("dzents_healthshot_damage_dealt"):GetFloat())
+        dmginfo:ScaleDamage(DZ_ENTS.ConVars["healthshot_damage_dealt"]:GetFloat())
     end
 
     if not ply:IsPlayer() then return end
@@ -397,15 +397,15 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         -- Nasty. Do it late here and with a hard-coded fall damage check in case some other addon is doing their own fall damage thing.
         -- Don't want to mess with hook loading orders now, do we?
         if not GetConVar("mp_falldamage"):GetBool() and dmginfo:GetDamage() == 10 and (
-            (ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_falldamage"):GetBool())
-            or (ply.DZENTS_BumpMine_Launched and GetConVar("dzents_bumpmine_damage_fall"):GetFloat() > 0)) then
+            (ply:DZ_ENTS_HasHeavyArmor() and DZ_ENTS.ConVars["armor_heavy_falldamage"]:GetBool())
+            or (ply.DZENTS_BumpMine_Launched and DZ_ENTS.ConVars["bumpmine_damage_fall"]:GetFloat() > 0)) then
             -- SDK2013 damage calc. gets pretty close, the difference is probably related to velocity being a tick off or whatever
             dmginfo:SetDamage(math.max(math.abs(ply:GetVelocity().z) - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED, 0) * DZ_ENTS.DAMAGE_FOR_FALL_SPEED)
         end
 
         -- goomba stomp
         local groundent = ply:GetGroundEntity()
-        if ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_fallstomp"):GetBool() and IsValid(groundent) then
+        if ply:DZ_ENTS_HasHeavyArmor() and DZ_ENTS.ConVars["armor_heavy_fallstomp"]:GetBool() and IsValid(groundent) then
             local dmg = dmginfo:GetDamage()
             timer.Simple(0, function() -- can't do it immediately (creating new DamageInfo overrides our current one)
                 if not IsValid(groundent) then return end
@@ -427,12 +427,12 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
         -- exojump reduces fall damage
         if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
-            dmginfo:ScaleDamage(GetConVar("dzents_exojump_falldamage"):GetFloat())
+            dmginfo:ScaleDamage(DZ_ENTS.ConVars["exojump_falldamage"]:GetFloat())
         end
 
         -- bump mine launch damage multiplier
-        if (ply.DZENTS_BumpMine_Launched and GetConVar("dzents_bumpmine_damage_fall"):GetFloat() > 0) then
-            dmginfo:ScaleDamage(GetConVar("dzents_bumpmine_damage_fall"):GetFloat())
+        if (ply.DZENTS_BumpMine_Launched and DZ_ENTS.ConVars["bumpmine_damage_fall"]:GetFloat() > 0) then
+            dmginfo:ScaleDamage(DZ_ENTS.ConVars["bumpmine_damage_fall"]:GetFloat())
         end
 
         -- attribute this fall damage to whoever launched us with the bump mine
@@ -451,12 +451,12 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         ply:SetLastHitGroup(hitgroup)
     end
 
-    local uselogic = GetConVar("dzents_armor_enabled"):GetInt()
+    local uselogic = DZ_ENTS.ConVars["armor_enabled"]:GetInt()
 
     if ply:DZ_ENTS_HasHeavyArmor() then
-        dmginfo:ScaleDamage(GetConVar("dzents_armor_heavy_damage"):GetFloat())
+        dmginfo:ScaleDamage(DZ_ENTS.ConVars["armor_heavy_damage"]:GetFloat())
     elseif ply:DZ_ENTS_HasArmor() then
-        dmginfo:ScaleDamage(GetConVar("dzents_armor_damage"):GetFloat())
+        dmginfo:ScaleDamage(DZ_ENTS.ConVars["armor_damage"]:GetFloat())
     end
 
     if uselogic > 0 and (ply:DZ_ENTS_HasArmor() or ply:DZ_ENTS_HasHelmet()) then
@@ -480,13 +480,13 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
         if ply:DZ_ENTS_HasHeavyArmor() then
             armorratio = armorratio * 0.5
             armorbonus = 0.33
-            heavyarmorbonus = 0.33 * GetConVar("dzents_armor_heavy_durability"):GetFloat()
+            heavyarmorbonus = 0.33 * DZ_ENTS.ConVars["armor_heavy_durability"]:GetFloat()
 
             if hitgroup == HITGROUP_HEAD then
                 dmginfo:ScaleDamage(0.5) -- csgo does it, so do we
             end
         elseif ply:DZ_ENTS_HasArmor() then
-            armorbonus = armorbonus * GetConVar("dzents_armor_durability"):GetFloat()
+            armorbonus = armorbonus * DZ_ENTS.ConVars["armor_durability"]:GetFloat()
         end
 
         -- print("Dealing " .. dmginfo:GetDamage() .. " to " .. tostring(ply) .. " (hp: " .. ply:Health() .. ", armor:" .. ply:Armor() .. ")")
@@ -524,7 +524,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
             ply.PendingArmor = newarmor
             ply:SetArmor(0)
             dmginfo:SetDamage(healthdmg)
-        elseif dmginfo:IsDamageType(DMG_SHOCK) or not GetConVar("dzents_armor_fallback"):GetBool() then
+        elseif dmginfo:IsDamageType(DMG_SHOCK) or not DZ_ENTS.ConVars["armor_fallback"]:GetBool() then
             -- If fallback is on, use HL2 logic. Otherwise we are unprotected
             -- Also, Zeus ignores armor so do it like this
             ply.PendingArmor = ply:Armor()
@@ -534,7 +534,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 end)
 
 hook.Add("PostEntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo, took)
-    if not ply:IsPlayer() or GetConVar("dzents_armor_enabled"):GetInt() == 0 then return end
+    if not ply:IsPlayer() or DZ_ENTS.ConVars["armor_enabled"]:GetInt() == 0 then return end
     if ply.PendingArmor then
         local amt = ply.PendingArmor
         ply:SetArmor(amt)
@@ -548,7 +548,7 @@ hook.Add("PostEntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo, 
         if hitgroup == HITGROUP_HEAD then
             --ply:EmitSound("dz_ents/bhit_helmet-1.wav")
             snd = "dz_ents/bhit_helmet-1.wav"
-            if GetConVar("dzents_armor_eff_head"):GetBool() then
+            if DZ_ENTS.ConVars["armor_eff_head"]:GetBool() then
                 local eff = EffectData()
                 eff:SetOrigin(dmginfo:GetDamagePosition())
                 eff:SetNormal((dmginfo:GetDamageForce() * -1):GetNormalized())
@@ -557,7 +557,7 @@ hook.Add("PostEntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo, 
         elseif armorregions[hitgroup] or ply:DZ_ENTS_HasHeavyArmor() then
             -- ply:EmitSound("dz_ents/kevlar" .. math.random(1, 5) .. ".wav")
             snd = "dz_ents/kevlar" .. math.random(1, 5) .. ".wav"
-            if GetConVar("dzents_armor_eff_heavy"):GetBool() and ply:DZ_ENTS_HasHeavyArmor() then
+            if DZ_ENTS.ConVars["armor_eff_heavy"]:GetBool() and ply:DZ_ENTS_HasHeavyArmor() then
                 local eff = EffectData()
                 eff:SetOrigin(dmginfo:GetDamagePosition())
                 eff:SetNormal((dmginfo:GetDamageForce() * -1):GetNormalized())
@@ -596,14 +596,14 @@ hook.Add("PostEntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo, 
 
     -- Let's make fall damage hurt heavy armor... for funsies.
     if dmginfo:IsFallDamage() and ply:DZ_ENTS_HasHeavyArmor() then
-        ply:SetArmor(math.max(0, ply:Armor() - dmginfo:GetDamage() * GetConVar("dzents_armor_heavy_durability"):GetFloat()))
+        ply:SetArmor(math.max(0, ply:Armor() - dmginfo:GetDamage() * DZ_ENTS.ConVars["armor_heavy_durability"]:GetFloat()))
     end
 
     -- If armor value hits zero, we will lose our armor and helmet
     if ply:Alive() and ply:Armor() <= 0 then
         if ply:DZ_ENTS_HasHeavyArmor() then
             -- break if convar allows, otherwise do nothing
-            if GetConVar("dzents_armor_heavy_break"):GetBool() then
+            if DZ_ENTS.ConVars["armor_heavy_break"]:GetBool() then
                 ply:DZ_ENTS_RemoveHelmet()
                 ply:DZ_ENTS_RemoveArmor()
 

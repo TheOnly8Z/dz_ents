@@ -60,7 +60,7 @@ if SERVER then
 
         self.NextUse = CurTime() + 0.5
 
-        if GetConVar("dzents_pickup_instantuse"):GetBool() then
+        if DZ_ENTS.ConVars["pickup_instantuse"]:GetBool() then
             local remove = self:InteractFinish(ply)
             if remove then SafeRemoveEntity(self) end
         else

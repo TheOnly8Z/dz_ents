@@ -64,8 +64,8 @@ if SERVER then
     end
 
     function ENT:MarkForRemove(delay)
-        if delay or GetConVar("dzents_drop_cleanup"):GetFloat() > 0 then
-            timer.Simple(delay or GetConVar("dzents_drop_cleanup"):GetFloat(), function()
+        if delay or DZ_ENTS.ConVars["drop_cleanup"]:GetFloat() > 0 then
+            timer.Simple(delay or DZ_ENTS.ConVars["drop_cleanup"]:GetFloat(), function()
                 if IsValid(self) and self:AllowMarkedRemove() then
                     self:FadeAndRemove()
                 elseif IsValid(self) then

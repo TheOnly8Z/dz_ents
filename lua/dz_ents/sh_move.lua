@@ -13,7 +13,7 @@ sound.Add({
 })
 
 hook.Add("StartCommand", "zzz_dz_ents_move", function(ply, cmd)
-    if ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_nosprint"):GetBool() and ply:GetMoveType() == MOVETYPE_WALK then
+    if ply:DZ_ENTS_HasHeavyArmor() and DZ_ENTS.ConVars["armor_heavy_nosprint"]:GetBool() and ply:GetMoveType() == MOVETYPE_WALK then
         cmd:SetButtons(bit.band(cmd:GetButtons(), bit.bnot(IN_SPEED)))
     end
 
@@ -46,7 +46,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
     local gravity = GetConVar("sv_gravity"):GetFloat()
 
     if ply:DZ_ENTS_HasHeavyArmor() then
-        local tgt = GetConVar("dzents_armor_heavy_speed"):GetInt()
+        local tgt = DZ_ENTS.ConVars["armor_heavy_speed"]:GetInt()
         if tgt > 0 then
             local speed = tgt / math.max(mv:GetMaxSpeed(), ply:GetWalkSpeed())
             mv:SetMaxClientSpeed(mv:GetMaxClientSpeed() * speed)
@@ -54,13 +54,13 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
         end
 
         if ply:IsOnGround() and (ply:GetVelocity().z < (600 - gravity)) then
-            local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()
+            local grav = DZ_ENTS.ConVars["armor_heavy_gravity"]:GetFloat()
             mv:SetVelocity(mv:GetVelocity() - Vector(0, 0, gravity * grav * ft))
         end
     end
 
     if ply:GetNWFloat("DZ_Ents.Healthshot", 0) > CurTime() then
-        local mul = GetConVar("dzents_healthshot_speed"):GetFloat()
+        local mul = DZ_ENTS.ConVars["healthshot_speed"]:GetFloat()
         mv:SetMaxClientSpeed(mv:GetMaxClientSpeed() * mul)
         mv:SetMaxSpeed(mv:GetMaxSpeed() * mul)
 
@@ -81,7 +81,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
         local pending = ply.DZ_ENTS_ParachutePending
         if (pending or mv:KeyDown(IN_JUMP)) and ply:GetMoveType() == MOVETYPE_WALK
                 and not ply:IsOnGround() and ply:WaterLevel() == 0 and not ply:GetNWBool("DZ_Ents.Para.Open") and (ply.DZ_ENTS_NextParachute or 0) < CurTime() then
-            if ply:GetVelocity().z < -GetConVar("dzents_parachute_threshold"):GetFloat() then
+            if ply:GetVelocity().z < -DZ_ENTS.ConVars["parachute_threshold"]:GetFloat() then
                 ply:SetNWBool("DZ_Ents.Para.Open", true)
                 ply:SetNWBool("DZ_Ents.Para.Consume", true)
                 ply:SetNWBool("DZ_Ents.Para.Auto", false)
@@ -107,7 +107,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
                     ply.DZ_ENTS_ParachutePending = true
                 end
             end
-        elseif ply:GetNWBool("DZ_Ents.Para.Open") and mv:KeyPressed(IN_JUMP) and GetConVar("dzents_parachute_detach"):GetBool() then
+        elseif ply:GetNWBool("DZ_Ents.Para.Open") and mv:KeyPressed(IN_JUMP) and DZ_ENTS.ConVars["parachute_detach"]:GetBool() then
             ply:SetNWBool("DZ_Ents.Para.Open", false)
             ply.DZ_ENTS_NextParachute = CurTime() + 0.5
             if ply.DZ_ENTS_ParachuteSound then
@@ -116,12 +116,12 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
             end
         end
 
-    elseif GetConVar("dzents_armor_heavy_robert"):GetBool() and ply:DZ_ENTS_HasHeavyArmor() and not ply:GetNWBool("DZ_Ents.Para.Open")
-            and (GetConVar("mp_falldamage"):GetBool() or GetConVar("dzents_armor_heavy_falldamage"):GetBool()) then
+    elseif DZ_ENTS.ConVars["armor_heavy_robert"]:GetBool() and ply:DZ_ENTS_HasHeavyArmor() and not ply:GetNWBool("DZ_Ents.Para.Open")
+            and (GetConVar("mp_falldamage"):GetBool() or DZ_ENTS.ConVars["armor_heavy_falldamage"]:GetBool()) then
         if not ply.DZENTS_Robert and ply:GetMoveType() == MOVETYPE_WALK and mv:GetVelocity().z <= -600 then
             local dmg = math.max(-mv:GetVelocity().z - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED) * DZ_ENTS.DAMAGE_FOR_FALL_SPEED
             if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
-                dmg = dmg * GetConVar("dzents_exojump_falldamage"):GetFloat()
+                dmg = dmg * DZ_ENTS.ConVars["exojump_falldamage"]:GetFloat()
             end
             if SERVER and dmg > math.max(ply:Health(), 50) then
                 ply.DZENTS_Robert = true
@@ -149,7 +149,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
                 ply.DZ_ENTS_ParachuteSound:FadeOut(0.25)
                 ply.DZ_ENTS_ParachuteSound = nil
             end
-            if SERVER and ply:Alive() and ply:GetNWBool("DZ_Ents.Para.Consume") and GetConVar("dzents_parachute_consume"):GetBool() then
+            if SERVER and ply:Alive() and ply:GetNWBool("DZ_Ents.Para.Consume") and DZ_ENTS.ConVars["parachute_consume"]:GetBool() then
                 ply:DZ_ENTS_RemoveEquipment(false, DZ_ENTS_EQUIP_PARACHUTE)
                 DZ_ENTS:Hint(ply, 14)
             end
@@ -160,11 +160,11 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
         ply.DZ_ENTS_ParachutePending = nil
     elseif ply:GetNWBool("DZ_Ents.Para.Open") then
 
-        local slowfall = GetConVar("dzents_parachute_fall"):GetFloat()
+        local slowfall = DZ_ENTS.ConVars["parachute_fall"]:GetFloat()
         local decel = slowfall * 5
 
         if ply:DZ_ENTS_HasHeavyArmor() then
-            local grav = GetConVar("dzents_armor_heavy_gravity"):GetFloat()
+            local grav = DZ_ENTS.ConVars["armor_heavy_gravity"]:GetFloat()
             decel = decel * 0.75 * (1 + grav)
             slowfall = slowfall * (1 + grav)
         end
@@ -180,7 +180,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
         local desiredmoveforward = cmd:GetForwardMove()
         local desiredmoveleft = cmd:GetSideMove()
 
-        local spd = GetConVar("dzents_parachute_speed"):GetFloat()
+        local spd = DZ_ENTS.ConVars["parachute_speed"]:GetFloat()
 
         desiredmoveforward = math.Clamp(desiredmoveforward, -spd, spd)
         desiredmoveleft = math.Clamp(desiredmoveleft, -spd, spd)
@@ -189,7 +189,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
         vel = vel + eyeangles:Right() * desiredmoveleft * ft
 
         -- Dampen horizontal velocity to simulate increased drag
-        local drag = GetConVar("dzents_parachute_drag"):GetFloat()
+        local drag = DZ_ENTS.ConVars["parachute_drag"]:GetFloat()
         if drag > 0 then
             local speedSqr = vel.x * vel.x + vel.y * vel.y
             local diff = speedSqr / (spd + ply:GetWalkSpeed()) ^ 2 - 1
@@ -217,13 +217,13 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
 
     vel = mv:GetVelocity()
 
-    local ha = ply:DZ_ENTS_HasHeavyArmor() and GetConVar("dzents_armor_heavy_exojump"):GetFloat() or 1
-    local boostdur = 0.5 --GetConVar("dzents_exojump_boostdur"):GetFloat()
+    local ha = ply:DZ_ENTS_HasHeavyArmor() and DZ_ENTS.ConVars["armor_heavy_exojump"]:GetFloat() or 1
+    local boostdur = 0.5 --DZ_ENTS.ConVars["exojump_boostdur"]:GetFloat()
     local acceldur = 0.15
-    local boostvel = 700 * (1 + GetConVar("dzents_exojump_boost_up"):GetFloat()) * ha * (ply:DZ_ENTS_HasHeavyArmor() and (1 / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat() * 2)) or 1)
-    local longjumpvel = GetConVar("dzents_exojump_boost_forward"):GetFloat() * ha
+    local boostvel = 700 * (1 + DZ_ENTS.ConVars["exojump_boost_up"]:GetFloat()) * ha * (ply:DZ_ENTS_HasHeavyArmor() and (1 / (1 + DZ_ENTS.ConVars["armor_heavy_gravity"]:GetFloat() * 2)) or 1)
+    local longjumpvel = DZ_ENTS.ConVars["exojump_boost_forward"]:GetFloat() * ha
     local yawang = Angle(0, ply:GetAngles().y, 0)
-    local horiz_max = GetConVar("dzents_exojump_runboost"):GetBool() and 400 or ply:GetWalkSpeed()
+    local horiz_max = DZ_ENTS.ConVars["exojump_runboost"]:GetBool() and 400 or ply:GetWalkSpeed()
 
     if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
 
@@ -290,7 +290,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
                 end
             end
 
-            local drag = GetConVar("dzents_exojump_drag"):GetFloat()
+            local drag = DZ_ENTS.ConVars["exojump_drag"]:GetFloat()
             if not ply:GetNWBool("DZ_Ents.ExoJump.BoostForward") and drag > 0 then
 
                 local speedSqr = vel.x * vel.x + vel.y * vel.y

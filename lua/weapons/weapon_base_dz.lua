@@ -1,6 +1,6 @@
 AddCSLuaFile()
 
-if GetConVar("dzents_equipment_swcs"):GetBool() and swcs then
+if DZ_ENTS.ConVars["equipment_swcs"]:GetBool() and swcs then
     SWEP.Base = "weapon_swcs_base"
 else
     SWEP.Base = "weapon_base"
@@ -116,8 +116,8 @@ function SWEP:Reload()
                 phys:AddAngleVelocity(VectorRand() * 200)
             end
 
-            if GetConVar("dzents_drop_cleanup"):GetFloat() > 0 then
-                timer.Simple(GetConVar("dzents_drop_cleanup"):GetFloat(), function()
+            if DZ_ENTS.ConVars["drop_cleanup"]:GetFloat() > 0 then
+                timer.Simple(DZ_ENTS.ConVars["drop_cleanup"]:GetFloat(), function()
                     if IsValid(ent) and not IsValid(ent:GetOwner()) then
                         ent.DZENTS_Pickup = CurTime() + 2
                         ent:SetRenderMode(RENDERMODE_TRANSALPHA) -- doesn't seem to work but whatever
@@ -160,7 +160,7 @@ end
 --------------------------------------- Override/re-implement some SWCS stuff
 
 function SWEP:GetDeploySpeed()
-    if GetConVar("dzents_equipment_swcs"):GetBool() and GetConVar("swcs_deploy_override") and GetConVar("swcs_deploy_override"):GetFloat() ~= 0 then
+    if DZ_ENTS.ConVars["equipment_swcs"]:GetBool() and GetConVar("swcs_deploy_override") and GetConVar("swcs_deploy_override"):GetFloat() ~= 0 then
         return GetConVar("swcs_deploy_override"):GetFloat()
     end
     return engine.ActiveGamemode() == "terrortown" and 1.4 or (GetConVar("sv_defaultdeployspeed"):GetFloat() / 2)

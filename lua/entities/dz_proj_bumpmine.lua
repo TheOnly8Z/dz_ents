@@ -94,10 +94,10 @@ if SERVER then
     function ENT:Initialize()
         BaseClass.Initialize(self)
 
-        self.ArmDelay = GetConVar("dzents_bumpmine_armdelay"):GetFloat()
-        self.DetonateDelay = GetConVar("dzents_bumpmine_detdelay"):GetFloat()
+        self.ArmDelay = DZ_ENTS.ConVars["bumpmine_armdelay"]:GetFloat()
+        self.DetonateDelay = DZ_ENTS.ConVars["bumpmine_detdelay"]:GetFloat()
 
-        local t = GetConVar("dzents_bumpmine_lifetime"):GetFloat()
+        local t = DZ_ENTS.ConVars["bumpmine_lifetime"]:GetFloat()
         if t > 0 then
             timer.Simple(t, function()
                 if IsValid(self) then
@@ -146,13 +146,13 @@ if SERVER then
         -- util.Effect("ThumperDust", eff)
 
         local radius = 150
-        local force = GetConVar("dzents_bumpmine_force"):GetFloat()
-        local upadd = GetConVar("dzents_bumpmine_upadd"):GetFloat()
+        local force = DZ_ENTS.ConVars["bumpmine_force"]:GetFloat()
+        local upadd = DZ_ENTS.ConVars["bumpmine_upadd"]:GetFloat()
 
         -- bias it downwards so the force trends upwards
         local origin = self:GetPos() - Vector(0, 0, 24)
 
-        if GetConVar("dzents_bumpmine_stack"):GetBool() then
+        if DZ_ENTS.ConVars["bumpmine_stack"]:GetBool() then
             local mult = 1
             local count = 1
             for k, v in pairs(ents.FindByClass(self:GetClass())) do
@@ -197,8 +197,8 @@ if SERVER then
                             umult = 0
                         end
                         if v:DZ_ENTS_HasHeavyArmor() then
-                            fmult = fmult / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat() * 0.5)
-                            umult = umult / (1 + GetConVar("dzents_armor_heavy_gravity"):GetFloat() * 0.5)
+                            fmult = fmult / (1 + DZ_ENTS.ConVars["armor_heavy_gravity"]:GetFloat() * 0.5)
+                            umult = umult / (1 + DZ_ENTS.ConVars["armor_heavy_gravity"]:GetFloat() * 0.5)
                         end
                     else
                         umult = umult * 2
@@ -209,7 +209,7 @@ if SERVER then
                     v:SetVelocity(dir * force * fmult + Vector(0, 0, upadd * umult))
 
                     v.DZENTS_BumpMine_Launched = true
-                    if GetConVar("dzents_bumpmine_damage_crash"):GetFloat() > 0 then
+                    if DZ_ENTS.ConVars["bumpmine_damage_crash"]:GetFloat() > 0 then
                         timer.Simple(0.05, function()
                             if not IsValid(v) then return end
                             v.DZENTS_BumpMine_LaunchTime = CurTime() -- only used for wall crash detection

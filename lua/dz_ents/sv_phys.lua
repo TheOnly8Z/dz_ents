@@ -12,9 +12,9 @@ hook.Add("Think", "dz_ents_phys", function()
         -- NPCs don't typically take fall damage so let's introduce them to the world of pain
         if ent.DZENTS_BumpMine_Launched and not ent:IsPlayer() and ent:IsOnGround() then
 
-            if GetConVar("dzents_bumpmine_damage_fall"):GetFloat() > 0 and last.z < -DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED / 2 then
+            if DZ_ENTS.ConVars["bumpmine_damage_fall"]:GetFloat() > 0 and last.z < -DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED / 2 then
                 local dmginfo = DamageInfo()
-                dmginfo:SetDamage(math.max(math.abs(last.z) - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED / 2, 0) * DZ_ENTS.DAMAGE_FOR_FALL_SPEED * 2 * GetConVar("dzents_bumpmine_damage_fall"):GetFloat())
+                dmginfo:SetDamage(math.max(math.abs(last.z) - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED / 2, 0) * DZ_ENTS.DAMAGE_FOR_FALL_SPEED * 2 * DZ_ENTS.ConVars["bumpmine_damage_fall"]:GetFloat())
                 dmginfo:SetDamageForce(Vector(0, 0, dmginfo:GetDamage() * -100))
                 dmginfo:SetDamagePosition(ent:GetPos())
                 dmginfo:SetDamageType(DMG_CRUSH + DMG_NEVERGIB + DMG_FALL)
@@ -54,7 +54,7 @@ hook.Add("Think", "dz_ents_phys", function()
                 ent:EmitSound(util.GetSurfaceData(tr.SurfaceProps).bulletImpactSound)
                 ent:EmitSound(util.GetSurfaceData(tr.SurfaceProps).impactHardSound)
 
-                local dmg = Lerp((v2dlast - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED) / 5000, 20, 200) * (ent:IsPlayer() and 1 or 3) * GetConVar("dzents_bumpmine_damage_crash"):GetFloat()
+                local dmg = Lerp((v2dlast - DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED) / 5000, 20, 200) * (ent:IsPlayer() and 1 or 3) * DZ_ENTS.ConVars["bumpmine_damage_crash"]:GetFloat()
                 local dmginfo = DamageInfo()
                 dmginfo:SetDamage(dmg)
                 dmginfo:SetDamageForce(last)
@@ -65,7 +65,7 @@ hook.Add("Think", "dz_ents_phys", function()
 
                 -- Owner can take less crash damage
                 if IsValid(ent.DZENTS_BumpMine_Attacker) and ent.DZENTS_BumpMine_Attacker == ent then
-                    dmginfo:ScaleDamage(GetConVar("dzents_bumpmine_damage_selfcrash"):GetFloat())
+                    dmginfo:ScaleDamage(DZ_ENTS.ConVars["bumpmine_damage_selfcrash"]:GetFloat())
                 end
 
                 -- slightly less damage if we hit a thing
@@ -76,7 +76,7 @@ hook.Add("Think", "dz_ents_phys", function()
                 ent:TakeDamageInfo(dmginfo)
 
                 -- If we land into some unfortunate bloke, they take a hit too
-                if IsValid(tr.Entity) and GetConVar("dzents_bumpmine_damage_crashchain"):GetBool() then --  and not tr.Entity.DZENTS_BumpMine_LaunchTime
+                if IsValid(tr.Entity) and DZ_ENTS.ConVars["bumpmine_damage_crashchain"]:GetBool() then --  and not tr.Entity.DZENTS_BumpMine_LaunchTime
                     tr.Entity:TakeDamageInfo(dmginfo)
                     if tr.Entity:IsPlayer() or tr.Entity:IsNPC() or tr.Entity:IsNextBot() then
                         tr.Entity:SetVelocity(last)

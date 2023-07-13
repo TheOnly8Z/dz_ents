@@ -71,7 +71,7 @@ function SWEP:CanPrimaryAttack()
     local ply = self:GetOwner()
     if not ply:IsPlayer() then return false end
     if self:GetStimTime() > 0 or self:GetNextPrimaryFire() > CurTime() then return false end
-    if ply:Health() >= ply:GetMaxHealth() and not GetConVar("dzents_healthshot_use_at_full"):GetBool() then return false end
+    if ply:Health() >= ply:GetMaxHealth() and not DZ_ENTS.ConVars["healthshot_use_at_full"]:GetBool() then return false end
 
     if self:Ammo1() <= 0 then
         self:RemoveAndSwitch()
@@ -104,12 +104,12 @@ function SWEP:Think()
         self:GetOwner():RemoveAmmo(1, self:GetPrimaryAmmoType())
 
         local ply = self:GetOwner()
-        ply:SetNWFloat("DZ_Ents.Healthshot", CurTime() + GetConVar("dzents_healthshot_duration"):GetFloat())
+        ply:SetNWFloat("DZ_Ents.Healthshot", CurTime() + DZ_ENTS.ConVars["healthshot_duration"]:GetFloat())
         ply:DoAnimationEvent(ACT_HL2MP_GESTURE_RANGE_ATTACK_REVOLVER)
 
         if SERVER and ply:GetMaxHealth() > ply:Health() then
-            local amt = GetConVar("dzents_healthshot_health"):GetInt()
-            local dur = GetConVar("dzents_healthshot_healtime"):GetFloat()
+            local amt = DZ_ENTS.ConVars["healthshot_health"]:GetInt()
+            local dur = DZ_ENTS.ConVars["healthshot_healtime"]:GetFloat()
             if dur <= 0 then
                 ply:SetHealth(math.min(ply:Health() + amt, ply:GetMaxHealth()))
             else

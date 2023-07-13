@@ -34,7 +34,7 @@ if SERVER then
                     ply:SetMaxArmor(100)
                 elseif giveheavyarmor then
                     ply:SetMaxArmor(200)
-                    -- local speed = GetConVar("dzents_armor_heavy_speed"):GetInt()
+                    -- local speed = DZ_ENTS.ConVars["armor_heavy_speed"]:GetInt()
                     -- if speed > 0 and not ply:DZ_ENTS_HasHeavyArmor() then
                     --     ply.DZ_ENTS_OriginalSpeed = {ply:GetSlowWalkSpeed(), ply:GetWalkSpeed(), ply:GetRunSpeed()}
                     --     ply:SetSlowWalkSpeed(math.min(ply:GetSlowWalkSpeed(), speed))
@@ -44,7 +44,7 @@ if SERVER then
 
                     ply:DZ_ENTS_ApplyHeavyArmorModel(self.GiveArmorType)
 
-                    if IsValid(ply:GetActiveWeapon()) and GetConVar("dzents_armor_heavy_norifle"):GetBool() and not DZ_ENTS.HeavyArmorCanPickup(ply:GetActiveWeapon():GetClass()) then
+                    if IsValid(ply:GetActiveWeapon()) and DZ_ENTS.ConVars["armor_heavy_norifle"]:GetBool() and not DZ_ENTS.HeavyArmorCanPickup(ply:GetActiveWeapon():GetClass()) then
                         ply:DropWeapon(ply:GetActiveWeapon())
                     end
                 end

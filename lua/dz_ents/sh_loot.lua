@@ -589,9 +589,9 @@ function DZ_ENTS:GetLootType(loot_type)
     if not lt then return {} end
     if not DZ_ENTS.LootTypeList[loot_type] then
 
-        if SERVER and GetConVar("dzents_case_userdef"):GetBool() and (not DZ_ENTS.UserDefLists["case_category"] or #DZ_ENTS.UserDefLists["case_category"] == 0) then
+        if SERVER and DZ_ENTS.ConVars["case_userdef"]:GetBool() and (not DZ_ENTS.UserDefLists["case_category"] or #DZ_ENTS.UserDefLists["case_category"] == 0) then
             PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] Empty whitelist detected. Turning off whitelist to ensure normal spawning.")
-            GetConVar("dzents_case_userdef"):SetBool(false)
+            DZ_ENTS.ConVars["case_userdef"]:SetBool(false)
         end
 
         DZ_ENTS.LootTypeList[loot_type] = {}
@@ -609,7 +609,7 @@ function DZ_ENTS:GetLootType(loot_type)
             if not tbl then
                 tbl = scripted_ents.Get(class)
             end
-            if tbl and (not GetConVar("dzents_case_userdef"):GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category])) then
+            if tbl and (not DZ_ENTS.ConVars["case_userdef"]:GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category])) then
                 table.insert(DZ_ENTS.LootTypeList[loot_type], class)
                 DZ_ENTS.LootTypeListLookup[loot_type][class] = true
             end
@@ -618,7 +618,7 @@ function DZ_ENTS:GetLootType(loot_type)
         -- Try to put fallback entities in as long as they match user whitelist
         for _, class in ipairs(lt.fallback or {}) do
             local tbl = weapons.Get(class)
-            if tbl and (not GetConVar("dzents_case_userdef"):GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category])) then
+            if tbl and (not DZ_ENTS.ConVars["case_userdef"]:GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category])) then
                 table.insert(DZ_ENTS.LootTypeList[loot_type], class)
                 DZ_ENTS.LootTypeListLookup[loot_type][class] = true
             end
@@ -632,7 +632,7 @@ function DZ_ENTS:GetLootType(loot_type)
                 local tbl = weapons.Get(v.ClassName) -- this includes inherited values
                 local ammocat = tbl and DZ_ENTS:GetWeaponAmmoCategory((tbl.Primary.Ammo ~= "") and tbl.Primary.Ammo or tbl.Ammo or "")
                 if tbl and not DZ_ENTS.LootTypeListLookup[loot_type][v.ClassName]
-                        and (not GetConVar("dzents_case_userdef"):GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category]))
+                        and (not DZ_ENTS.ConVars["case_userdef"]:GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category]))
                         and not blacklist[v.ClassName]
                         and tbl.Spawnable and not tbl.AdminOnly
                         and ((istable(tbl.DZ_LootTypes) and tbl.DZ_LootTypes[loot_type])

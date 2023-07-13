@@ -29,7 +29,7 @@ if SERVER then
     function ENT:Initialize()
         BaseClass.Initialize(self)
 
-        local max = math.ceil(self.MaxHealth * GetConVar("dzents_case_health"):GetFloat())
+        local max = math.ceil(self.MaxHealth * DZ_ENTS.ConVars["case_health"]:GetFloat())
         self:SetMaxHealth(max)
         self:SetHealth(max)
         self:PrecacheGibs()
@@ -60,8 +60,8 @@ if SERVER then
 
             ent.DZENTS_Pickup = CurTime() + 1
 
-            if GetConVar("dzents_case_cleanup"):GetFloat() > 1 then
-                timer.Simple(GetConVar("dzents_case_cleanup"):GetFloat(), function()
+            if DZ_ENTS.ConVars["case_cleanup"]:GetFloat() > 1 then
+                timer.Simple(DZ_ENTS.ConVars["case_cleanup"]:GetFloat(), function()
                     if IsValid(ent) and not IsValid(ent:GetOwner()) then
                         SafeRemoveEntity(ent)
                     end
@@ -71,7 +71,7 @@ if SERVER then
 
         self:EmitSound("dz_ents/container_death_0" .. math.random(1, 3) .. ".wav", 80, math.Rand(97, 103), 1)
 
-        local gibmode = GetConVar("dzents_case_gib"):GetInt()
+        local gibmode = DZ_ENTS.ConVars["case_gib"]:GetInt()
         if gibmode == 0 then
             local eff = EffectData()
             eff:SetOrigin(self:GetPos())
@@ -90,7 +90,7 @@ if SERVER then
     function ENT:OnTakeDamage(dmginfo)
 
         if bit.band(dmginfo:GetDamageType(), DMG_DROWN + DMG_NERVEGAS + DMG_POISON + DMG_RADIATION + DMG_SONIC) > 0 then return 0 end
-        if self.Reinforced and DZ_ENTS:IsFistDamage(dmginfo) and GetConVar("dzents_case_reinforced"):GetBool() then
+        if self.Reinforced and DZ_ENTS:IsFistDamage(dmginfo) and DZ_ENTS.ConVars["case_reinforced"]:GetBool() then
             self:EmitSound(punchsounds[math.random(1, #punchsounds)])
             if (self.LastHit or 0) + 5 <= CurTime() and dmginfo:GetAttacker():IsPlayer() then
                 DZ_ENTS:Hint(dmginfo:GetAttacker(), 1, self)

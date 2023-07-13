@@ -659,7 +659,7 @@ local function makemenu_case_category()
     cb:DockMargin(8, 4, 8, 4)
     cb:SetText("Enable Case Category Whitelist")
     cb:SetFont("dz_ents_menu_bold")
-    cb:SetValue(GetConVar("dzents_case_userdef"):GetBool())
+    cb:SetValue(DZ_ENTS.ConVars["case_userdef"]:GetBool())
     function cb.OnChange(self, val)
         net.Start("dz_ents_cvarrequest")
             net.WriteString("dzents_case_userdef")
@@ -784,7 +784,7 @@ local function makemenu_case_category()
     function apply.DoClick(self, val)
         DZ_ENTS.WriteUserDefList(list_name)
         DZ_ENTS.Menu_Case_Category:Close()
-        if not GetConVar("dzents_case_userdef"):GetBool() then
+        if not DZ_ENTS.ConVars["case_userdef"]:GetBool() then
             chat.AddText("[DZ_ENTS] Remember to enable the whitelist for it to take effect!")
         end
     end

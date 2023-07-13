@@ -4,7 +4,7 @@ ENT.Base = "dz_base_armor"
 
 ENT.PrintName = "Heavy Assault Suit (T)"
 ENT.Spawnable = true
-ENT.AdminOnly = GetConVar("dzents_armor_heavy_adminonly"):GetBool()
+ENT.AdminOnly = DZ_ENTS.ConVars["armor_heavy_adminonly"]:GetBool()
 ENT.Category = "Danger Zone"
 
 ENT.SubCategory = "Pickups"

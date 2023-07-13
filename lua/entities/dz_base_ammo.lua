@@ -50,7 +50,7 @@ if SERVER then
         local ammogiven
         local ammocat = DZ_ENTS:GetWeaponAmmoCategory(ammotype)
 
-        if GetConVar("dzents_ammo_clip"):GetBool() then
+        if DZ_ENTS.ConVars["ammo_clip"]:GetBool() then
             ammogiven = wep:GetMaxClip1()
         else
             ammogiven = canonclass and DZ_ENTS.CanonicalWeapons[canonclass].AmmoPickup or DZ_ENTS.AmmoTypeGiven[ammocat]
@@ -58,7 +58,7 @@ if SERVER then
 
         -- ideal amount of ammo to give out, not counting box cost and limit
         if (ammogiven or 0) <= 0 then return end
-        ammogiven = ammogiven * self.AmmoMult * GetConVar("dzents_ammo_mult"):GetFloat()
+        ammogiven = ammogiven * self.AmmoMult * DZ_ENTS.ConVars["ammo_mult"]:GetFloat()
 
         -- adjust ammo given with box cost ("efficiency" of each use) and store fractional boxes
         local adjustedammo = ammogiven / self.BoxCost
@@ -80,7 +80,7 @@ if SERVER then
 
         -- see if we are reaching ammo limit
         local max = 9999
-        local limit = GetConVar("dzents_ammo_limit"):GetFloat()
+        local limit = DZ_ENTS.ConVars["ammo_limit"]:GetFloat()
         if limit > 0 then
             if swcs and wep.IsSWCSWeapon and GetConVar("swcs_weapon_individual_ammo") and GetConVar("swcs_weapon_individual_ammo"):GetBool() and wep.GetReserveAmmo then
                 max = math.ceil(wep:GetPrimaryReserveMax() * limit)
@@ -151,10 +151,10 @@ if SERVER then
                 net.WriteUInt(box, 6)
             net.Send(ply)
 
-            if GetConVar("dzents_ammo_regen"):GetBool() then
-                local partial = GetConVar("dzents_ammo_regen_partial"):GetBool() and self.MaxBoxCount or 1
-                self:SetRegenTime(CurTime() + GetConVar("dzents_ammo_regen_delay"):GetFloat() / partial)
-            elseif GetConVar("dzents_ammo_cleanup"):GetBool() and self:GetBoxes() == 0 then
+            if DZ_ENTS.ConVars["ammo_regen"]:GetBool() then
+                local partial = DZ_ENTS.ConVars["ammo_regen_partial"]:GetBool() and self.MaxBoxCount or 1
+                self:SetRegenTime(CurTime() + DZ_ENTS.ConVars["ammo_regen_delay"]:GetFloat() / partial)
+            elseif DZ_ENTS.ConVars["ammo_cleanup"]:GetBool() and self:GetBoxes() == 0 then
                 self:MarkForRemove(3)
             end
         end
@@ -162,8 +162,8 @@ if SERVER then
 
     function ENT:Think()
         if self:GetRegenTime() > 0 and self:GetRegenTime() <= CurTime() then
-            if GetConVar("dzents_ammo_regen_partial"):GetBool() and self:GetBoxes() + 1 < self.MaxBoxCount then
-                self:SetRegenTime(CurTime() + GetConVar("dzents_ammo_regen_delay"):GetFloat() / self.MaxBoxCount)
+            if DZ_ENTS.ConVars["ammo_regen_partial"]:GetBool() and self:GetBoxes() + 1 < self.MaxBoxCount then
+                self:SetRegenTime(CurTime() + DZ_ENTS.ConVars["ammo_regen_delay"]:GetFloat() / self.MaxBoxCount)
                 self:SetBoxes(self:GetBoxes() + 1)
             else
                 self:SetRegenTime(0)
