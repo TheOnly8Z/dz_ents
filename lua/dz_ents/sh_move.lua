@@ -81,7 +81,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
         local pending = ply.DZ_ENTS_ParachutePending
         if (pending or mv:KeyDown(IN_JUMP)) and ply:GetMoveType() == MOVETYPE_WALK
                 and not ply:IsOnGround() and ply:WaterLevel() == 0 and not ply:GetNWBool("DZ_Ents.Para.Open") and (ply.DZ_ENTS_NextParachute or 0) < CurTime() then
-            if ply:GetVelocity().z < -DZ_ENTS.ConVars["parachute_threshold"]:GetFloat() then
+            if ply:GetVelocity().z < -DZ_ENTS.ConVars["parachute_threshold"]:GetFloat() or (ply.DZ_ENTS_ParachutePending and (ply.DZ_ENTS_NextParachute or 0) < CurTime()) then
                 ply:SetNWBool("DZ_Ents.Para.Open", true)
                 ply:SetNWBool("DZ_Ents.Para.Consume", true)
                 ply:SetNWBool("DZ_Ents.Para.Auto", false)
@@ -105,6 +105,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
                         ply:EmitSound("DZ_ENTS.ParachuteOpen")
                     end
                     ply.DZ_ENTS_ParachutePending = true
+                    ply.DZ_ENTS_NextParachute = CurTime() + 0.4
                 end
             end
         elseif ply:GetNWBool("DZ_Ents.Para.Open") and mv:KeyPressed(IN_JUMP) and DZ_ENTS.ConVars["parachute_detach"]:GetBool() then
