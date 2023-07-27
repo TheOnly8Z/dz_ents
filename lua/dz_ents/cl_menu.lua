@@ -151,6 +151,12 @@ local function menu_cases(panel)
         command = "dzents_case_reinforced"
     })
     panel:ControlHelp("Reinforced cases cannot be damaged by unarmed attacks.")
+    panel:AddControl("checkbox", {
+        label = "Shrink cases",
+        command = "dzents_case_shrink"
+    })
+    panel:ControlHelp("Make cases smaller and disable player collision.")
+
     panel:AddControl("slider", {
         label = "Case health",
         command = "dzents_case_health",

@@ -78,6 +78,9 @@ if SERVER then
     function ENT:AllowMarkedRemove()
         return true
     end
+else
+    function ENT:Initialize()
+    end
 end
 
 function ENT:CanProperty(ply, prop)

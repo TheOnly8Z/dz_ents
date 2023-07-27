@@ -23,6 +23,7 @@ DZ_ENTS.ConVars["case_health"]          = CreateConVar("dzents_case_health", 1, 
 DZ_ENTS.ConVars["case_gib"]             = CreateConVar("dzents_case_gib", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Configure gib settings. 0 - no gibs; 1 - client gibs; 2 - server gibs", 0, 2)
 DZ_ENTS.ConVars["case_userdef"]         = CreateConVar("dzents_case_userdef", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY, "Use user-defined category whitelist.", 0, 1)
 DZ_ENTS.ConVars["case_cleanup"]         = CreateConVar("dzents_case_cleanup", 300, FCVAR_ARCHIVE, "Timer for removing items dropped by cases. 0 or 1- never remove.", 0)
+DZ_ENTS.ConVars["case_shrink"]          = CreateConVar("dzents_case_shrink", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Shrink the size or all cases and disables player collision.", 0, 1)
 
 
 

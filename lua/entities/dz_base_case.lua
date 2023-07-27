@@ -15,6 +15,8 @@ ENT.MaxHealth = 60
 ENT.Reinforced = false
 ENT.Center = nil
 
+ENT.ShrinkScale = 0.75
+
 local punchsounds = {
     "dz_ents/metal_vent_impact_02.wav",
     "dz_ents/metal_vent_impact_03.wav",
@@ -27,7 +29,14 @@ DEFINE_BASECLASS(ENT.Base)
 if SERVER then
 
     function ENT:Initialize()
+
         BaseClass.Initialize(self)
+
+        if DZ_ENTS.ConVars["case_shrink"]:GetBool() then
+            self:SetModelScale(self.ShrinkScale, 0)
+            self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+        end
+        self:Activate()
 
         local max = math.ceil(self.MaxHealth * DZ_ENTS.ConVars["case_health"]:GetFloat())
         self:SetMaxHealth(max)
@@ -142,6 +151,15 @@ if SERVER then
         end
     end
 else
+    function ENT:Initialize()
+        BaseClass.Initialize(self)
+
+        if DZ_ENTS.ConVars["case_shrink"]:GetBool() then
+            self:SetModelScale(self.ShrinkScale, 0.0001)
+        end
+    end
+
+
     function ENT:Draw()
         self:DrawModel()
     end
