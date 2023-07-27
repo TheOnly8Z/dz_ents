@@ -694,15 +694,9 @@ end
 
 function DZ_ENTS:GetCrateDrop(crate_class)
 
-    if DZ_ENTS.InUserDefList("case_whitelisted", crate_class) then
-        if DZ_ENTS.CountUserDefList(crate_class) > 0 then
-            local tbl = DZ_ENTS.UserDefLists[crate_class]
-            return tbl[math.random(1, #tbl)]
-        else
-            local printname = scripted_ents.Get(crate_class).PrintName or crate_class
-            PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] " .. printname .. " has Custom Drops enabled but no entries set. Disabling.")
-            DZ_ENTS.RemoveFromUserDefList("case_whitelisted", crate_class)
-        end
+    if DZ_ENTS.CountUserDefList(crate_class) > 0 then
+        local tbl = DZ_ENTS.UserDefLists[crate_class]
+        return tbl[math.random(1, #tbl)]
     end
 
     local loot_type = DZ_ENTS.CrateContents[crate_class]

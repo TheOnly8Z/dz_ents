@@ -841,10 +841,6 @@ local function makemenu_case_whitelist(list_name)
         DZ_ENTS.Menu_Case_WhiteList:Remove()
     end
 
-    net.Start("dz_ents_listrequest")
-        net.WriteString("case_whitelisted")
-    net.SendToServer()
-
     local spawnmenu_border = GetConVar("spawnmenu_border")
     local MarginX = math.Clamp((ScrW() - 1024) * math.max(0.1, spawnmenu_border:GetFloat()), 25, 256)
     local MarginY = math.Clamp((ScrH() - 768) * math.max(0.1, spawnmenu_border:GetFloat()), 25, 256)
@@ -886,9 +882,8 @@ local function makemenu_case_whitelist(list_name)
     label1:SetFont("dz_ents_menu_bold")
     label1.Think = function(self)
         if list_name then
-            local on = DZ_ENTS.InUserDefList("case_whitelisted", list_name)
-            self:SetText(scripted_ents.Get(list_name).PrintName .. ": " .. (on and "ENABLED" or "DISABLED"))
-            self:SetColor(on and Color(100, 255, 100) or Color(255, 100, 100))
+            self:SetText(scripted_ents.Get(list_name).PrintName .. (changed_lists[list_name] and " (Unsaved Changes)" or ""))
+            self:SetColor(changed_lists[list_name] and Color(255, 200, 100) or color_white)
         end
     end
 
@@ -900,7 +895,7 @@ local function makemenu_case_whitelist(list_name)
         if list_name then
             local c = DZ_ENTS.CountUserDefList(list_name)
             self:SetText("Selected drops: " .. c)
-            self:SetColor(c > 0 and Color(100, 255, 100) or Color(255, 100, 100))
+            self:SetColor(c > 0 and color_white or Color(255, 100, 100))
         end
     end
 
@@ -1008,7 +1003,7 @@ local function makemenu_case_whitelist(list_name)
             local oldp = icon.Paint
             icon.Paint = function(self, w, h)
                 if DZ_ENTS.InUserDefList(list_name, WeaponTable.ClassName) then
-                    if DZ_ENTS.InUserDefList("case_whitelisted", list_name) then
+                    if not changed_lists[list_name] then
                         draw.RoundedBox(4, 0, 0, w, h, Color(0, 200, 0, 100))
                     else
                         draw.RoundedBox(4, 0, 0, w, h, Color(255, 175, 0, 100))
@@ -1061,7 +1056,7 @@ local function makemenu_case_whitelist(list_name)
             oldp(self, w, h)
 
             surface.SetDrawColor(255, 255, 255)
-            if DZ_ENTS.InUserDefList("case_whitelisted", k) then
+            if DZ_ENTS.CountUserDefList(k) > 0 then
                 surface.SetMaterial(icon16_tick)
             else
                 surface.SetMaterial(icon16_cross)
@@ -1079,17 +1074,6 @@ local function makemenu_case_whitelist(list_name)
         function icon.OpenMenu(self)
             local newmenu = DermaMenu()
             newmenu:AddOption( "#spawnmenu.menu.copy", function() SetClipboardText(self:GetSpawnName()) end):SetIcon( "icon16/page_copy.png" )
-            if DZ_ENTS.InUserDefList("case_whitelisted", k) then
-                newmenu:AddOption( "Disable Custom Drops for \"" .. case.PrintName .. "\"", function()
-                    DZ_ENTS.RemoveFromUserDefList("case_whitelisted", k)
-                    dirty = true
-                end):SetIcon("icon16/table_delete.png")
-            else
-                newmenu:AddOption("Enable Custom Drops for \"" .. case.PrintName .. "\"", function()
-                    DZ_ENTS.AddToUserDefList("case_whitelisted", k)
-                    dirty = true
-                end):SetIcon("icon16/table_add.png")
-            end
             newmenu:AddOption("Add all weapons to case", function()
                 for _, tbl in pairs(list.Get("Weapon")) do
                     DZ_ENTS.AddToUserDefList(list_name, tbl.ClassName)
@@ -1122,7 +1106,6 @@ local function makemenu_case_whitelist(list_name)
         end
         changed_lists = {}
         dirty = false
-        DZ_ENTS.WriteUserDefList("case_whitelisted")
     end
 
 end
