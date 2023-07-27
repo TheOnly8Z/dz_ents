@@ -615,7 +615,7 @@ function DZ_ENTS:GetLootType(loot_type)
             end
         end
 
-        -- Try to put fallback entities in as long as they match user whitelist
+        -- Try to put fallback entities in as long as they match category filter
         for _, class in ipairs(lt.fallback or {}) do
             local tbl = weapons.Get(class)
             if tbl and (not DZ_ENTS.ConVars["case_userdef"]:GetBool() or (DZ_ENTS.UserDefListsDict["case_category"] and DZ_ENTS.UserDefListsDict["case_category"][tbl.Category])) then
@@ -693,6 +693,18 @@ if SERVER then
 end
 
 function DZ_ENTS:GetCrateDrop(crate_class)
+
+    if DZ_ENTS.InUserDefList("case_whitelisted", crate_class) then
+        if DZ_ENTS.CountUserDefList(crate_class) > 0 then
+            local tbl = DZ_ENTS.UserDefLists[crate_class]
+            return tbl[math.random(1, #tbl)]
+        else
+            local printname = scripted_ents.Get(crate_class).PrintName or crate_class
+            PrintMessage(HUD_PRINTTALK, "[DZ_ENTS] " .. printname .. " has Custom Drops enabled but no entries set. Disabling.")
+            DZ_ENTS.RemoveFromUserDefList("case_whitelisted", crate_class)
+        end
+    end
+
     local loot_type = DZ_ENTS.CrateContents[crate_class]
     if istable(DZ_ENTS.CrateContents[crate_class]) then
         local rng = math.random() * DZ_ENTS.CrateContentWeight[crate_class]

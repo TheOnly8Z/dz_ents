@@ -31,6 +31,14 @@ player_manager.AddValidHands( "CS:GO Phoenix Heavy Enhanced", "models/arachnit/c
 DZ_ENTS.UserDefLists = {}
 DZ_ENTS.UserDefListsDict = {}
 
+function DZ_ENTS.InUserDefList(list_name, entry)
+    return DZ_ENTS.UserDefListsDict[list_name] ~= nil and DZ_ENTS.UserDefListsDict[list_name][entry] ~= nil
+end
+
+function DZ_ENTS.CountUserDefList(list_name)
+    return DZ_ENTS.UserDefLists[list_name] and #DZ_ENTS.UserDefLists[list_name] or 0
+end
+
 function DZ_ENTS.AddToUserDefList(list_name, entry)
     DZ_ENTS.UserDefLists[list_name] = DZ_ENTS.UserDefLists[list_name] or {}
     DZ_ENTS.UserDefListsDict[list_name] = DZ_ENTS.UserDefListsDict[list_name] or {}

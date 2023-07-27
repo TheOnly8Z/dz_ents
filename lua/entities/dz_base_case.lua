@@ -140,3 +140,17 @@ else
         return
     end
 end
+
+properties.Add("dz_custom_drops", {
+    MenuLabel = "Configure Custom Drops",
+    Order = 1,
+    MenuIcon = "icon16/table_gear.png",
+    Filter = function(self, ent, ply)
+        if not IsValid(ent) or not DZ_ENTS.CrateContents[ent:GetClass()] or not ply:IsAdmin() then return false end
+        if not gamemode.Call("CanProperty", ply, "dz_custom_drops", ent) then return false end
+        return true
+    end, -- A function that determines whether an entity is valid for this property
+    Action = function(self, ent)
+        RunConsoleCommand("cl_dzents_menu_case_whitelist", ent:GetClass())
+    end,
+})

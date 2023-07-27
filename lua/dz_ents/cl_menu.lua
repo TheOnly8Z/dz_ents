@@ -176,7 +176,7 @@ local function menu_cases(panel)
 
     local btn = vgui.Create("DButton")
     btn:Dock(TOP)
-    btn:SetText("Case Category Whitelist")
+    btn:SetText("Case Category Filter")
     function btn.DoClick(self)
         if LocalPlayer():IsAdmin() then
             RunConsoleCommand("cl_dzents_menu_case_category")
@@ -186,7 +186,21 @@ local function menu_cases(panel)
         end
     end
     panel:AddPanel(btn)
-    panel:ControlHelp("Use the menu to select categories and toggle the whitelist.\nWhen enabled, cases will only spawn weapons from the whitelisted categories.")
+    panel:ControlHelp("Use the menu to select categories and toggle the filter.\nWhen enabled, cases will only spawn weapons from the whitelisted categories.\nDoes not apply when the case has Custom Drops enabled.")
+
+    local btn2 = vgui.Create("DButton")
+    btn2:Dock(TOP)
+    btn2:SetText("Case Custom Drops")
+    function btn2.DoClick(self)
+        if LocalPlayer():IsAdmin() then
+            RunConsoleCommand("cl_dzents_menu_case_whitelist")
+        else
+            notification.AddLegacy("This is admin only!", NOTIFY_ERROR, 3)
+            surface.PlaySound("buttons/button10.wav")
+        end
+    end
+    panel:AddPanel(btn2)
+    panel:ControlHelp("Use the menu to select specific weapons for each case.\nRight click the case and enable custom drops for it, then select weapons it should spawn.")
 
 end
 
@@ -657,7 +671,7 @@ local function makemenu_case_category()
     local cb = vgui.Create("DCheckBoxLabel", DZ_ENTS.Menu_Case_Category)
     cb:Dock(TOP)
     cb:DockMargin(8, 4, 8, 4)
-    cb:SetText("Enable Case Category Whitelist")
+    cb:SetText("Enable Case Category Filter")
     cb:SetFont("dz_ents_menu_bold")
     cb:SetValue(DZ_ENTS.ConVars["case_userdef"]:GetBool())
     function cb.OnChange(self, val)
@@ -755,7 +769,7 @@ local function makemenu_case_category()
                 apply:SetText("Apply Changes")
             end
         end
-        function cbox.DoClick(self, val)
+        function cbox.DoClick(self)
             if last_mouse_held_val == nil then
                 self:Toggle()
             end
@@ -817,14 +831,21 @@ end
 concommand.Add("cl_dzents_menu_case_category", makemenu_case_category)
 
 DZ_ENTS.Menu_Case_WhiteList = DZ_ENTS.Menu_Case_WhiteList or nil
---[[]
-local spawnmenu_border = GetConVar("spawnmenu_border")
+
+local icon16_tick = Material("icon16/tick.png")
+local icon16_cross = Material("icon16/cross.png")
+
 local function makemenu_case_whitelist(list_name)
     if not LocalPlayer():IsAdmin() then return end
     if DZ_ENTS.Menu_Case_WhiteList then
         DZ_ENTS.Menu_Case_WhiteList:Remove()
     end
 
+    net.Start("dz_ents_listrequest")
+        net.WriteString("case_whitelisted")
+    net.SendToServer()
+
+    local spawnmenu_border = GetConVar("spawnmenu_border")
     local MarginX = math.Clamp((ScrW() - 1024) * math.max(0.1, spawnmenu_border:GetFloat()), 25, 256)
     local MarginY = math.Clamp((ScrH() - 768) * math.max(0.1, spawnmenu_border:GetFloat()), 25, 256)
     if ScrW() < 1024 or ScrH() < 768 then
@@ -832,8 +853,11 @@ local function makemenu_case_whitelist(list_name)
         MarginY = 0
     end
 
+    local changed_lists = {}
+    local dirty = false
+
     DZ_ENTS.Menu_Case_WhiteList = vgui.Create("DFrame")
-    DZ_ENTS.Menu_Case_WhiteList:SetTitle("Danger Zone Case Whitelist")
+    DZ_ENTS.Menu_Case_WhiteList:SetTitle("Danger Zone Case Custom Drops")
     DZ_ENTS.Menu_Case_WhiteList:Dock(FILL)
     DZ_ENTS.Menu_Case_WhiteList:DockPadding( 0, 0, 0, 0 )
     DZ_ENTS.Menu_Case_WhiteList:DockMargin( MarginX, MarginY, MarginX, MarginY )
@@ -842,10 +866,268 @@ local function makemenu_case_whitelist(list_name)
     DZ_ENTS.Menu_Case_WhiteList:Center()
     DZ_ENTS.Menu_Case_WhiteList:MakePopup()
 
+    local bottombar = vgui.Create("DPanel", DZ_ENTS.Menu_Case_WhiteList)
+    bottombar:SetTall(128 + 16)
+    bottombar:Dock(BOTTOM)
+    bottombar:DockMargin(4, 4, 4, 4)
+    bottombar.Paint = function(self, w, h)
+        surface.SetDrawColor(0, 0, 0, 50)
+        surface.DrawRect(0, 0, w, h)
+    end
+
+    local rightbox = vgui.Create("DPanel", bottombar)
+    rightbox:SetWide(256)
+    rightbox:Dock(RIGHT)
+    rightbox.Paint = function() end
+
+    local label1 = vgui.Create("DLabel", rightbox)
+    label1:Dock(TOP)
+    label1:DockMargin(8, 16, 8, 4)
+    label1:SetFont("dz_ents_menu_bold")
+    label1.Think = function(self)
+        if list_name then
+            local on = DZ_ENTS.InUserDefList("case_whitelisted", list_name)
+            self:SetText(scripted_ents.Get(list_name).PrintName .. ": " .. (on and "ENABLED" or "DISABLED"))
+            self:SetColor(on and Color(100, 255, 100) or Color(255, 100, 100))
+        end
+    end
+
+    local label2 = vgui.Create("DLabel", rightbox)
+    label2:Dock(TOP)
+    label2:DockMargin(8, 0, 8, 4)
+    label2:SetFont("dz_ents_menu_bold")
+    label2.Think = function(self)
+        if list_name then
+            local c = DZ_ENTS.CountUserDefList(list_name)
+            self:SetText("Selected drops: " .. c)
+            self:SetColor(c > 0 and Color(100, 255, 100) or Color(255, 100, 100))
+        end
+    end
+
+    local apply = vgui.Create("DButton", rightbox)
+    apply:SetWide(256)
+    apply:Dock(FILL)
+    apply:DockMargin(16, 8, 16, 16)
+    apply:SetText("Apply Changes")
+    apply:SetFont("dz_ents_menu_bold")
+    apply:SetContentAlignment(5)
+    apply.Think = function(self)
+        if dirty and not self:IsEnabled() then
+            self:SetEnabled(true)
+        elseif not dirty and self:IsEnabled() then
+            self:SetEnabled(false)
+        end
+    end
+
+    local scroll = vgui.Create("DHorizontalScroller", bottombar) -- DScrollPanel
+    scroll:SetTall(128)
+    scroll:Dock(FILL)
+    scroll:DockMargin(4, 8, 4, 8)
+    scroll.Paint = function(self, w, h)
+        draw.RoundedBox(4, 0, 0, w, h, Color(0, 0, 0, 100))
+    end
+
+    -- local cases = vgui.Create("DIconLayout", scroll)
+    -- cases:SetTall(128)
+    -- cases:Dock(TOP)
+    -- cases:DockMargin(0, 0, 0, 0)
+    -- cases:SetLayoutDir(LEFT)
+
+    local propscroll = vgui.Create("DScrollPanel", DZ_ENTS.Menu_Case_WhiteList)
+    propscroll:Dock(FILL)
+    propscroll:DockMargin(16, 24, 16, 16)
+
+    local proppanel = vgui.Create("DTileLayout", propscroll:GetCanvas())
+    proppanel:Dock(FILL)
+
+    local Categorised = {}
+
+    for k, weapon in pairs(list.Get("Weapon")) do
+        if not weapon.Spawnable then continue end
+        local cat = weapon.Category or "Other"
+
+        if not isstring(cat) then
+            cat = tostring(cat)
+        end
+
+        Categorised[cat] = Categorised[cat] or {}
+        table.insert(Categorised[cat], weapon)
+    end
+    -- for k, entity in pairs(list.Get("SpawnableEntities")) do
+    --     local cat = entity.Category or "Other"
+
+    --     if not isstring(cat) then
+    --         cat = tostring(cat)
+    --     end
+
+    --     Categorised[cat] = Categorised[cat] or {}
+    --     table.insert(Categorised[cat], entity)
+    -- end
+
+    for CategoryName, v in SortedPairs(Categorised) do
+        local Header = vgui.Create("ContentHeader", proppanel)
+        Header:SetText(CategoryName)
+        proppanel:Add(Header)
+
+        for k, WeaponTable in SortedPairsByMemberValue(v, "PrintName") do
+            if WeaponTable.AdminOnly and not LocalPlayer():IsAdmin() then continue end
+            local icon = vgui.Create("ContentIcon", proppanel)
+            icon:SetMaterial(WeaponTable.IconOverride or "entities/" .. WeaponTable.ClassName .. ".png")
+            icon:SetName(WeaponTable.PrintName or "#" .. WeaponTable.ClassName)
+            icon:SetAdminOnly(WeaponTable.AdminOnly or false)
+
+            function icon.DoClick(self)
+                if last_mouse_held_val == nil then
+                    if not DZ_ENTS.InUserDefList(list_name, WeaponTable.ClassName) then
+                        DZ_ENTS.AddToUserDefList(list_name, WeaponTable.ClassName)
+                    else
+                        DZ_ENTS.RemoveFromUserDefList(list_name, WeaponTable.ClassName)
+                    end
+                    changed_lists[list_name] = true
+                    dirty = true
+                end
+            end
+
+            function icon.Think(self)
+                if input.IsMouseDown(MOUSE_LEFT) and self:IsHovered() then
+                    if last_mouse_held_val == nil then
+                        last_mouse_held_val = DZ_ENTS.InUserDefList(list_name, WeaponTable.ClassName)
+                        changed_lists[list_name] = true
+                        dirty = true
+                    end
+                    if not last_mouse_held_val then
+                        DZ_ENTS.AddToUserDefList(list_name, WeaponTable.ClassName)
+                    else
+                        DZ_ENTS.RemoveFromUserDefList(list_name, WeaponTable.ClassName)
+                    end
+                elseif not input.IsMouseDown(MOUSE_LEFT) and last_mouse_held_val ~= nil then
+                    last_mouse_held_val = nil
+                end
+            end
+
+            local oldp = icon.Paint
+            icon.Paint = function(self, w, h)
+                if DZ_ENTS.InUserDefList(list_name, WeaponTable.ClassName) then
+                    if DZ_ENTS.InUserDefList("case_whitelisted", list_name) then
+                        draw.RoundedBox(4, 0, 0, w, h, Color(0, 200, 0, 100))
+                    else
+                        draw.RoundedBox(4, 0, 0, w, h, Color(255, 175, 0, 100))
+                    end
+                end
+                oldp(self, w, h)
+            end
+
+            function icon.OpenMenu(self)
+                local newmenu = DermaMenu()
+                newmenu:AddOption( "#spawnmenu.menu.copy", function() SetClipboardText(self:GetSpawnName()) end):SetIcon( "icon16/page_copy.png" )
+                newmenu:AddOption( "Add all from \"" .. CategoryName .. "\"", function()
+                    for _, tbl in pairs(v) do
+                        DZ_ENTS.AddToUserDefList(list_name, tbl.ClassName)
+                    end
+                    changed_lists[list_name] = true
+                    dirty = true
+                end):SetIcon("icon16/add.png")
+                newmenu:AddOption( "Remove all from \"" .. CategoryName .. "\"", function()
+                    for _, tbl in pairs(v) do
+                        DZ_ENTS.RemoveFromUserDefList(list_name, tbl.ClassName)
+                    end
+                    changed_lists[list_name] = true
+                    dirty = true
+                end):SetIcon("icon16/delete.png")
+
+                newmenu:Open()
+            end
+
+            proppanel:Add(icon)
+
+        end
+    end
+
+    for k, v in SortedPairs(DZ_ENTS.CrateContents) do
+
+        DZ_ENTS.ClearUserDefList(k) -- don't remember unsaved local changes
+
+        local case = scripted_ents.Get(k)
+        local icon = vgui.Create("ContentIcon", scroll)
+        icon:SetMaterial(case.IconOverride or "entities/" .. case.ClassName .. ".png")
+        icon:SetName(case.PrintName or "#" .. case.ClassName)
+        icon:SetAdminOnly(case.AdminOnly or false)
+
+        local oldp = icon.Paint
+        icon.Paint = function(self, w, h)
+            if list_name == k then
+                draw.RoundedBox(4, 0, 0, w, h, Color(200, 200, 200, 100))
+            end
+            oldp(self, w, h)
+
+            surface.SetDrawColor(255, 255, 255)
+            if DZ_ENTS.InUserDefList("case_whitelisted", k) then
+                surface.SetMaterial(icon16_tick)
+            else
+                surface.SetMaterial(icon16_cross)
+            end
+            surface.DrawTexturedRect(w - self.Border - 24, self.Border + 8, 16, 16)
+        end
+        icon.DoClick = function()
+            list_name = k
+            if DZ_ENTS.UserDefLists[list_name] == nil or DZ_ENTS.UserDefLists[list_name] == {} then
+                net.Start("dz_ents_listrequest")
+                    net.WriteString(list_name)
+                net.SendToServer()
+            end
+        end
+        function icon.OpenMenu(self)
+            local newmenu = DermaMenu()
+            newmenu:AddOption( "#spawnmenu.menu.copy", function() SetClipboardText(self:GetSpawnName()) end):SetIcon( "icon16/page_copy.png" )
+            if DZ_ENTS.InUserDefList("case_whitelisted", k) then
+                newmenu:AddOption( "Disable Custom Drops for \"" .. case.PrintName .. "\"", function()
+                    DZ_ENTS.RemoveFromUserDefList("case_whitelisted", k)
+                    dirty = true
+                end):SetIcon("icon16/table_delete.png")
+            else
+                newmenu:AddOption("Enable Custom Drops for \"" .. case.PrintName .. "\"", function()
+                    DZ_ENTS.AddToUserDefList("case_whitelisted", k)
+                    dirty = true
+                end):SetIcon("icon16/table_add.png")
+            end
+            newmenu:AddOption("Add all weapons to case", function()
+                for _, tbl in pairs(list.Get("Weapon")) do
+                    DZ_ENTS.AddToUserDefList(list_name, tbl.ClassName)
+                end
+                changed_lists[list_name] = true
+                dirty = true
+            end):SetIcon("icon16/add.png")
+            newmenu:AddOption("Remove all weapons from case", function()
+                for _, tbl in pairs(list.Get("Weapon")) do
+                    DZ_ENTS.RemoveFromUserDefList(list_name, tbl.ClassName)
+                end
+                changed_lists[list_name] = true
+                dirty = true
+            end):SetIcon("icon16/delete.png")
+
+            newmenu:Open()
+        end
+
+        if list_name == "" or list_name == nil then
+            list_name = k
+        end
+
+        -- cases:Add(icon)
+        scroll:AddPanel(icon)
+    end
+
+    function apply.DoClick(self)
+        for k, _ in pairs(changed_lists) do
+            DZ_ENTS.WriteUserDefList(k)
+        end
+        changed_lists = {}
+        dirty = false
+        DZ_ENTS.WriteUserDefList("case_whitelisted")
+    end
+
 end
 
 concommand.Add("cl_dzents_menu_case_whitelist", function(ply, cmd, args, argstr)
     if not LocalPlayer():IsAdmin() then return end
     makemenu_case_whitelist(args[1] or "")
 end)
-]]
