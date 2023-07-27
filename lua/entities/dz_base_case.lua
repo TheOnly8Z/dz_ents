@@ -38,6 +38,8 @@ if SERVER then
         end
         self:Activate()
 
+        self:GetPhysicsObject():SetMass(75)
+
         local max = math.ceil(self.MaxHealth * DZ_ENTS.ConVars["case_health"]:GetFloat())
         self:SetMaxHealth(max)
         self:SetHealth(max)
