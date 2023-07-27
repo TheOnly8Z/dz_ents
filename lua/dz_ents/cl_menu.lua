@@ -856,6 +856,12 @@ local function makemenu_case_whitelist(list_name)
         MarginY = 0
     end
 
+    if list_name ~= nil and list_name ~= "" then
+        net.Start("dz_ents_listrequest")
+            net.WriteString(list_name)
+        net.SendToServer()
+    end
+
     local changed_lists = {}
     local dirty = false
 
