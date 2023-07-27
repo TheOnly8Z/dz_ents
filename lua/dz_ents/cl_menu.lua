@@ -958,6 +958,15 @@ local function makemenu_case_whitelist(list_name)
             cat = tostring(cat)
         end
 
+        local weptbl = weapons.Get(k)
+        if istable(weptbl) then
+            if weptbl.SubCategory then
+                cat = cat .. " - " .. weptbl.SubCategory
+            elseif weptbl.SubCatType then
+                cat = cat .. " - " .. string.sub(weptbl.SubCatType, 2)
+            end
+        end
+
         Categorised[cat] = Categorised[cat] or {}
         table.insert(Categorised[cat], weapon)
     end
