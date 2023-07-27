@@ -84,8 +84,8 @@ hook.Add("HUDPaint", "dz_ents_healthbar", function()
         surface.SetDrawColor(0, 0, 0, a * 200)
         surface.DrawRect(pos2d[k].x - w / 2 - edge, pos2d[k].y - h / 2 - edge, w + edge * 2, h + edge * 2)
 
-        local d1 = math.max(0, v[2] / k:GetMaxHealth())
-        local d2 = math.max(0, k:Health() / k:GetMaxHealth())
+        local d1 = math.Clamp(v[2] / k:GetMaxHealth(), 0, 1)
+        local d2 = math.Clamp(k:Health() / k:GetMaxHealth(), 0, 1)
         local w_diff = math.floor(w * d2)
 
         surface.SetDrawColor(240, 35, 20, a * 255)
