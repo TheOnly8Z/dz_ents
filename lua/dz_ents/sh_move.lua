@@ -93,7 +93,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
                     ply.DZ_ENTS_ParachuteSound = CreateSound(ply, "DZ_ENTS.ParachuteDeploy")
                     ply.DZ_ENTS_ParachuteSound:Play()
                 end
-            elseif ply.DZ_ENTS_ParachutePending == nil and ply:GetVelocity().z < 50 then
+            elseif ply.DZ_ENTS_ParachutePending == nil and ply:GetVelocity().z < 0 then
                 local tr = util.TraceHull({
                     start = ply:GetPos(),
                     endpos = ply:GetPos() - Vector(0, 0, 128),
@@ -162,18 +162,18 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
     elseif ply:GetNWBool("DZ_Ents.Para.Open") then
 
         local slowfall = DZ_ENTS.ConVars["parachute_fall"]:GetFloat()
-        local decel = slowfall * 5
+        local decel = gravity
 
         if ply:DZ_ENTS_HasHeavyArmor() then
             local grav = DZ_ENTS.ConVars["armor_heavy_gravity"]:GetFloat()
-            decel = decel * 0.75 * (1 + grav)
+            decel = decel * 0.75 * (1 + grav) + gravity
             slowfall = slowfall * (1 + grav)
         end
 
         if vel.z < -slowfall then
-            vel.z = math.Approach(vel.z, -slowfall, ft * (decel * Lerp(math.abs(vel.z) / 2500, 1, 5)))
+            vel.z = math.Approach(vel.z, -slowfall, ft * (decel * Lerp(math.abs(vel.z) / 2000, 1, 5)))
         else
-            vel.z = math.Approach(vel.z, -slowfall, ft * decel * 0.5)
+            vel.z = math.Approach(vel.z, -slowfall, ft * decel)
         end
 
         -- vel = vel + eyeangles:Forward() * 100 * ft
