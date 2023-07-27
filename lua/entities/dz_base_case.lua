@@ -35,6 +35,27 @@ if SERVER then
         self:PrecacheGibs()
     end
 
+    local function drop(self, class, pos)
+        local ent = ents.Create(class)
+        ent:SetPos(pos)
+        ent:SetAngles(self:GetAngles())
+        ent:Spawn()
+
+        if IsValid(ent:GetPhysicsObject()) then
+            ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + Vector(0, 0, 64) + VectorRand() * 32)
+        end
+
+        ent.DZENTS_Pickup = CurTime() + 1
+
+        if DZ_ENTS.ConVars["case_cleanup"]:GetFloat() > 1 then
+            timer.Simple(DZ_ENTS.ConVars["case_cleanup"]:GetFloat(), function()
+                if IsValid(ent) and not IsValid(ent:GetOwner()) then
+                    SafeRemoveEntity(ent)
+                end
+            end)
+        end
+    end
+
     function ENT:BreakAndDrop(force)
 
         -- prevent duplicate spawning
@@ -48,25 +69,14 @@ if SERVER then
             SafeRemoveEntity(self)
             return
         end
-        local ent = ents.Create(class)
-        if IsValid(ent) then
-            ent:SetPos(self.Center and self:LocalToWorld(self.Center) or self:WorldSpaceCenter())
-            ent:SetAngles(self:GetAngles())
-            ent:Spawn()
-
-            if IsValid(ent:GetPhysicsObject()) then
-                ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + Vector(0, 0, 64) + VectorRand() * 32)
+        local pos = self.Center and self:LocalToWorld(self.Center) or self:WorldSpaceCenter()
+        if string.find(class, "|") then
+            for i, v in pairs(string.Explode("|", class, false)) do
+                drop(self, v, pos)
+                pos = pos + Vector(0, 0, 4)
             end
-
-            ent.DZENTS_Pickup = CurTime() + 1
-
-            if DZ_ENTS.ConVars["case_cleanup"]:GetFloat() > 1 then
-                timer.Simple(DZ_ENTS.ConVars["case_cleanup"]:GetFloat(), function()
-                    if IsValid(ent) and not IsValid(ent:GetOwner()) then
-                        SafeRemoveEntity(ent)
-                    end
-                end)
-            end
+        else
+            drop(self, class, pos)
         end
 
         self:EmitSound("dz_ents/container_death_0" .. math.random(1, 3) .. ".wav", 80, math.Rand(97, 103), 1)
