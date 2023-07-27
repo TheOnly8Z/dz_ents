@@ -82,6 +82,9 @@ if SERVER then
         local max = 9999
         local limit = DZ_ENTS.ConVars["ammo_limit"]:GetFloat()
         if limit > 0 then
+            if engine.ActiveGamemode() == "terrortown" then
+                max = wep.Primary.ClipMax
+                adjustedammo = math.min(adjustedammo, max - ply:GetAmmoCount(ammotype))
             if swcs and wep.IsSWCSWeapon and GetConVar("swcs_weapon_individual_ammo") and GetConVar("swcs_weapon_individual_ammo"):GetBool() and wep.GetReserveAmmo then
                 max = math.ceil(wep:GetPrimaryReserveMax() * limit)
                 adjustedammo = math.min(adjustedammo, max - wep:GetReserveAmmo())
