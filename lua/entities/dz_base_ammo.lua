@@ -94,7 +94,9 @@ if SERVER then
                 adjustedammo = math.min(adjustedammo, max - ply:GetAmmoCount(ammotype))
             end
             if adjustedammo <= 0 then
-                DZ_ENTS:Hint(ply, 16)
+                if ply:GetAmmoCount(ammotype) >= max then
+                    DZ_ENTS:Hint(ply, 16)
+                end
                 return
             end
         end
