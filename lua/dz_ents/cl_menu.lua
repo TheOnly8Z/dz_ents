@@ -838,6 +838,7 @@ concommand.Add("cl_dzents_menu_case_category", makemenu_case_category)
 
 DZ_ENTS.Menu_Case_WhiteList = DZ_ENTS.Menu_Case_WhiteList or nil
 
+local icon16_help = Material("icon16/help.png")
 local icon16_tick = Material("icon16/tick.png")
 local icon16_cross = Material("icon16/cross.png")
 
@@ -888,8 +889,8 @@ local function makemenu_case_whitelist(list_name)
     label1:SetFont("dz_ents_menu_bold")
     label1.Think = function(self)
         if list_name then
-            self:SetText(scripted_ents.Get(list_name).PrintName .. (changed_lists[list_name] and " (Unsaved Changes)" or ""))
-            self:SetColor(changed_lists[list_name] and Color(255, 200, 100) or color_white)
+            self:SetText(scripted_ents.Get(list_name).PrintName .. (changed_lists[list_name] and " (Unsaved)" or ""))
+            self:SetColor(changed_lists[list_name] and Color(255, 255, 100) or color_white)
         end
     end
 
@@ -909,7 +910,7 @@ local function makemenu_case_whitelist(list_name)
     apply:SetWide(256)
     apply:Dock(FILL)
     apply:DockMargin(16, 8, 16, 16)
-    apply:SetText("Apply Changes")
+    apply:SetText("Save All Changes")
     apply:SetFont("dz_ents_menu_bold")
     apply:SetContentAlignment(5)
     apply.Think = function(self)
@@ -1057,12 +1058,17 @@ local function makemenu_case_whitelist(list_name)
         local oldp = icon.Paint
         icon.Paint = function(self, w, h)
             if list_name == k then
-                draw.RoundedBox(4, 0, 0, w, h, Color(200, 200, 200, 100))
+                draw.RoundedBox(4, 0, 0, w, h, Color(200, 200, 200, 200))
+            end
+            if changed_lists[k] then
+                draw.RoundedBox(4, 0, 0, w, h, Color(255, 200, 0, 75))
             end
             oldp(self, w, h)
 
             surface.SetDrawColor(255, 255, 255)
-            if DZ_ENTS.CountUserDefList(k) > 0 then
+            if DZ_ENTS.UserDefLists[k] == nil or DZ_ENTS.UserDefLists[k] == {} then
+                surface.SetMaterial(icon16_help)
+            elseif DZ_ENTS.CountUserDefList(k) > 0 then
                 surface.SetMaterial(icon16_tick)
             else
                 surface.SetMaterial(icon16_cross)
@@ -1100,6 +1106,9 @@ local function makemenu_case_whitelist(list_name)
 
         if list_name == "" or list_name == nil then
             list_name = k
+            net.Start("dz_ents_listrequest")
+                net.WriteString(list_name)
+            net.SendToServer()
         end
 
         -- cases:Add(icon)

@@ -87,7 +87,9 @@ function DZ_ENTS.ReadUserDefList(list_name)
         DZ_ENTS.UserDefListsDict[list_name][str] = true
     end
 
-    print("[DZ_ENTS] Received " .. len .. " entries for user defined list '" .. list_name .. "'.")
+    if GetConVar("developer"):GetInt() > 0 then
+        print("[DZ_ENTS] Received " .. len .. " entries for user defined list '" .. list_name .. "'.")
+    end
 end
 
 if SERVER then
