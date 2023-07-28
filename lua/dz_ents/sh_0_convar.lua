@@ -15,6 +15,8 @@ if CLIENT then
     CreateConVar("cl_dzents_hud_y", -30, FCVAR_ARCHIVE, "HUD Y position in screen scale units. Negative values start from below.")
 
     CreateConVar("cl_dzents_volume_hit", 0.75, FCVAR_ARCHIVE + FCVAR_USERINFO, "Hit sound volume (headshot/armor) when hitting other players.", 0, 1)
+
+    CreateConVar("cl_dzents_ttt_exojump", 1, FCVAR_USERINFO, "Toggles the ExoJump in TTT.", 0, 1)
 end
 
 -- Case
@@ -24,8 +26,6 @@ DZ_ENTS.ConVars["case_gib"]             = CreateConVar("dzents_case_gib", 1, FCV
 DZ_ENTS.ConVars["case_userdef"]         = CreateConVar("dzents_case_userdef", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY, "Use user-defined category whitelist.", 0, 1)
 DZ_ENTS.ConVars["case_cleanup"]         = CreateConVar("dzents_case_cleanup", 300, FCVAR_ARCHIVE, "Timer for removing items dropped by cases. 0 or 1- never remove.", 0)
 DZ_ENTS.ConVars["case_shrink"]          = CreateConVar("dzents_case_shrink", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Shrink the size or all cases and disables player collision.", 0, 1)
-
-
 
 -- Ammo
 DZ_ENTS.ConVars["ammo_clip"]            = CreateConVar("dzents_ammo_clip", 0, FCVAR_ARCHIVE, "Use clip size per ammo box instead of Danger Zone values.", 0, 1)

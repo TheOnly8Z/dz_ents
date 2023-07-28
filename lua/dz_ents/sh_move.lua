@@ -1,3 +1,5 @@
+local ttt = engine.ActiveGamemode() == "terrortown"
+
 sound.Add({
     name = "DZ_ENTS.ParachuteOpen",
     channel = CHAN_STATIC,
@@ -86,7 +88,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
                 ply:SetNWBool("DZ_Ents.Para.Consume", true)
                 ply:SetNWBool("DZ_Ents.Para.Auto", false)
                 if SERVER and not ply.DZ_ENTS_ParachutePending then
-                    ply:EmitSound("DZ_ENTS.ParachuteOpen")
+                    ply:EmitSound("DZ_ENTS.ParachuteOpen", 70)
                 end
                 ply.DZ_ENTS_ParachutePending = nil
                 if SERVER then
@@ -102,7 +104,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
                 })
                 if not tr.Hit then
                     if SERVER then
-                        ply:EmitSound("DZ_ENTS.ParachuteOpen")
+                        ply:EmitSound("DZ_ENTS.ParachuteOpen", 70)
                     end
                     ply.DZ_ENTS_ParachutePending = true
                     ply.DZ_ENTS_NextParachute = CurTime() + 0.4
@@ -226,7 +228,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
     local yawang = Angle(0, ply:GetAngles().y, 0)
     local horiz_max = DZ_ENTS.ConVars["exojump_runboost"]:GetBool() and 400 or ply:GetWalkSpeed()
 
-    if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) then
+    if ply:DZ_ENTS_HasEquipment(DZ_ENTS_EQUIP_EXOJUMP) and (engine.ActiveGamemode() ~= "terrortown" or ply:GetInfoNum("cl_dzents_ttt_exojump", 0) > 0) then
 
         if ply:KeyPressed(IN_JUMP) and ply:IsOnGround() and ply:GetMoveType() == MOVETYPE_WALK
                 and ply:GetNWFloat("DZ_Ents.ExoJump.BoostTime", 0) == 0 and not ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
@@ -239,7 +241,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
 
                 ply.DZ_ENTS_ExoSound = true
                 if SERVER then
-                    ply:EmitSound("dz_ents/jump_ability_long_01.wav", 75, ha and 95 or 100, 1)
+                    ply:EmitSound("dz_ents/jump_ability_long_01.wav", ttt and 60 or 75, ha and 95 or 100, 1)
                 end
 
                 local vec = movedir(yawang, cmd)
@@ -309,7 +311,7 @@ hook.Add("SetupMove", "zzz_dz_ents_move", function(ply, mv, cmd)
                 if vol == 1 or not ply:GetNWBool("DZ_Ents.ExoJump.BoostHeld") then
                     ply.DZ_ENTS_ExoSound = true
                     if SERVER then
-                        ply:EmitSound("dz_ents/jump_ability_01.wav", 65 + vol * 10, ha and 95 or 100, vol)
+                        ply:EmitSound("dz_ents/jump_ability_01.wav", ttt and 55 or (65 + vol * 10), ha and 95 or 100, vol)
                     end
                 end
             end

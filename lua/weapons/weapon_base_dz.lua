@@ -31,12 +31,21 @@ function SWEP:SetupDataTables()
     end
 end
 
-function SWEP:Ammo1()
-    return self:GetOwner():GetAmmoCount(self.Primary.Ammo)
+-- Bit of a hack, TTT doesn't like things with clip -1, but I like having the weapon not having a clip
+function SWEP:GetAmmo()
+    if engine.ActiveGamemode() == "terrortown" then
+        return self:Clip1()
+    else
+        return self:GetOwner():GetAmmoCount(self.Primary.Ammo)
+    end
 end
 
 function SWEP:TakePrimaryAmmo(amt)
-    self:GetOwner():RemoveAmmo(amt, self:GetPrimaryAmmoType())
+    if engine.ActiveGamemode() == "terrortown" then
+        self:SetClip1(self:Clip1() - amt)
+    else
+        self:GetOwner():RemoveAmmo(amt, self:GetPrimaryAmmoType())
+    end
 end
 
 function SWEP:RemoveAndSwitch()
@@ -89,7 +98,7 @@ function SWEP:Deploy()
 end
 
 function SWEP:Holster(nextWep)
-    if IsValid(self:GetOwner()) and self:Ammo1() <= 0 then
+    if IsValid(self:GetOwner()) and self:GetAmmo() <= 0 then
         if SERVER then
             self:Remove()
         end
@@ -99,8 +108,9 @@ function SWEP:Holster(nextWep)
 end
 
 function SWEP:Reload()
+    if engine.ActiveGamemode() == "terrortown" then return end
     local ply = self:GetOwner()
-    if ply:KeyPressed(IN_RELOAD) and self:Ammo1() > 0 then
+    if ply:KeyPressed(IN_RELOAD) and self:GetAmmo() > 0 then
 
         self:SetNextPrimaryFire(CurTime() + 0.75)
         ply:DoAnimationEvent(ACT_GMOD_GESTURE_ITEM_DROP)
@@ -132,7 +142,7 @@ function SWEP:Reload()
             end
         end
 
-        if self:Ammo1() <= 0 then
+        if self:GetAmmo() <= 0 then
             self:SetWeaponAnim(ACT_VM_IDLE)
             self:RemoveAndSwitch()
         else
@@ -190,4 +200,52 @@ function SWEP:SetWeaponAnim(idealAct, flPlaybackRate)
     -- Set the next time the weapon will idle
     self:SetWeaponIdleTime(CurTime() + (self:SequenceDuration() * flPlaybackRate))
     return true
+end
+
+--------------------------------------- TTT integration
+if engine.ActiveGamemode() ~= "terrortown" then return end
+
+SWEP.AutoSpawnable = false
+SWEP.AllowDrop = true
+SWEP.IsSilent = false
+
+function SWEP:PreDrop()
+end
+
+function SWEP:DampenDrop()
+    local phys = self:GetPhysicsObject()
+
+    if IsValid(phys) then
+        phys:SetVelocityInstantaneous(Vector(0, 0, -75) + phys:GetVelocity() * 0.001)
+        phys:AddAngleVelocity(phys:GetAngleVelocity() * -0.99)
+    end
+end
+
+function SWEP:IsEquipment()
+    return WEPS.IsEquipment(self)
+end
+
+function SWEP:OnRestore()
+end
+
+function SWEP:GetHeadshotMultiplier(victim, dmginfo)
+    return 1
+end
+
+--- TTT2 uses this to populate custom convars in the equip menu
+function SWEP:AddToSettingsMenu(parent)
+end
+
+function SWEP:Equip(newowner)
+    if SERVER then
+        if self:IsOnFire() then
+            self:Extinguish()
+        end
+
+        self.fingerprints = self.fingerprints or {}
+
+        if not table.HasValue(self.fingerprints, newowner) then
+            table.insert(self.fingerprints, newowner)
+        end
+    end
 end

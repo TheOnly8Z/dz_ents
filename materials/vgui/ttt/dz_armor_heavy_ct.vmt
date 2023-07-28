@@ -1,0 +1,5 @@
+"UnlitGeneric" 
+{ 
+    "$basetexture" "vgui/ttt/dz_armor_heavy_ct" 
+    "$translucent" 1 
+} 

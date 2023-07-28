@@ -1,0 +1,5 @@
+"UnlitGeneric" 
+{ 
+    "$basetexture" "vgui/ttt/weapon_dz_bumpmine" 
+    "$translucent" 1 
+} 

@@ -396,7 +396,7 @@ hook.Add("EntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo)
 
         -- Nasty. Do it late here and with a hard-coded fall damage check in case some other addon is doing their own fall damage thing.
         -- Don't want to mess with hook loading orders now, do we?
-        if not GetConVar("mp_falldamage"):GetBool() and dmginfo:GetDamage() == 10 and (
+        if engine.ActiveGamemode() ~= "terrortown" and not GetConVar("mp_falldamage"):GetBool() and dmginfo:GetDamage() == 10 and (
             (ply:DZ_ENTS_HasHeavyArmor() and DZ_ENTS.ConVars["armor_heavy_falldamage"]:GetBool())
             or (ply.DZENTS_BumpMine_Launched and DZ_ENTS.ConVars["bumpmine_damage_fall"]:GetFloat() > 0)) then
             -- SDK2013 damage calc. gets pretty close, the difference is probably related to velocity being a tick off or whatever

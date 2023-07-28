@@ -61,7 +61,7 @@ function SWEP:CanPrimaryAttack()
     if self:GetStimTime() > 0 or self:GetNextPrimaryFire() > CurTime() then return false end
     if ply:Health() >= ply:GetMaxHealth() and not DZ_ENTS.ConVars["healthshot_use_at_full"]:GetBool() then return false end
 
-    if self:Ammo1() <= 0 then
+    if self:GetAmmo() <= 0 and (self.StoredAmmo or 0) == 0 then
         self:RemoveAndSwitch()
         return false
     end
@@ -134,7 +134,7 @@ function SWEP:WeaponIdle()
     if self:GetWeaponIdleTime() > CurTime() then return end
 
     if self:GetStimmed() then
-        if self:Ammo1() <= 0 then
+        if self:GetAmmo() <= 0 then
             self:RemoveAndSwitch()
         else
             self:Deploy()
@@ -143,4 +143,26 @@ function SWEP:WeaponIdle()
         self:SetWeaponIdleTime(math.huge) -- it's looping anyways
         self:SetWeaponAnim(ACT_VM_IDLE)
     end
+end
+
+if engine.ActiveGamemode() == "terrortown" then
+
+    if CLIENT then
+        LANG.AddToLanguage("english", "dzents_healthshot_desc", [[
+Restores a portion of your health and provides a
+brief speed boost.]])
+    end
+
+    SWEP.Icon = "vgui/ttt/weapon_dz_healthshot"
+    SWEP.AutoSpawnable = false
+    SWEP.Kind = WEAPON_EQUIP2
+    SWEP.Slot = 7
+    SWEP.CanBuy = {ROLE_TRAITOR, ROLE_DETECTIVE}
+    SWEP.EquipMenuData = {
+        type = "Weapon",
+        desc = "dzents_healthshot_desc",
+    }
+
+    SWEP.Primary.ClipSize = 1
+    SWEP.Primary.DefaultClip = 1
 end
