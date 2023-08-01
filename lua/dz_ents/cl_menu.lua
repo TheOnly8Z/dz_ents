@@ -225,8 +225,17 @@ local function menu_armor(panel)
     })
     panel:ControlHelp("Damage not protected by CS:GO armor will be handled like HL2 logic. If disabled, armor will be ignored.")
     panel:AddControl("checkbox", {
-        label = "Helmet spark effect on hit",
+        label = "Helmet spark effect",
         command = "dzents_armor_eff_head"
+    })
+    panel:AddControl("checkbox", {
+        label = "Armor hit sound for others",
+        command = "dzents_armor_snd_world"
+    })
+    panel:ControlHelp("The shooter will always hear the hit sound effect.")
+    panel:AddControl("checkbox", {
+        label = "Unarmored headshot sound",
+        command = "dzents_armor_snd_dink"
     })
     panel:AddControl("slider", {
         label = "Damage taken",

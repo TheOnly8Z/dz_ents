@@ -564,27 +564,29 @@ hook.Add("PostEntityTakeDamage", "ZZZZZ_dz_ents_damage", function(ply, dmginfo, 
                 util.Effect("StunstickImpact", eff)
             end
         end
-    elseif hitgroup == HITGROUP_HEAD then
+    elseif DZ_ENTS.ConVars["armor_snd_dink"]:GetBool() and hitgroup == HITGROUP_HEAD then
         -- ply:EmitSound("dz_ents/headshot" .. math.random(1, 2) .. ".wav")
         snd = "dz_ents/headshot" .. math.random(1, 2) .. ".wav"
     end
 
     if snd then
         if shooter:IsPlayer() then
-            local filter = RecipientFilter()
-            filter:AddPAS(ply:GetPos())
-            filter:RemovePlayer(shooter)
-            local snd1 = CreateSound(ply, snd, filter)
-            snd1:SetSoundLevel(75)
-            snd1:PlayEx(0.75, 100)
-
-            if shooter:IsPlayer() then
-                local filter2 = RecipientFilter()
-                filter2:AddPlayer(shooter)
-                local snd2 = CreateSound(shooter, snd, filter2)
-                snd2:PlayEx(shooter:GetInfoNum("cl_dzents_volume_hit", 0.75), 100)
+            if DZ_ENTS.ConVars["armor_snd_world"]:GetBool() then
+                local filter = RecipientFilter()
+                filter:AddPAS(ply:GetPos())
+                filter:RemovePlayer(shooter)
+                local snd1 = CreateSound(ply, snd, filter)
+                snd1:SetSoundLevel(75)
+                snd1:PlayEx(0.75, 100)
             end
-        else
+
+            local filter2 = RecipientFilter()
+            filter2:AddPlayer(shooter)
+            if shooter.DZENTS_HitSound then shooter.DZENTS_HitSound:Stop() end
+            shooter.DZENTS_HitSound = CreateSound(shooter, snd, filter2)
+            shooter.DZENTS_HitSound:SetSoundLevel(75)
+            shooter.DZENTS_HitSound:PlayEx(shooter:GetInfoNum("cl_dzents_volume_hit", 0.75), 100)
+        elseif DZ_ENTS.ConVars["armor_snd_world"]:GetBool() then
             ply:EmitSound(snd, 75, 100, 0.75)
         end
     end
