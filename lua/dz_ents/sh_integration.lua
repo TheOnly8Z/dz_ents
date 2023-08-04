@@ -5,13 +5,12 @@ hook.Add("M_Hook_Mult_DrawTime", "dz_ents_integration", function(wep, data)
     end
 end)
 
--- hook.Add("ARC9_DeployTimeHook", "dz_ents_integration", function(wep, data)
---     local ply = wep:GetOwner()
---     if IsValid(ply) and ply:IsPlayer() and ply:DZ_ENTS_HasHeavyArmor() then
---         print(data)
---         return data / DZ_ENTS.ConVars["armor_heavy_deployspeed"]:GetFloat()
---     end
--- end)
+hook.Add("ARC9_DeployTimeHook", "dz_ents_integration", function(wep, data)
+    local ply = wep:GetOwner()
+    if IsValid(ply) and ply:IsPlayer() and ply:DZ_ENTS_HasHeavyArmor() then
+        return data / DZ_ENTS.ConVars["armor_heavy_deployspeed"]:GetFloat()
+    end
+end)
 
 hook.Add("TacRP_Stat_DeployTimeMult", "dz_ents_integration", function(wep, modifiers)
     local ply = wep:GetOwner()
