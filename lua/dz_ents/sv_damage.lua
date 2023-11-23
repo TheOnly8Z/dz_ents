@@ -327,6 +327,7 @@ end)
 
 hook.Add("HandlePlayerArmorReduction", "dz_ents_damage", function(ply, dmginfo)
     local uselogic = DZ_ENTS.ConVars["armor_enabled"]:GetInt()
+    if dmginfo:IsFallDamage() then return end
     if uselogic > 0 and (ply:DZ_ENTS_HasArmor() or ply:DZ_ENTS_HasHelmet()) then
         local hitgroup = ply:LastHitGroup()
         local blockable = bit.band(dmginfo:GetDamageType(), bitflags_blockable) ~= 0
