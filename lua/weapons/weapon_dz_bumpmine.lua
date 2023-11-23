@@ -82,6 +82,7 @@ function SWEP:PrimaryAttack()
             ent:SetAngles(self:GetOwner():EyeAngles() + AngleRand())
             ent:SetOwner(self:GetOwner())
             ent:Spawn()
+            ent:SetPhysicsAttacker(self:GetOwner(), 10) -- apparently you can kill people with the physics force of this. wow.
             local phys = ent:GetPhysicsObject()
             if IsValid(phys) then
                 phys:SetVelocityInstantaneous(self:GetOwner():GetAimVector() * 500 + self:GetOwner():GetVelocity())
