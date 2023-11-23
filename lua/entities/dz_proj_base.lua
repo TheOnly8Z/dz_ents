@@ -80,7 +80,10 @@ if SERVER then
         local adjustoffset = not livingthing and self.AdjustOffset and self:GetUp():Dot(normal) > 0.5
 
         -- Use the normal to place our center on the surface if possible
-        if v and not adjustoffset then
+        if livingthing then
+            normal = v * -1
+            debugoverlay.Line(pos, pos + v * 8, 5, Color(255, 0, 255), true)
+        elseif v and not adjustoffset then
             local wsc = self:WorldSpaceCenter()
             local tr = util.TraceLine({
                 start = wsc,
@@ -99,8 +102,6 @@ if SERVER then
                 normal = tr.HitNormal
                 ent = tr.Entity
             end
-        elseif livingthing then
-            normal = v * -1
         end
 
         self:SetOwner(NULL)

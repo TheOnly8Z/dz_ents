@@ -172,7 +172,7 @@ if SERVER then
 
             local dir = (v:GetPos() - origin):GetNormalized()
             if v == self:GetParent() then
-                dir = (v:WorldSpaceCenter() - self:GetPos() - self:GetUp() * 16):GetNormalized()
+                dir = -self:GetUp() --(v:WorldSpaceCenter() - self:GetPos() - self:GetUp() * 16):GetNormalized()
             end
 
             if v:GetClass() == self:GetClass() and v:GetArmed() then
@@ -192,8 +192,9 @@ if SERVER then
 
                     local fmult = 1
                     local umult = 1
+                    if v == self:GetParent() then umult = umult + 2 end
                     if v:IsPlayer() then
-                        if v:Crouching() then
+                        if v:Crouching() and v ~= self:GetParent() then
                             umult = 0
                         end
                         if v:DZ_ENTS_HasHeavyArmor() then
@@ -203,7 +204,6 @@ if SERVER then
                     else
                         umult = umult * 2
                     end
-                    if v == self:GetParent() then umult = umult + 1 end
 
                     v:SetGroundEntity(NULL)
                     v:SetVelocity(dir * force * fmult + Vector(0, 0, upadd * umult))
