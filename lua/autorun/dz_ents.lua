@@ -93,6 +93,3 @@ local function IncludeDir(dir)
 end
 
 IncludeDir(rootDir)
-
-list.Set( "ContentCategoryIcons", "CS:GO Equipment", "games/16/csgo.png" )
-list.Set( "ContentCategoryIcons", "Danger Zone", "dz_ents/icon_16.png" )

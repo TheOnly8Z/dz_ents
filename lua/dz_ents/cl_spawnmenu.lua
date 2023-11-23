@@ -106,3 +106,5 @@ hook.Add("PopulateEntities", "dz_ents", function(pnlContent, tree, anode)
         end
     end)
 end)
+
+list.Set( "ContentCategoryIcons", "Danger Zone", "dz_ents/icon_16.png" )
