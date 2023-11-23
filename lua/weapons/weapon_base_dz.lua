@@ -1,12 +1,12 @@
 AddCSLuaFile()
 
--- if DZ_ENTS.ConVars["equipment_swcs"]:GetBool() and swcs then
---     SWEP.Base = "weapon_swcs_base"
--- else
---     SWEP.Base = "weapon_base"
--- end
+if DZ_ENTS.ConVars["equipment_swcs"]:GetBool() and swcs then
+    SWEP.Base = "weapon_swcs_base"
+else
+    SWEP.Base = "weapon_base"
+end
 
-SWEP.Base = "weapon_base"
+-- SWEP.Base = "weapon_base"
 DEFINE_BASECLASS(SWEP.Base)
 
 SWEP.AmmoType = ""
@@ -151,6 +151,12 @@ function SWEP:Reload()
     end
 end
 
+function SWEP:EquipAmmo(ply)
+    if weapons.IsBasedOn(self:GetClass(), "weapon_swcs_base") then
+        ply:GiveAmmo(math.max(self:Clip1(), self.Primary.DefaultClip), self.Primary.Ammo)
+    end
+end
+
 SWEP.WepSelectIcon = Material("dz_ents/select/healthshot.png", "smooth")
 SWEP.WepSelectIconRatio = 1
 
@@ -171,6 +177,13 @@ function SWEP:DrawWeaponSelection(x, y, wide, tall, alpha)
     self:PrintWeaponInfo(x + wide + 20, y + tall * 0.95, alpha)
 end
 
+SWEP.AmmoDisplay = {}
+function SWEP:CustomAmmoDisplay()
+    self.AmmoDisplay.Draw = true
+    self.AmmoDisplay.PrimaryClip = self:GetAmmo()
+    self.AmmoDisplay.PrimaryAmmo = nil
+    return self.AmmoDisplay
+end
 --------------------------------------- Override/re-implement some SWCS stuff
 
 function SWEP:GetCustomDeploySpeed()

@@ -19,7 +19,7 @@ SWEP.Instructions = "Primary Attack: Throw\nReload: Drop"
 SWEP.Base = "weapon_base_dz"
 DEFINE_BASECLASS(SWEP.Base)
 
-SWEP.Category = "CS:GO Equipment"
+SWEP.Category = "Danger Zone"
 SWEP.Spawnable = true
 
 SWEP.SubCategory = "Equipment"
