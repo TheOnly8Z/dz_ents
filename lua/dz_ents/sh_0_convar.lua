@@ -47,6 +47,7 @@ DZ_ENTS.ConVars["armor_eff_head"]       = CreateConVar("dzents_armor_eff_head", 
 DZ_ENTS.ConVars["armor_eff_heavy"]      = CreateConVar("dzents_armor_eff_heavy", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Show a spark effect on hitting heavy armor.", 0, 1)
 DZ_ENTS.ConVars["armor_snd_dink"]       = CreateConVar("dzents_armor_snd_dink", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Play headshot sound on players without DZ armor.", 0, 1)
 DZ_ENTS.ConVars["armor_snd_world"]      = CreateConVar("dzents_armor_snd_world", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED, "Play kevlar/helmet impact sound effect for everyone.", 0, 1)
+DZ_ENTS.ConVars["armor_helmet_amt"]     = CreateConVar("dzents_armor_helmet_amt", 10, FCVAR_ARCHIVE, "Picking up an extra helmet gives this much armor. 0 - cannot pick up.", 0)
 
 DZ_ENTS.ConVars["armor_heavy_damage"]       = CreateConVar("dzents_armor_heavy_damage", 0.85, FCVAR_ARCHIVE, "When using Heavy Assault Suit, scale all incoming damage by this much in addition to its defense boost.", 0, 1)
 DZ_ENTS.ConVars["armor_heavy_durability"]   = CreateConVar("dzents_armor_heavy_durability", 1, FCVAR_ARCHIVE, "Multiplier for durability loss when using Heavy Assault Suit.", 0)

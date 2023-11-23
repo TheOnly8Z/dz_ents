@@ -21,8 +21,11 @@ if SERVER then
                 ply:DZ_ENTS_GiveHelmet()
                 helmet = true
                 if (self.GiveArmor or 0) <= 0 then
-                    ply:SetArmor(math.max(ply:Armor(), 10))
+                    ply:SetArmor(math.max(ply:Armor(), DZ_ENTS.ConVars["armor_helmet_amt"]:GetInt()))
                 end
+            elseif (DZ_ENTS.ConVars["armor_helmet_amt"]:GetInt() > 0 and (self.GiveArmor or 0) <= 0) then
+                helmet = true
+                ply:SetArmor(math.min(ply:GetMaxArmor(), ply:Armor() + DZ_ENTS.ConVars["armor_helmet_amt"]:GetInt()))
             end
         end
 

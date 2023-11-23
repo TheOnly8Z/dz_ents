@@ -252,6 +252,14 @@ local function menu_armor(panel)
         max = 2,
     })
     panel:ControlHelp("Multipliers do not stack with Heavy Assault Suit.")
+    panel:AddControl("slider", {
+        label = "Helmet armor gain",
+        command = "dzents_armor_helmet_amt",
+        type = "int",
+        min = 0,
+        max = 25,
+    })
+    panel:ControlHelp("When picking up a helmet while wearing one, give this much armor. 0 - cannot pickup.")
     combobox(panel, "Armor on spawn", "dzents_armor_onspawn", {
         ["0 - Disabled"] = "0",
         ["1 - Armor only"] = "1",
