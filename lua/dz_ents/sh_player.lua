@@ -45,12 +45,11 @@ function PLAYER:DZ_ENTS_GetArmor()
 end
 
 function PLAYER:DZ_ENTS_HasArmor()
-    return self:DZ_ENTS_GetArmor() ~= DZ_ENTS_ARMOR_NONE
+    return self:GetNWInt("DZ_Ents.Armor", DZ_ENTS_ARMOR_NONE) ~= DZ_ENTS_ARMOR_NONE
 end
 
 function PLAYER:DZ_ENTS_HasHeavyArmor()
-    local a = self:GetNWInt("DZ_Ents.Armor", DZ_ENTS_ARMOR_NONE)
-    return a == DZ_ENTS_ARMOR_HEAVY_CT or a == DZ_ENTS_ARMOR_HEAVY_T
+    return self:GetNWInt("DZ_Ents.Armor", DZ_ENTS_ARMOR_NONE) > DZ_ENTS_ARMOR_KEVLAR
 end
 
 function PLAYER:DZ_ENTS_SetArmor(armor)
