@@ -90,11 +90,11 @@ hook.Add("Think", "dz_ents_phys", function()
                         -- punch through destroyed props and dead NPCs/players
                         ent.DZENTS_BumpMine_LaunchTime = CurTime() + 0.5
                         ent:SetVelocity(last - cur)
-                    else
-                        ent.DZENTS_BumpMine_LaunchTime = nil
+                    -- else
+                        -- ent.DZENTS_BumpMine_LaunchTime = nil
                     end
-                else
-                    ent.DZENTS_BumpMine_LaunchTime = nil
+                -- else
+                    -- ent.DZENTS_BumpMine_LaunchTime = nil
                 end
             end
         end
