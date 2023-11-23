@@ -48,6 +48,10 @@ if SERVER then
 
     local function drop(self, class, pos)
         local ent = ents.Create(class)
+        if not IsValid(ent) then
+            ErrorNoHalt(tostring(self) .. " tried to create nonexistent entity \"" .. class "\"! Check your custom drops list!\n")
+            return
+        end
         ent:SetPos(pos)
         ent:SetAngles(self:GetAngles())
         ent:Spawn()
