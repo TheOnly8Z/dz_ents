@@ -31,7 +31,7 @@ hook.Add("Think", "dz_ents_phys", function()
 
         -- crash into walls. Only check horizontal velocity so launching into ceilings doesn't kill you
         local v2dlast, v2dcur = last:Length2D(), cur:Length2D()
-        if ent.DZENTS_BumpMine_LaunchTime and ent.DZENTS_BumpMine_LaunchTime + 1 > CurTime()
+        if ent.DZENTS_BumpMine_LaunchTime and ent.DZENTS_BumpMine_LaunchTime + 1.5 > CurTime()
                 and v2dlast > DZ_ENTS.PLAYER_MAX_SAFE_FALL_SPEED and v2dlast - v2dcur > 100 then
             local mins, maxs = ent:GetCollisionBounds()
             mins = mins - Vector(0, 0, 8)
