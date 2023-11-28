@@ -21,6 +21,7 @@ hook.Add("PopulateEntities", "dz_ents", function(pnlContent, tree, anode)
             if not isstring(Category) then
                 Category = tostring(Category)
             end
+            if Category ~= "Danger Zone" then continue end -- only worry about ourselves
 
             -- Get the ent subcategory as a string
             local SubCategory = "Other"
