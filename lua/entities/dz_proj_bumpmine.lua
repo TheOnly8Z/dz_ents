@@ -228,14 +228,16 @@ if SERVER then
                     end
                     v:SetPhysicsAttacker(self.Attacker or v, 6)
 
-                    local dmginfo = DamageInfo()
-                    dmginfo:SetDamagePosition(self:GetPos())
-                    dmginfo:SetDamageForce(dir * force)
-                    dmginfo:SetDamageType(DMG_GENERIC)
-                    dmginfo:SetDamage(200)
-                    dmginfo:SetAttacker(self.Attacker or v)
-                    dmginfo:SetInflictor(self)
-                    v:TakeDamageInfo(dmginfo)
+                    if v:GetClass() == "prop_physics" or v:GetClass() == "func_breakable" then
+                        local dmginfo = DamageInfo()
+                        dmginfo:SetDamagePosition(self:GetPos())
+                        dmginfo:SetDamageForce(dir * force)
+                        dmginfo:SetDamageType(DMG_GENERIC)
+                        dmginfo:SetDamage(100)
+                        dmginfo:SetAttacker(self.Attacker or v)
+                        dmginfo:SetInflictor(self)
+                        v:TakeDamageInfo(dmginfo)
+                    end
                 end
 
                 -- Attribute fall damage to the attacker if possible
