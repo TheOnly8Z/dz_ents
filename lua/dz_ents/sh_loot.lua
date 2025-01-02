@@ -90,10 +90,11 @@ DZ_ENTS.LootTypes = {
         -- any slot 1 melee (that isn't fists or hands)
         filter = function(class, ent, ammocat)
             return ent.Slot == 0
-                and (not ent.IsTFAWeapon or ent.IsMelee)
-                and (not ent.ArcCW or ent.PrimaryBash)
-                and (not ent.ARC9 or ent.PrimaryBash)
-                and (not ent.IsSWCSWeapon or ent.IsKnife)
+                and ((ent.IsTFAWeapon and ent.IsMelee)
+                or (ent.ArcCW and ent.PrimaryBash)
+                or (ent.ARC9 and ent.PrimaryBash)
+                or (ent.IsSWCSWeapon and ent.IsKnife)
+                or (ent.ArcticTacRP and ent.PrimaryMelee))
                 and not ( -- no good way to do this since fist holdtype can be a melee too
                 string.find(class, "fist")
                 or string.find(class, "hand")
@@ -437,7 +438,7 @@ DZ_ENTS.LootTypes = {
         filter = function(class, ent, ammocat)
 
             if ent.ArcticTacRP then
-                return ent.SubCatType == "4Assault Rifle" or ent.SubCatType == "6Precision Rifle"
+                return ent.SubCatType == "4Assault Rifle" or ent.SubCatType == "5Battle Rifle" or ent.SubCatType == "5Sporter"
             elseif ent.ARC9 and ent.Class then
                 return (string.find(string.lower(ent.Class), "rifle") or string.find(string.lower(ent.Class), "carbine"))
                         and not (string.find(string.lower(ent.Class), "sniper") or string.find(string.lower(ent.Class), "marksman"))
@@ -479,7 +480,7 @@ DZ_ENTS.LootTypes = {
         filter = function(class, ent, ammocat)
 
             if ent.ArcticTacRP then
-                return ent.SubCatType == "7Sniper Rifle"
+                return ent.SubCatType == "7Sniper Rifle" or ent.SubCatType == "6Marksman Rifle"
             elseif weapons.IsBasedOn(class, "mg_base") then
                 return ent.SubCategory == "Sniper Rifles" or ent.SubCategory == "Marksman Rifles"
             elseif weapons.IsBasedOn(class, "bobs_gun_base") then
