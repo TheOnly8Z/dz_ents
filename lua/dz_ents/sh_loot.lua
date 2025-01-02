@@ -177,6 +177,10 @@ DZ_ENTS.LootTypes = {
 
             return ent.Slot == 4 and (ent.HoldType == "grenade" or ent.HoldType == "slam" or ent.HoldType == "normal")
         end,
+        whitelist = {
+            "item_ammo_smg1_grenade",
+            "item_rpg_round",
+        },
         default = {
             ------------------------------- HL:S
             "weapon_handgrenade",
@@ -238,6 +242,10 @@ DZ_ENTS.LootTypes = {
             ------------------------------- TFA CSGO
             ["tfa_csgo_molly"] = true,
             ["tfa_csgo_incen"] = true,
+            ------------------------------- TacRP
+            "tacrp_nade_flashbang",
+            "tacrp_nade_frag",
+            "tacrp_nade_charge",
         },
         fallback = {
             "weapon_frag",
@@ -315,6 +323,11 @@ DZ_ENTS.LootTypes = {
             "tfa_csgo_molly",
             "tfa_csgo_incen",
             "tfa_csgo_sonarbomb",
+            ------------------------------- TacRP
+            "tacrp_nade_gas",
+            "tacrp_nade_heal",
+            "tacrp_nade_smoke",
+            "tacrp_nade_thermite",
         },
         blacklist = {
             ["weapon_dz_healthshot"] = true,
