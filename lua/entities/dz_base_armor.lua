@@ -29,9 +29,8 @@ if SERVER then
             end
         end
 
-        if (self.GiveArmor or 0) > 0 and ply:Armor() < self.GiveArmor then
+        if (self.GiveArmor or 0) > 0 and ply:Armor() < (self.GiveArmorType == DZ_ENTS_ARMOR_KEVLAR and 100 or 200) then
             armor = true
-            ply:SetArmor(self.GiveArmor)
             if self.GiveArmorType and (ply:DZ_ENTS_GetArmor() <= self.GiveArmorType or giveheavyarmor) then
                 if self.GiveArmorType == DZ_ENTS_ARMOR_KEVLAR then
                     ply:SetMaxArmor(100)
@@ -53,6 +52,7 @@ if SERVER then
                 end
                 ply:DZ_ENTS_SetArmor(self.GiveArmorType)
             end
+            ply:SetArmor(math.min(ply:GetMaxArmor(), ply:Armor() + self.GiveArmor))
         end
 
         if helmet or armor then
