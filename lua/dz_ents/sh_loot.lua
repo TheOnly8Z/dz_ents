@@ -3,6 +3,8 @@
 DZ_ENTS.SortingAmmoTypes = {
     ["pistol"] = {
         ["pistol"] = true,
+        ["ti_pistol_light"] = true,
+        ["ti_pistol_heavy"] = true,
         ["apex_light"] = true,
         ["9x19mm"] = true,
         ["9x18mm"] = true,
@@ -29,6 +31,7 @@ DZ_ENTS.SortingAmmoTypes = {
     },
     ["smg"] = {
         ["smg1"] = true,-- m9k, tfa and mw base typically uses smg1 for SMGs. tacrp, arccw and arc9 uses it for carbine calibers (5.56 etc).
+        ["ti_pdw"] = true,
         ["apex_energy"] = true,
         ["hk 4.6x30mm"] = true,
         ["fn 5.7x28mm"] = true,
@@ -56,6 +59,7 @@ DZ_ENTS.SortingAmmoTypes = {
         ["airboatgun"] = true, -- why does the winchester have its own ammo type, _bob_
 
         -- "battle rifle" or bolt action rifles but idrc
+        ["ti_rifle"] = true,
         ["apex_heavy"] = true,
         ["7.62x51mm"] = true,
         ["7.62x54mmr"] = true,
@@ -68,6 +72,7 @@ DZ_ENTS.SortingAmmoTypes = {
     },
     ["sniper"] = {
         ["xbowbolt"] = true, -- I guess?
+        ["ti_sniper"] = true,
         ["sniperpenetratedround"] = true,
         ["apex_sniper"] = true,
         [".338mm"] = true,
