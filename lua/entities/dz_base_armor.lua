@@ -76,6 +76,9 @@ if SERVER then
                     ent:SetAngles(self:GetAngles())
                     ent:Spawn()
 
+                    if isfunction(self.GetCreator) then
+                        ent:SetCreator(self:GetCreator())
+                    end
                     if undo then
                         undo.ReplaceEntity(self, ent)
                     end
@@ -91,6 +94,9 @@ if SERVER then
                     ent:SetAngles(self:GetAngles())
                     ent:Spawn()
 
+                    if isfunction(self.GetCreator) then
+                        ent:SetCreator(self:GetCreator())
+                    end
                     if undo then
                         undo.ReplaceEntity(self, ent)
                     end
