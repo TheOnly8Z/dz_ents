@@ -11,30 +11,37 @@ ENT.GiveHelmet = false
 
 if SERVER then
     function ENT:Use(ply)
-        local helmet = false
-        local armor = false
-
-        local giveheavyarmor = self.GiveArmorType == DZ_ENTS_ARMOR_HEAVY_CT or self.GiveArmorType == DZ_ENTS_ARMOR_HEAVY_T
+        local bGaveHelmet = false
+        local bGaveArmor = false
+        local bIsHeavyArmor = self.GiveArmorType == DZ_ENTS_ARMOR_HEAVY_CT or self.GiveArmorType == DZ_ENTS_ARMOR_HEAVY_T
 
         if self.GiveHelmet then
+            local iHelmetArmorValue = DZ_ENTS.ConVars["armor_helmet_amt"]:GetInt()
+
             if not ply:DZ_ENTS_HasHelmet() then
                 ply:DZ_ENTS_GiveHelmet()
-                helmet = true
+                bGaveHelmet = true
                 if (self.GiveArmor or 0) <= 0 then
-                    ply:SetArmor(math.max(ply:Armor(), DZ_ENTS.ConVars["armor_helmet_amt"]:GetInt()))
+                    ply:SetArmor(math.max(ply:Armor(), iHelmetArmorValue))
                 end
-            elseif (DZ_ENTS.ConVars["armor_helmet_amt"]:GetInt() > 0 and (self.GiveArmor or 0) <= 0) then
-                helmet = true
-                ply:SetArmor(math.min(ply:GetMaxArmor(), ply:Armor() + DZ_ENTS.ConVars["armor_helmet_amt"]:GetInt()))
+            elseif (iHelmetArmorValue > 0 and (self.GiveArmor or 0) <= 0) then
+                local iCurrentArmor = ply:Armor()
+                local iFutureArmor = math.min(ply:GetMaxArmor(), iCurrentArmor + iHelmetArmorValue)
+
+                if iFutureArmor > iCurrentArmor then
+                    ply:SetArmor(iFutureArmor)
+                    bGaveHelmet = true
+                end
             end
         end
 
         if (self.GiveArmor or 0) > 0 and ply:Armor() < (self.GiveArmorType == DZ_ENTS_ARMOR_KEVLAR and 100 or 200) then
-            armor = true
-            if self.GiveArmorType and (ply:DZ_ENTS_GetArmor() <= self.GiveArmorType or giveheavyarmor) then
+            bGaveArmor = true
+
+            if self.GiveArmorType and (ply:DZ_ENTS_GetArmor() <= self.GiveArmorType or bIsHeavyArmor) then
                 if self.GiveArmorType == DZ_ENTS_ARMOR_KEVLAR then
                     ply:SetMaxArmor(100)
-                elseif giveheavyarmor then
+                elseif bIsHeavyArmor then
                     ply:SetMaxArmor(200)
                     -- local speed = DZ_ENTS.ConVars["armor_heavy_speed"]:GetInt()
                     -- if speed > 0 and not ply:DZ_ENTS_HasHeavyArmor() then
@@ -55,46 +62,63 @@ if SERVER then
             ply:SetArmor(math.min(ply:GetMaxArmor(), ply:Armor() + self.GiveArmor))
         end
 
-        if helmet or armor then
-            if giveheavyarmor then
-                DZ_ENTS:Hint(ply, 8)
+        if bGaveHelmet or bGaveArmor then
+            if bIsHeavyArmor then
+                DZ_ENTS:Hint(ply, 8) -- "Heavy suit equipped"
                 ply:EmitSound("dz_ents/armor_pickup_02.wav", 80, 90)
                 ply:EmitSound("items/ammopickup.wav", 80, 90)
                 self:Remove()
                 return
-            elseif self.GiveHelmet and not helmet then
+            elseif self.GiveHelmet and not bGaveHelmet then
                 local ent = ents.Create("dz_armor_helmet")
                 if IsValid(ent) then
                     ent:SetPos(self:GetPos() + Vector(0, 0, 4))
                     ent:SetAngles(self:GetAngles())
                     ent:Spawn()
+
+                    if undo then
+                        undo.ReplaceEntity(self, ent)
+                    end
+                    if cleanup then
+                        cleanup.ReplaceEntity(self, ent)
+                    end
                 end
                 DZ_ENTS:Hint(ply, 3)
-            elseif (self.GiveArmor or 0) > 0 and not armor then
+            elseif (self.GiveArmor or 0) > 0 and not bGaveArmor then
                 local ent = ents.Create("dz_armor_kevlar")
                 if IsValid(ent) then
                     ent:SetPos(self:GetPos() + Vector(0, 0, 10))
                     ent:SetAngles(self:GetAngles())
                     ent:Spawn()
+
+                    if undo then
+                        undo.ReplaceEntity(self, ent)
+                    end
+                    if cleanup then
+                        cleanup.ReplaceEntity(self, ent)
+                    end
                 end
                 DZ_ENTS:Hint(ply, 4)
-            elseif helmet and armor then
+            elseif bGaveHelmet and bGaveArmor then
                 DZ_ENTS:Hint(ply, 2)
-            elseif helmet then
+            elseif bGaveHelmet then
                 DZ_ENTS:Hint(ply, 4)
-            elseif armor then
+            elseif bGaveArmor then
                 DZ_ENTS:Hint(ply, 3)
             end
 
             ply:EmitSound("dz_ents/armor_pickup_01.wav")
             self:Remove()
         else
-            if giveheavyarmor then
-                DZ_ENTS:Hint(ply, 9)
+            if bIsHeavyArmor then
+                DZ_ENTS:Hint(ply, 9) -- "You already have a Heavy Assault Suit"
             elseif (self.GiveArmor or 0) > 0 then
-                DZ_ENTS:Hint(ply, 6)
+                DZ_ENTS:Hint(ply, 6) -- "You cannot pick up any more armor"
+            elseif (self.GiveHelmet) then
+                DZ_ENTS:Hint(ply, 5) -- "You aready have a helmet"
             else
-                DZ_ENTS:Hint(ply, 5)
+                -- unhandled
+                --print("something went wrong!", self, self.GiveArmor, self.GiveHelmet)
             end
         end
     end
