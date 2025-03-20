@@ -60,7 +60,7 @@ function PLAYER:DZ_ENTS_RemoveArmor(drop)
     if drop and PLAYER.DZ_ENTS_GetArmor(self) == DZ_ENTS_ARMOR_KEVLAR and (self:Armor() > 0 or  (self.PendingArmor or 0) > 0) then
         local ent = ents.Create("dz_armor_kevlar")
         if IsValid(ent) then
-            ent.GiveArmor = math.min((self.PendingArmor or 0) or self:Armor(), 100)
+            ent.GiveArmor = math.min(self.PendingArmor or self:Armor(), 100)
             ent:SetPos(self:GetPos() + Vector(0, 0, 48))
             ent:SetAngles(self:GetAngles())
             ent:Spawn()
