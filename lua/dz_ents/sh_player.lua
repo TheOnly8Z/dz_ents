@@ -16,14 +16,14 @@ function PLAYER:DZ_ENTS_HasHelmet()
 end
 
 function PLAYER:DZ_ENTS_GiveHelmet()
-    if swcs then
-        self:GiveHelmet()
+    if PLAYER.GiveHelmet then -- swcs
+        PLAYER.GiveHelmet(self)
     end
     self:SetNWBool("DZ_Ents.Helmet", true)
 end
 
 function PLAYER:DZ_ENTS_RemoveHelmet(drop)
-    if drop and self:DZ_ENTS_HasHelmet() and self:DZ_ENTS_GetArmor() <= DZ_ENTS_ARMOR_KEVLAR and (self:Armor() > 0 or self.PendingArmor > 0) then
+    if drop and self:DZ_ENTS_HasHelmet() and PLAYER.DZ_ENTS_GetArmor(self) <= DZ_ENTS_ARMOR_KEVLAR and (self:Armor() > 0 or self.PendingArmor > 0) then
         local ent = ents.Create("dz_armor_helmet")
         if IsValid(ent) then
             ent:SetPos(self:GetPos() + Vector(0, 0, 72))
@@ -34,8 +34,8 @@ function PLAYER:DZ_ENTS_RemoveHelmet(drop)
         end
     end
 
-    if swcs then
-        self:RemoveHelmet()
+    if PLAYER.RemoveHelmet then -- swcs
+        PLAYER.RemoveHelmet(self)
     end
     self:SetNWBool("DZ_Ents.Helmet", false)
 end
@@ -57,7 +57,7 @@ function PLAYER:DZ_ENTS_SetArmor(armor)
 end
 
 function PLAYER:DZ_ENTS_RemoveArmor(drop)
-    if drop and self:DZ_ENTS_GetArmor() == DZ_ENTS_ARMOR_KEVLAR and (self:Armor() > 0 or  (self.PendingArmor or 0) > 0) then
+    if drop and PLAYER.DZ_ENTS_GetArmor(self) == DZ_ENTS_ARMOR_KEVLAR and (self:Armor() > 0 or  (self.PendingArmor or 0) > 0) then
         local ent = ents.Create("dz_armor_kevlar")
         if IsValid(ent) then
             ent.GiveArmor = math.min((self.PendingArmor or 0) or self:Armor(), 100)
@@ -76,7 +76,7 @@ function PLAYER:DZ_ENTS_GetEquipment()
 end
 
 function PLAYER:DZ_ENTS_HasEquipment(equip)
-    return bit.band(self:DZ_ENTS_GetEquipment(), equip) == equip
+    return bit.band(PLAYER.DZ_ENTS_GetEquipment(self), equip) == equip
 end
 
 function PLAYER:DZ_ENTS_SetEquipment(equip)
@@ -84,17 +84,17 @@ function PLAYER:DZ_ENTS_SetEquipment(equip)
 end
 
 function PLAYER:DZ_ENTS_GiveEquipment(equip)
-    self:DZ_ENTS_SetEquipment(bit.bor(self:DZ_ENTS_GetEquipment(), equip))
+    PLAYER.DZ_ENTS_SetEquipment(self, bit.bor(PLAYER.DZ_ENTS_GetEquipment(self), equip))
 end
 
 function PLAYER:DZ_ENTS_RemoveEquipment(drop, equip)
     local dropped = nil
     if equip then
         dropped = equip
-        self:DZ_ENTS_SetEquipment(bit.band(self:DZ_ENTS_GetEquipment(), bit.bnot(equip)))
+        PLAYER.DZ_ENTS_SetEquipment(self, bit.band(PLAYER.DZ_ENTS_GetEquipment(self), bit.bnot(equip)))
     else
-        dropped = self:DZ_ENTS_GetEquipment()
-        self:DZ_ENTS_SetEquipment(DZ_ENTS_EQUIP_NONE)
+        dropped = PLAYER.DZ_ENTS_GetEquipment(self)
+        PLAYER.DZ_ENTS_SetEquipment(self, DZ_ENTS_EQUIP_NONE)
     end
 
     if drop and bit.band(dropped, DZ_ENTS_EQUIP_PARACHUTE) ~= 0 then
@@ -136,9 +136,9 @@ function PLAYER:DZ_ENTS_IsArmoredHitGroup(hitgroup)
     local uselogic = DZ_ENTS.ConVars["armor_enabled"]:GetInt()
     if uselogic == 0 then return false end
 
-    return self:DZ_ENTS_HasHeavyArmor() -- heavy armor covers all regions
-            or (hitgroup == HITGROUP_HEAD and (uselogic == 2 or self:DZ_ENTS_HasHelmet())) -- if hit head, check helmet
-            or (armorregions[hitgroup] and (uselogic == 2 or self:DZ_ENTS_HasArmor())) -- otherwise check armored regions
+    return PLAYER.DZ_ENTS_HasHeavyArmor(self) -- heavy armor covers all regions
+            or (hitgroup == HITGROUP_HEAD and (uselogic == 2 or PLAYER.DZ_ENTS_HasHelmet(self))) -- if hit head, check helmet
+            or (armorregions[hitgroup] and (uselogic == 2 or PLAYER.DZ_ENTS_HasArmor(self))) -- otherwise check armored regions
 end
 
 function PLAYER:DZ_ENTS_ApplyHeavyArmorModel(armor)
