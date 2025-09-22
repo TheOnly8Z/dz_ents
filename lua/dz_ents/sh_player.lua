@@ -66,6 +66,7 @@ function PLAYER:DZ_ENTS_RemoveArmor(drop)
             ent:Spawn()
             ent:GetPhysicsObject():SetVelocityInstantaneous(self:GetVelocity() + VectorRand() * 64)
             ent:MarkForRemove()
+            print(ent.GiveArmor)
         end
     end
     self:SetNWInt("DZ_Ents.Armor", DZ_ENTS_ARMOR_NONE)
